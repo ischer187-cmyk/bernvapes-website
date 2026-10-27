@@ -211,6 +211,37 @@
     }
   }
 
+  /* ---------- Papier-Gras im Vordergrund (wiegt im Wind und mit der Maus) ---------- */
+  class Grass{
+    constructor(c){ this.c=c; this.ctx=c.getContext('2d'); this.blades=[]; this.resize(); addEventListener('resize',()=>this.resize());
+      const cols=['#9a7a4a','#b08a52','#7d6238','#c39a5c','#6b5a3a','#a8864f'];
+      let seed=7; const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+      for(let t=0;t<16;t++){ const x=0.01+rnd()*0.98, n=3+Math.floor(rnd()*4), base=0.0+rnd()*0.04;   /* Büschel */
+        for(let i=0;i<n;i++) this.blades.push({x:x+(rnd()-0.5)*0.035, h:0.03+rnd()*0.05, w:0.003+rnd()*0.004, lean:(rnd()-0.5)*0.5, c:cols[Math.floor(rnd()*cols.length)], ph:rnd()*6.28, y:base*rnd()}); }
+      this.blades.sort((a,b)=>a.h-b.h); }
+    resize(){ const dpr=Math.min(devicePixelRatio||1,1.5); const r=this.c.getBoundingClientRect(); this.c.width=Math.max(2,Math.round(r.width*dpr)); this.c.height=Math.max(2,Math.round(r.height*dpr)); }
+    render(now,cool){ const W=this.c.width,H=this.c.height,ctx=this.ctx; ctx.clearRect(0,0,W,H); const t=now/1000, mx=mouse.x;
+      for(const b of this.blades){ const bx=b.x*W, by=H*(1-b.y), h=b.h*H, w=b.w*W;
+        const sway=Math.sin(t*1.1+b.ph+b.x*9)*0.18 + Math.sin(t*2.3+b.ph)*0.05 + mx*0.35;   /* Wind + Maus */
+        const tipx=bx+(b.lean+sway)*h, tipy=by-h; const mid=by-h*0.5;
+        ctx.fillStyle=cool?'#c9d6e6':b.c; ctx.globalAlpha=0.95;
+        ctx.beginPath(); ctx.moveTo(bx-w,by); ctx.quadraticCurveTo(bx-w*0.6+(tipx-bx)*0.3,mid,tipx,tipy); ctx.quadraticCurveTo(bx+w*0.6+(tipx-bx)*0.3,mid,bx+w,by); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='rgba(0,0,0,.18)'; ctx.beginPath(); ctx.moveTo(bx,by); ctx.quadraticCurveTo(bx+(tipx-bx)*0.3,mid,tipx,tipy); ctx.quadraticCurveTo(bx+w*0.6+(tipx-bx)*0.3,mid,bx+w,by); ctx.closePath(); ctx.fill(); }
+      ctx.globalAlpha=1; }
+  }
+  /* seltenes Wetterleuchten über den Alpen */
+  function initFlash(sc){ const el=sc.querySelector('.flash'); if(!el) return; const go=()=>{ if(sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight){ el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); } setTimeout(go,14000+Math.random()*26000); }; setTimeout(go,6000+Math.random()*8000); }
+  /* Pistenplan: Linien zwischen den Stationen (Flaschen) */
+  function drawLifts(sc){ const svg=sc.querySelector('svg.lifts'); if(!svg) return; const pin=sc.querySelector('.pin'); const r=pin.getBoundingClientRect(); const season=sc.classList.contains('cool')?'w':'s';
+    const pts=[...sc.querySelectorAll('.beast[data-ix]')].filter(b=>b.dataset.season===season).map(b=>{ const x=parseFloat(b.style.left)/100*r.width, y=(1-parseFloat(b.style.bottom)/100)*r.height; return {x,y}; }).filter(p=>!isNaN(p.x));
+    if(pts.length<2){ svg.innerHTML=''; return; }
+    pts.sort((a,b)=>b.y-a.y||a.x-b.x);   /* von unten nach oben; Zickzack durch Reihen */
+    const rows=[]; pts.forEach(p=>{ const row=rows.find(rw=>Math.abs(rw[0].y-p.y)<r.height*0.1); if(row) row.push(p); else rows.push([p]); });
+    const order=[]; rows.forEach((rw,i)=>{ rw.sort((a,b)=>a.x-b.x); if(i%2) rw.reverse(); order.push(...rw); });
+    svg.setAttribute('viewBox',`0 0 ${r.width} ${r.height}`);
+    svg.innerHTML=`<path d="${order.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+' '+(p.y-2).toFixed(1)).join(' ')}"/>`+order.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${(p.y-2).toFixed(1)}" r="3.5"/>`).join('');
+  }
+
   /* ---------- Beasts ---------- */
   function initBeasts(root){
     root.querySelectorAll('.beast').forEach(b=>{
@@ -253,6 +284,8 @@
     /* Winter-Welt (zweiter Canvas, blendet über) + Schnee */
     const cw=sc.querySelector('canvas.world.winter'); if(cw){ worlds[sc.id+'_w']=new World(cw,cw.dataset.src,{strength:parseFloat(cw.dataset.strength||1)}); }
     const snow=sc.querySelector('canvas.snow'); if(snow) sc._snow=new Snow(snow);
+    const gr=sc.querySelector('canvas.grass'); if(gr) sc._grass=new Grass(gr);
+    initFlash(sc);
     /* Sortenliste: Hover/Klick hebt die Flasche am Berg hervor, die anderen treten zurück */
     const lg=sc.querySelector('.legend');
     if(lg){ const all=()=>[...sc.querySelectorAll('.beast[data-key]')];
@@ -339,7 +372,7 @@
     if(hero) hero._update(now);
     if(fox) fox.tick();
     World.all.forEach(w=>w.render(now));
-    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',p>0.08||mobile()); const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } if(sc._snow) sc._snow.render(now,p>0&&p<1||sc.getBoundingClientRect().bottom>0); if(!mobile()) placeOnImage(sc); });
+    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',p>0.08||mobile()); const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
     parallaxFns.forEach(f=>f());
     if(hero&&!mobile()){ hero.querySelectorAll('.clouds img').forEach(c=>{ const d=parseFloat(c.style.getPropertyValue('--d')||1); c.style.transform=`translate(${-mouse.x*14*d}px,${-mouse.y*6*d}px)`; }); }   /* Wolken: ferne Ebene, bewegt sich wenig */
     requestAnimationFrame(frame);

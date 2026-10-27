@@ -323,3 +323,34 @@ footer .legal{margin-top:40px;padding-top:20px;border-top:1px solid rgba(198,161
 /* gestaffeltes Einblenden beim Umschalten (Reihenfolge per --i) */
 .scene .beasts .beast[data-season]{transition-delay:calc(var(--i,0) * 130ms)}
 .legend li.hot{border-left-color:var(--bv-gold);background:rgba(23,19,15,.35)}
+
+/* ---------- Runde 12 ---------- */
+/* Hero: Flasche näher ans Tier und dahinter → klare Zuordnung */
+.beast.grp:not(.bot) .duo{gap:0}
+.beast.grp:not(.bot) .duo .art{flex:0 0 72%;width:72%;z-index:2}
+.beast.grp:not(.bot) .bottle3{flex:0 0 20%;margin-left:-9%;margin-bottom:12%;z-index:1}
+.beast.grp:not(.bot):hover .bottle3{transform:translateY(-10px) translateX(4%)}
+/* Umschalten: Sommer-Flaschen zuerst weg (schnell), Welt blendet, Winter-Flaschen kommen nacheinander von unten */
+.scene .beasts .beast[data-season]{transition:opacity .5s var(--ease),transform .8s var(--ease),filter .5s}
+.scene.cool .beasts .beast[data-season="s"]{transition-delay:0ms!important;transform:translateX(-50%) translateY(14px) scale(.96)!important}
+.scene .beasts .beast[data-season="w"]{transform:translateX(-50%) translateY(26px) scale(.94)!important}
+.scene.cool .beasts .beast[data-season="w"]{transform:translateX(-50%) translateY(0) scale(1)!important;transition-delay:calc(700ms + var(--i,0) * 140ms)}
+.scene:not(.cool) .beasts .beast[data-season="s"]{transition-delay:calc(500ms + var(--i,0) * 120ms)}
+/* Quartiere: Kartonwolken + seltener Wetterleuchten-Blitz über den Alpen + Gras */
+.qclouds{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.qclouds img{position:absolute;filter:sepia(.55) saturate(.7) brightness(.92) drop-shadow(0 8px 10px rgba(40,25,10,.3));animation:cloudDrift var(--dur,70s) ease-in-out infinite alternate}
+.scene.cool .qclouds img{filter:saturate(.3) brightness(1.08) hue-rotate(-10deg) drop-shadow(0 8px 10px rgba(20,30,60,.3))}
+.flash{position:absolute;left:30%;right:30%;top:0;height:46%;z-index:1;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 70%,rgba(255,240,210,.55),rgba(255,220,170,.18) 40%,transparent 70%);mix-blend-mode:screen}
+.flash.go{animation:flash 1.1s linear 1}
+@keyframes flash{0%{opacity:0}6%{opacity:.9}10%{opacity:.15}16%{opacity:.7}22%{opacity:0}40%{opacity:.35}50%{opacity:0}100%{opacity:0}}
+canvas.grass{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+/* Bergtiere: Pistenplan — Linien zwischen den Stationen, kleine Flaschen wachsen beim Hover */
+svg.lifts{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+svg.lifts path{fill:none;stroke:var(--bv-gold);stroke-width:1.2;stroke-dasharray:3 7;opacity:.55}
+svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
+#bergtiere .beast{transform-origin:50% 100%}
+#bergtiere .beast .duo{transition:transform .5s var(--ease);transform-origin:50% 100%}
+#bergtiere .beast:hover .duo,#bergtiere .beast.hi .duo{transform:scale(1.32)}
+#bergtiere .beast .ings{transform-origin:50% 100%}
+#bergtiere .beast:hover .ings,#bergtiere .beast.hi .ings{transform:translateY(-30%) scale(1.5)}
+#bergtiere .beast .plaque{bottom:calc(100% + 34%)}
