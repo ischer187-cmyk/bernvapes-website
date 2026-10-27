@@ -12,6 +12,10 @@
   --font-head:"Cinzel","Poiret One",serif;
   --font-body:"Work Sans","Inter",system-ui,sans-serif;
   --ease:cubic-bezier(.22,.61,.36,1);
+  --space-xs:8px; --space-sm:14px; --space-md:24px; --space-lg:40px; --space-xl:64px;
+  --space-2xl:clamp(96px,12vw,160px);
+  --measure:62ch;
+  --hover-dur:.6s; --bottle-rest:.84; --bottle-hot:1.04; --fade:.72s; --stagger:70ms;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -354,3 +358,74 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #bergtiere .beast .ings{transform-origin:50% 100%}
 #bergtiere .beast:hover .ings,#bergtiere .beast.hi .ings{transform:translateY(-30%) scale(1.5)}
 #bergtiere .beast .plaque{bottom:calc(100% + 34%)}
+
+/* ---------- Runde 12b: nur was auf main noch offen war ---------- */
+.section{padding:var(--space-2xl) 0}
+.wrap{width:min(1120px,86vw)}
+.nav ul{gap:var(--space-md)}
+.bottles .row{gap:clamp(36px,6vw,96px);margin-top:var(--space-lg)}
+.about .facts{gap:var(--space-md)}
+footer .cols{gap:var(--space-lg)}
+.legend li{padding:var(--space-xs) var(--space-sm);margin:var(--space-xs) 0}
+/* Etikettenschimmer: Papier, kein Spiegel */
+.bottle3 .shine{mix-blend-mode:soft-light}
+.bottle3 .shine::before{background:linear-gradient(105deg,transparent 42%,rgba(255,248,225,.32) 50%,transparent 58%)}
+/* Kreuzblende statt nacheinander weg/her */
+.scene canvas.world.winter,.scene .world-css.winter{transition:opacity var(--fade) var(--ease)}
+.scene .beasts .beast[data-season]{transition:opacity var(--fade) var(--ease),filter var(--fade) var(--ease),transform var(--fade) var(--ease)!important;transition-delay:calc(var(--i,0) * var(--stagger))!important}
+.scene:not(.cool) .beasts .beast[data-season="w"]{opacity:0!important;filter:blur(1.4px);pointer-events:none;transform:translateX(-50%) translateY(12px) scale(.97)!important}
+.scene.cool .beasts .beast[data-season="s"]{opacity:0!important;filter:blur(1.4px);pointer-events:none;transform:translateX(-50%) translateY(10px) scale(.97)!important}
+.scene.cool .beasts .beast[data-season="w"]{opacity:1!important;filter:none;pointer-events:auto;transform:translateX(-50%) translateY(0) scale(1)!important}
+.scene:not(.cool) .beasts .beast[data-season="s"]{filter:none;transform:translateX(-50%) translateY(0) scale(1)!important}
+@media (max-width:900px){
+  .scene:not(.cool) .beast[data-season="w"],
+  .scene.cool .beast[data-season="s"]{display:none}
+}
+/* Flaschen kleiner, wachsen im Takt der Zutaten */
+.beast.grp.bot{z-index:var(--z,6)}
+.beast.grp.bot:hover,.beast.hi,#bergtiere .beast:hover,#bergtiere .beast.hi{z-index:60}
+.beast.grp.bot .duo{transform:scale(var(--bottle-rest));transform-origin:50% 100%;transition:transform var(--hover-dur) var(--ease)}
+.beast.grp.bot:hover .duo,.beast.grp.bot.touch .duo,.beast.grp.bot.hi .duo,
+#bergtiere .beast:hover .duo,#bergtiere .beast.hi .duo{transform:scale(var(--bottle-hot))}
+#bergtiere .beast:hover .ings,#bergtiere .beast.hi .ings{transform:translateY(-22%) scale(1.28)}
+.beast.grp.bot .ings{transition:transform var(--hover-dur) var(--ease)}
+.bottles .bottle3{transform:scale(var(--bottle-rest));transform-origin:50% 100%}
+.bottles .bottle3:hover,.bottles .bottle3.touch{transform:scale(var(--bottle-hot)) translateY(-8px) rotate(0)}
+/* Hero: Flasche links, leicht hinter dem Tier */
+.beast.grp:not(.bot) .duo .art{position:relative;z-index:3}
+.beast.grp:not(.bot) .bottle3{order:-1;flex:0 0 16%;width:16%;margin:0 -14% 6% 0;z-index:1;transform:scale(.86);transform-origin:80% 100%;filter:brightness(.88) saturate(.92);transition:transform var(--hover-dur) var(--ease),filter var(--hover-dur) var(--ease)}
+.beast.grp:not(.bot):hover .bottle3,.beast.grp:not(.bot).touch .bottle3{transform:scale(1.05) translateY(-8px);filter:brightness(1) saturate(1);z-index:4}
+.hero .beast.grp .plaque{left:66%}
+/* Kartonberge links, Wolken nur ab und zu ein Stück vor */
+.ridges{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.ridges .ridge{position:absolute;height:auto;filter:drop-shadow(0 10px 8px rgba(40,24,10,.22));transform-origin:50% 0}
+.ridges .ridge.far{opacity:.7}
+.ridges .ridge.near{opacity:.86}
+.ridges.dip .ridge{animation:ridgeDip 2.8s cubic-bezier(.22,.8,.3,1) 1}
+@keyframes ridgeDip{0%{translate:0 0}40%{translate:0 8px}70%{translate:0 -2px}100%{translate:0 0}}
+.qclouds img.nudge{animation:cloudDrift var(--dur,100s) ease-in-out infinite alternate,cloudNudge 3.2s cubic-bezier(.22,.8,.28,1) 1}
+@keyframes cloudNudge{0%{scale:1;translate:0 0}45%{scale:1.06;translate:12px 2px}100%{scale:1;translate:0 0}}
+canvas.grass.back{z-index:2}
+canvas.grass.front{z-index:3}
+@media (max-width:900px){canvas.grass.front{display:none}}
+/* #flaschen: eigene Farbe, Tier, Zutaten */
+#flaschen{transition:background .8s var(--ease)}
+#flaschen[data-tint="lemon"]{background:#221f12}
+#flaschen[data-tint="mango"]{background:#24190f}
+#flaschen[data-tint="nut"]{background:#23160f}
+#flaschen[data-tint="apple"]{background:#241312}
+.bottles .critter{position:absolute;left:50%;bottom:8%;width:78%;transform:translateX(-50%);opacity:.18;z-index:0;pointer-events:none;filter:saturate(.85);transition:opacity .5s var(--ease),transform var(--hover-dur) var(--ease)}
+.bottles .bottle3:hover .critter,.bottles .bottle3.touch .critter{opacity:.46;transform:translateX(-50%) translateY(-6px)}
+.bottles .aura{position:absolute;inset:-18% -30% 8%;background:radial-gradient(ellipse at 50% 70%,var(--accent,#c6a13a),transparent 68%);opacity:.16;filter:blur(8px);z-index:0;pointer-events:none;transition:opacity .6s}
+.bottles .bottle3:hover .aura,.bottles .bottle3.touch .aura{opacity:.55}
+.bottles .float-ings{position:absolute;left:-16%;right:-16%;bottom:24%;display:flex;justify-content:space-between;z-index:4;pointer-events:none}
+.bottles .float-ings img{width:42%;opacity:0;transform:translateY(10px) scale(.86);transition:opacity .45s var(--ease),transform var(--hover-dur) var(--ease)}
+.bottles .bottle3:hover .float-ings img,.bottles .bottle3.touch .float-ings img{opacity:1;transform:translateY(-14px) scale(1)}
+.bottles .bottle3:hover .float-ings img:nth-child(2),.bottles .bottle3.touch .float-ings img:nth-child(2){transition-delay:70ms;transform:translateY(-22px) scale(1.04)}
+#flaschen .flavor-lemon .shine::before{background:radial-gradient(circle at 34% 48%,rgba(255,250,210,.55) 0 1px,transparent 1.6px),linear-gradient(105deg,transparent 42%,rgba(255,236,150,.34) 50%,transparent 58%)}
+#flaschen .flavor-mango .shine::before{background:linear-gradient(105deg,transparent 42%,rgba(255,214,160,.34) 50%,transparent 58%)}
+#flaschen .flavor-nut .shine::before{background:linear-gradient(105deg,transparent 42%,rgba(214,150,80,.36) 50%,transparent 58%)}
+#flaschen .flavor-apple .shine::before{background:linear-gradient(105deg,transparent 42%,rgba(210,110,100,.32) 50%,transparent 58%)}
+@media (hover:none){
+  .beast.grp.bot:active .duo,.bottles .bottle3:active{transform:scale(var(--bottle-hot))}
+}

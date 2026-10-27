@@ -18,7 +18,7 @@
 
   /* ---------- World (WebGL) ---------- */
   const VS=`attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}`;
-  const FS=`precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 res,img,m,sun;uniform float time,zoom,cool,dark,glow;
+  const FS=`precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 res,img,m,sun;uniform float time,zoom,cool,dark,glow;uniform vec4 tower;
   void main(){
     float ra=res.x/res.y, ri=img.x/img.y;
     vec2 s=(ra>ri)?vec2(1.0,ri/ra):vec2(ra/ri,1.0);
@@ -27,8 +27,21 @@
     float sway=sin(time*0.9+v.x*7.0)*0.0024*depth*depth;    /* Wind im Vordergrund */
     float drift=sin(time*0.06)*0.013*(1.0-depth)*smoothstep(0.36,0.0,v.y); /* Wolken driften sichtbar hin und her (begrenzt) */
     vec2 off=vec2(par.x+sway+drift,par.y*0.55);
+    /* Münster: ein Rechteck, ein Tiefenwert — Fuss und Spitze verschieben sich gleich */
+    float depthA=0.30;
+    vec2 parA=m*(depthA-0.38)*0.018;
+    float swayA=sin(time*0.9+5.95)*0.0024*depthA*depthA;
+    vec2 offA=vec2(parA.x+swayA,parA.y*0.55);
     float z=1.08*zoom;
-    vec2 uv=vec2(0.5,0.52)+(v-0.5)*s/z+off;
+    vec2 base=vec2(0.5,0.52)+(v-0.5)*s/z;
+    vec2 uvA=base+offA;
+    float inTower=0.0;
+    if(tower.z>tower.x){
+      float ix=smoothstep(tower.x-0.03,tower.x+0.012,uvA.x)*(1.0-smoothstep(tower.z-0.012,tower.z+0.03,uvA.x));
+      float iy=smoothstep(tower.y-0.02,tower.y+0.012,uvA.y)*(1.0-smoothstep(tower.w-0.012,tower.w+0.035,uvA.y));
+      inTower=ix*iy;
+    }
+    vec2 uv=mix(base+off,uvA,inTower);
     vec3 c=texture2D(t,uv).rgb;
     /* Sonne als hinterleuchtete Papierlaterne: pulsierender Kern + warmer Halo, Wolken leicht angestrahlt */
     if(glow>0.0){
@@ -61,11 +74,14 @@
       const gl=this.gl=canvas.getContext('webgl',{antialias:false,alpha:false,premultipliedAlpha:false,powerPreference:'high-performance'});
       if(!gl){ this.fallback(src); return; }
       const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o;};
-      const pr=gl.createProgram(); gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)); gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)); gl.linkProgram(pr); gl.useProgram(pr);
+      const pr=gl.createProgram(); gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)); gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)); gl.linkProgram(pr);
+      if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){ this.fallback(src); return; }
+      gl.useProgram(pr);
       const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
       const loc=gl.getAttribLocation(pr,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-      this.u={res:gl.getUniformLocation(pr,'res'),img:gl.getUniformLocation(pr,'img'),m:gl.getUniformLocation(pr,'m'),time:gl.getUniformLocation(pr,'time'),zoom:gl.getUniformLocation(pr,'zoom'),cool:gl.getUniformLocation(pr,'cool'),dark:gl.getUniformLocation(pr,'dark'),sun:gl.getUniformLocation(pr,'sun'),glow:gl.getUniformLocation(pr,'glow')};
+      this.u={res:gl.getUniformLocation(pr,'res'),img:gl.getUniformLocation(pr,'img'),m:gl.getUniformLocation(pr,'m'),time:gl.getUniformLocation(pr,'time'),zoom:gl.getUniformLocation(pr,'zoom'),cool:gl.getUniformLocation(pr,'cool'),dark:gl.getUniformLocation(pr,'dark'),sun:gl.getUniformLocation(pr,'sun'),glow:gl.getUniformLocation(pr,'glow'),tower:gl.getUniformLocation(pr,'tower')};
       const sunA=(canvas.dataset.sun||'').split(',').map(parseFloat); this.sun=(sunA.length===2&&!sunA.some(isNaN))?sunA:null;
+      const twA=(canvas.dataset.tower||'').split(',').map(parseFloat); this.tower=(twA.length===4&&!twA.some(isNaN))?twA:[0,0,0,0];
       const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,tex);
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
@@ -110,6 +126,7 @@
       gl.uniform2f(this.u.m,this.mx,this.my); gl.uniform1f(this.u.time,reduce?0:(now-this.t0)/1000);
       gl.uniform1f(this.u.zoom,this.zoom); gl.uniform1f(this.u.cool,this.cool); gl.uniform1f(this.u.dark,this.dark);
       gl.uniform2f(this.u.sun,this.sun?this.sun[0]:0,this.sun?this.sun[1]:0); gl.uniform1f(this.u.glow,this.sun?1:0);
+      gl.uniform4f(this.u.tower,this.tower[0],this.tower[1],this.tower[2],this.tower[3]);
       gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
     }
   }
@@ -213,21 +230,41 @@
 
   /* ---------- Papier-Gras im Vordergrund (wiegt im Wind und mit der Maus) ---------- */
   class Grass{
-    constructor(c){ this.c=c; this.ctx=c.getContext('2d'); this.blades=[]; this.resize(); addEventListener('resize',()=>this.resize());
-      const cols=['#9a7a4a','#b08a52','#7d6238','#c39a5c','#6b5a3a','#a8864f'];
-      let seed=7; const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
-      for(let t=0;t<16;t++){ const x=0.01+rnd()*0.98, n=3+Math.floor(rnd()*4), base=0.0+rnd()*0.04;   /* Büschel */
-        for(let i=0;i<n;i++) this.blades.push({x:x+(rnd()-0.5)*0.035, h:0.03+rnd()*0.05, w:0.003+rnd()*0.004, lean:(rnd()-0.5)*0.5, c:cols[Math.floor(rnd()*cols.length)], ph:rnd()*6.28, y:base*rnd()}); }
-      this.blades.sort((a,b)=>a.h-b.h); }
-    resize(){ const dpr=Math.min(devicePixelRatio||1,1.5); const r=this.c.getBoundingClientRect(); this.c.width=Math.max(2,Math.round(r.width*dpr)); this.c.height=Math.max(2,Math.round(r.height*dpr)); }
-    render(now,cool){ const W=this.c.width,H=this.c.height,ctx=this.ctx; ctx.clearRect(0,0,W,H); const t=now/1000, mx=mouse.x;
-      for(const b of this.blades){ const bx=b.x*W, by=H*(1-b.y), h=b.h*H, w=b.w*W;
-        const sway=Math.sin(t*1.1+b.ph+b.x*9)*0.18 + Math.sin(t*2.3+b.ph)*0.05 + mx*0.35;   /* Wind + Maus */
-        const tipx=bx+(b.lean+sway)*h, tipy=by-h; const mid=by-h*0.5;
-        ctx.fillStyle=cool?'#c9d6e6':b.c; ctx.globalAlpha=0.95;
-        ctx.beginPath(); ctx.moveTo(bx-w,by); ctx.quadraticCurveTo(bx-w*0.6+(tipx-bx)*0.3,mid,tipx,tipy); ctx.quadraticCurveTo(bx+w*0.6+(tipx-bx)*0.3,mid,bx+w,by); ctx.closePath(); ctx.fill();
-        ctx.fillStyle='rgba(0,0,0,.18)'; ctx.beginPath(); ctx.moveTo(bx,by); ctx.quadraticCurveTo(bx+(tipx-bx)*0.3,mid,tipx,tipy); ctx.quadraticCurveTo(bx+w*0.6+(tipx-bx)*0.3,mid,bx+w,by); ctx.closePath(); ctx.fill(); }
+    constructor(c){ this.c=c; this.ctx=c.getContext('2d'); this.front=c.dataset.layer==='front'; this.blades=[]; this.drew=false;
+      this.resize(); addEventListener('resize',()=>{ this.drew=false; this.resize(); });
+      const cols=['#c4a36a','#b08a52','#d7c094','#8d6b3e','#e6d3a8','#6e5430'];
+      let seed=this.front?19:7; const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+      const tufts=this.front?16:24;
+      for(let t=0;t<tufts;t++){ const x=0.02+rnd()*0.96, n=this.front?3:2;
+        for(let i=0;i<n;i++) this.blades.push({x:x+(rnd()-0.5)*0.03, h:this.front?0.075+rnd()*0.05:0.042+rnd()*0.032, w:this.front?0.007+rnd()*0.004:0.004+rnd()*0.0025, lean:(rnd()-0.5)*0.28, c:cols[Math.floor(rnd()*cols.length)], ph:rnd()*6.28}); }
+    }
+    resize(){ const dpr=Math.min(devicePixelRatio||1,1.25); const r=this.c.getBoundingClientRect(); this.c.width=Math.max(2,Math.round(r.width*dpr)); this.c.height=Math.max(2,Math.round(r.height*dpr)); }
+    render(now,cool){ if(reduce){ if(this.drew) return; this.drew=true; }
+      const W=this.c.width,H=this.c.height,ctx=this.ctx; ctx.clearRect(0,0,W,H); const t=reduce?0:now/1000;
+      const px=(mouse.x+1)/2, py=(mouse.y+1)/2;
+      for(const b of this.blades){ const bx=b.x*W, by=H, h=b.h*H, w=Math.max(2,b.w*W);
+        let push=0; if(!reduce && py>0.62){ const dx=px-b.x; if(Math.abs(dx)<0.14) push=(dx>0?-1:1)*(0.14-Math.abs(dx))*1.1; }
+        const sway=Math.sin(t*0.5+b.ph)*0.1 + Math.sin(t*0.23+b.x*5)*0.04 + push;
+        const tipx=bx+(b.lean+sway)*h*0.85, tipy=by-h;
+        ctx.fillStyle=cool?'#d5e2ee':b.c; ctx.globalAlpha=this.front?0.92:0.78;
+        ctx.beginPath(); ctx.moveTo(bx-w,by); ctx.lineTo(tipx-w*0.35,tipy); ctx.lineTo(tipx+w*0.45,tipy+h*0.08); ctx.lineTo(bx+w*1.15,by); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='rgba(255,248,230,.28)'; ctx.beginPath(); ctx.moveTo(bx-w*0.15,by); ctx.lineTo(tipx,tipy+2); ctx.lineTo(tipx+w*0.2,tipy+h*0.2); ctx.lineTo(bx+w*0.25,by); ctx.closePath(); ctx.fill(); }
       ctx.globalAlpha=1; }
+  }
+  /* Gelegentlich: eine Wolke schiebt sich vor, oder die Berge senken sich ein paar Pixel. */
+  function initPaper(sc){
+    if(reduce) return;
+    const clouds=[...sc.querySelectorAll('.qclouds img')];
+    const ridges=sc.querySelector('.ridges');
+    if(!clouds.length&&!ridges) return;
+    const kick=()=>{
+      const r=sc.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) return;
+      if(clouds.length&&Math.random()<0.62){ const c=clouds[Math.floor(Math.random()*clouds.length)]; c.classList.remove('nudge'); void c.offsetWidth; c.classList.add('nudge'); setTimeout(()=>c.classList.remove('nudge'),3400); }
+      else if(ridges){ ridges.classList.remove('dip'); void ridges.offsetWidth; ridges.classList.add('dip'); setTimeout(()=>ridges.classList.remove('dip'),3000); }
+    };
+    new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting&&!sc._paper){ sc._paper=true; setTimeout(kick,700); } }),{threshold:0.35}).observe(sc.querySelector('.pin')||sc);
+    const loop=()=>{ kick(); setTimeout(loop,20000+Math.random()*20000); };
+    setTimeout(loop,18000+Math.random()*12000);
   }
   /* seltenes Wetterleuchten über den Alpen */
   function initFlash(sc){ const el=sc.querySelector('.flash'); if(!el) return; const go=()=>{ if(sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight){ el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); } setTimeout(go,14000+Math.random()*26000); }; setTimeout(go,6000+Math.random()*8000); }
@@ -249,9 +286,9 @@
       let armed=false;
       const play=()=>{ if(loop){ if(!armed){ loop.src=loop.dataset.src; armed=true; } else { const s=loop.src; loop.src=''; loop.src=s; } } b.classList.add('playing'); };
       const stop=()=>{ b.classList.remove('playing'); };
-      b.addEventListener('mouseenter',play); b.addEventListener('mouseleave',()=>{stop(); art.style.transform='';});
-      b.addEventListener('mousemove',e=>{ if(reduce) return; const r=b.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; art.style.transform=`rotateY(${x*12}deg) rotateX(${-y*8}deg)`; });
-      b.addEventListener('click',()=>{ if(b.dataset.label) openLB(b.dataset.label,b.dataset.bottle); else if(matchMedia('(hover:none)').matches){ b.classList.contains('playing')?stop():play(); } });
+      b.addEventListener('mouseenter',play); b.addEventListener('mouseleave',()=>{stop(); if(art) art.style.transform='';});
+      b.addEventListener('mousemove',e=>{ if(reduce||!art) return; const r=b.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; art.style.transform=`rotateY(${x*12}deg) rotateX(${-y*8}deg)`; });
+      b.addEventListener('click',()=>{ if(b.dataset.label) openLB(b.dataset.label,b.dataset.bottle); else if(matchMedia('(hover:none)').matches){ root.querySelectorAll('.beast.touch').forEach(x=>{ if(x!==b) x.classList.remove('touch'); }); b.classList.toggle('touch'); b.classList.contains('playing')?stop():play(); } });
     });
   }
   /* Tiefen-Parallaxe der Tiere (vorne mehr als hinten) */
@@ -263,7 +300,8 @@
     return ()=>{ if(mobile()||reduce) return; const mx=-mouse.x, my=-mouse.y;   /* gegen die Maus, wie der Welt-Vordergrund */
       items.forEach(({el,d,art,bot,ing,gh})=>{
         el.style.marginLeft=`${mx*26*d}px`; el.style.marginTop=`${my*10*d}px`;
-        if(bot) bot.style.translate=`${mx*9*d}px ${my*4*d}px`;          /* Flasche: eigene Ebene, etwas näher */
+        const bk=el.closest('#hero')?0.22:1;
+        if(bot) bot.style.translate=`${mx*9*d*bk}px ${my*4*d*bk}px`;   /* Hero-Flasche bleibt hinter dem Tier */
         if(ing) ing.style.translate=`${mx*16*d}px ${my*6*d}px`;          /* Zutaten: ganz vorne */
         if(gh)  gh.style.translate=`${-mx*8*d}px ${-my*3*d}px`;          /* Logo-Geist: dahinter, bewegt sich weniger */
       }); };
@@ -275,6 +313,12 @@
   function closeLB(){ if(!lb) return; lb.classList.remove('open'); document.body.style.overflow=''; }
   if(lb){ lb.querySelector('.close').addEventListener('click',closeLB); lb.addEventListener('click',e=>{if(e.target===lb)closeLB();}); addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();}); }
   document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',()=>openLB(b.dataset.label,b.dataset.bottle)));
+  const flav=document.getElementById('flaschen');
+  if(flav){ flav.querySelectorAll('.bottle3[data-flavor]').forEach(b=>{
+    b.addEventListener('mouseenter',()=>{ flav.dataset.tint=b.dataset.flavor; });
+    b.addEventListener('mouseleave',()=>{ delete flav.dataset.tint; });
+    if(matchMedia('(hover:none)').matches) b.addEventListener('click',()=>{ flav.querySelectorAll('.bottle3.touch').forEach(x=>{ if(x!==b) x.classList.remove('touch'); }); b.classList.toggle('touch'); flav.dataset.tint=b.dataset.flavor; });
+  }); }
 
   /* ---------- Szenen aufsetzen ---------- */
   const worlds={}; const parallaxFns=[];
@@ -284,7 +328,9 @@
     /* Winter-Welt (zweiter Canvas, blendet über) + Schnee */
     const cw=sc.querySelector('canvas.world.winter'); if(cw){ worlds[sc.id+'_w']=new World(cw,cw.dataset.src,{strength:parseFloat(cw.dataset.strength||1)}); }
     const snow=sc.querySelector('canvas.snow'); if(snow) sc._snow=new Snow(snow);
-    const gr=sc.querySelector('canvas.grass'); if(gr) sc._grass=new Grass(gr);
+    sc._grass=[...sc.querySelectorAll('canvas.grass')].map(gr=>new Grass(gr));
+    initPaper(sc);
+    sc.querySelectorAll('img[src]').forEach(im=>{ const pre=new Image(); pre.src=im.src; });
     initFlash(sc);
     /* Sortenliste: Hover/Klick hebt die Flasche am Berg hervor, die anderen treten zurück */
     const lg=sc.querySelector('.legend');
@@ -312,6 +358,14 @@
       const ux=parseFloat(b.dataset.ix)/100, uy=parseFloat(b.dataset.iy)/100;
       const vx=0.5+(ux-0.5)*z/sx, vy=0.5+(uy-0.52)*z/sy;
       b.style.left=(vx*100)+'%'; b.style.bottom=((1-vy)*100)+'%';
+    });
+    stackDepth(sc);
+  }
+  function stackDepth(sc){
+    sc.querySelectorAll('.beast.grp.bot').forEach(b=>{
+      const bottom=parseFloat(b.style.bottom);
+      if(Number.isNaN(bottom)) return;
+      b.style.setProperty('--z', String(Math.max(6, Math.round(50-bottom))));
     });
   }
 
@@ -372,7 +426,7 @@
     if(hero) hero._update(now);
     if(fox) fox.tick();
     World.all.forEach(w=>w.render(now));
-    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',p>0.08||mobile()); const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
+    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',p>0.08||mobile()); const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis) sc._grass.forEach(g=>{ if(mobile()&&g.front) return; g.render(now,sc.classList.contains('cool')); }); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } else stackDepth(sc); });
     parallaxFns.forEach(f=>f());
     if(hero&&!mobile()){ hero.querySelectorAll('.clouds img').forEach(c=>{ const d=parseFloat(c.style.getPropertyValue('--d')||1); c.style.transform=`translate(${-mouse.x*14*d}px,${-mouse.y*6*d}px)`; }); }   /* Wolken: ferne Ebene, bewegt sich wenig */
     requestAnimationFrame(frame);
