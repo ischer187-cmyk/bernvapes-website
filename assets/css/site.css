@@ -433,7 +433,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #quartiere .beast .plaque .flavor{font-size:.95rem}
 #quartiere .beast .plaque .who{font-size:.74rem;margin-top:3px}
 /* ===== Quartier: Summer/On-the-rocks-Schalter oben rechts unter der Wolke, gross & deutlich ===== */
-#quartiere .toggle{top:clamp(150px,21vh,200px);bottom:auto;right:clamp(16px,3vw,40px);gap:14px;padding:13px 20px;font-size:.9rem;letter-spacing:.2em;
+#quartiere .toggle{top:clamp(150px,21vh,200px);bottom:auto;right:clamp(16px,3vw,40px);transform-origin:0 50%;gap:14px;padding:13px 20px;font-size:.9rem;letter-spacing:.2em;
  color:var(--bv-cream);background:rgba(23,19,15,.88);border:1.5px solid var(--bv-gold);border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 0 4px rgba(198,161,58,.18);cursor:pointer}
 #quartiere .toggle i{width:52px;height:24px;border-width:1.5px}
 #quartiere .toggle i::after{top:3px;left:3px;width:15px;height:15px}
@@ -444,3 +444,21 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #quartiere .toggle.on b{opacity:1;color:#cfe8f7}
 #quartiere .toggle:hover{box-shadow:0 10px 28px rgba(0,0,0,.45),0 0 0 5px rgba(198,161,58,.3)}
 #quartiere .toggle:focus-visible{outline:3px solid var(--bv-gold);outline-offset:4px}
+/* Schalter neben der Münsterspitze: JS (BV Quartier-Schalter) setzt left/top aus den Bild-Koordinaten von worlds/wald.webp */
+#quartiere .toggle.at-muenster{right:auto;white-space:nowrap}
+/* ===== Quartier: Flaschen-Tafeln kräftiger/grösser; Flaschenreihe etwas höher für Platz unten ===== */
+#quartiere .beasts{inset:0 0 9% 0}
+#quartiere .beast .plaque .flavor{font-size:1.18rem;font-weight:800;letter-spacing:.12em;text-shadow:0 1px 0 rgba(255,250,236,.8)}
+#quartiere .beast .plaque .who{font-size:.9rem;font-weight:700;opacity:.9}
+#quartiere .beast .plaque{white-space:normal;width:max-content;max-width:min(300px,34vw);text-align:center}
+#quartiere .beast .plaque .flavor{white-space:nowrap;font-size:1.08rem}
+/* Randflaschen (links 9 % / rechts 91 %): Tafel nach innen ausrichten, damit sie nicht aus dem Bild ragt */
+#quartiere .beasts .beast:nth-child(1) .plaque{left:-30%;transform:none!important}
+#quartiere .beasts .beast:nth-child(5) .plaque{left:auto;right:-30%;transform:none!important}
+/* ===== Bärgtier: Komposition etwas tiefer, Tafeln kräftiger/grösser, Zutaten +25 % ===== */
+#bergtiere .beasts{transform:translateY(3.5vh)}
+#bergtiere .beast .plaque .flavor{font-weight:800;text-shadow:0 1px 0 rgba(255,250,236,.8)}
+#bergtiere .beast .plaque .who{font-size:.8rem;font-weight:700;opacity:.9}
+#bergtiere .beast.grp.bot .ings img{width:45%}
+#bergtiere .beast.grp.bot .ings img:nth-child(2){width:40%}
+#bergtiere .beast.grp.bot .ings img:nth-child(3){width:37.5%}

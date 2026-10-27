@@ -422,7 +422,7 @@
     const g=F.height*.32, sx=F.width*.26;   /* Platz für die beim Hover um 1.32 wachsende Flasche */
     const C={up:{l:cx-w/2,r:cx+w/2,b:F.top-g,t:F.top-g-h},down:{l:cx-w/2,r:cx+w/2,t:F.bottom+10,b:F.bottom+10+h},
       right:{l:F.right+sx,r:F.right+sx+w,t:F.top+F.height*.18,b:F.top+F.height*.18+h},left:{r:F.left-sx,l:F.left-sx-w,t:F.top+F.height*.18,b:F.top+F.height*.18+h}};
-    const nb=[...sec.querySelectorAll('.beast')].filter(n=>n!==f&&vis(n)).map(n=>{const r=n.getBoundingClientRect();return {l:r.left,r:r.right,t:r.top,b:r.bottom}});
+    const nb=[...sec.querySelectorAll('.beast,.title,.legend')].filter(n=>n!==f&&vis(n)).map(n=>{const r=n.getBoundingClientRect();return {l:r.left,r:r.right,t:r.top,b:r.bottom}});
     let best='up',bs=Infinity;
     ['up','right','left','down'].forEach((d,i)=>{const c=C[d];
       const out=Math.max(0,R.t-c.t)+Math.max(0,c.b-R.b)+Math.max(0,R.l-c.l)+Math.max(0,c.r-R.r);
@@ -434,4 +434,25 @@
     f.addEventListener('mouseenter',()=>place(f)); f.addEventListener('focusin',()=>place(f));
     new MutationObserver(()=>{if(f.classList.contains('hi')) place(f)}).observe(f,{attributes:true,attributeFilter:['class']});
   });
+})();
+
+/* ===== BV Quartier-Schalter: neben der Münsterspitze im freien Himmel, folgt der Hintergrund-Skalierung =====
+   Bild-Koordinaten (wald.webp): freier Himmel rechts der Spitze x 0.45–0.565, vertikale Mitte y 0.215.
+   Abbildung wie im Welt-Shader: v = 0.5 + (uv-(0.5,0.52))*z/s, z = 1.08*zoom, s = Cover-Verhältnis. */
+(function(){
+  const sec=document.getElementById('quartiere'), tg=sec&&sec.querySelector('.toggle'), cv=sec&&sec.querySelector('canvas.world'); if(!tg||!cv) return;
+  const IMG=[2400,1028], X0=0.45, X1=0.565, YC=0.215;
+  tg.classList.add('at-muenster');
+  function place(){
+    const pin=tg.offsetParent||sec.querySelector('.pin'), W=pin.clientWidth, H=pin.clientHeight;
+    if(W<=900){tg.classList.remove('at-muenster');tg.style.left=tg.style.top=tg.style.transform='';return}
+    tg.classList.add('at-muenster');
+    const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv||o.css&&sec.contains(o.css));
+    const z=1.08*((w&&w.zoom)||1), ra=W/H, ri=IMG[0]/IMG[1], s=ra>ri?[1,ri/ra]:[ra/ri,1];
+    const sx=u=>(0.5+(u-0.5)*z/s[0])*W, sy=u=>(0.5+(u-0.52)*z/s[1])*H;
+    const x0=sx(X0), avail=sx(X1)-x0, k=Math.min(1,avail/tg.offsetWidth);
+    tg.style.left=x0+'px'; tg.style.top=(sy(YC)-tg.offsetHeight/2)+'px'; tg.style.transform=`scale(${k.toFixed(3)})`;
+  }
+  let last='';(function loop(){const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv);const key=innerWidth+'x'+innerHeight+':'+(w&&w.zoom);if(key!==last){last=key;place()}requestAnimationFrame(loop)})();
+  addEventListener('resize',place);
 })();
