@@ -1,0 +1,301 @@
+/* =========================================================
+   BERNVAPES — Papercraft-Welten · Stylesheet
+   Tokens siehe Webstyle/BERNVAPES_Webstyle_Guide.md
+   ========================================================= */
+:root{
+  --bv-cream:#F2E8CF; --bv-sand:#E7D9B6;
+  --bv-crimson:#9E2A2B; --bv-crimson-deep:#7E2121;
+  --bv-teal:#1E4D4A; --bv-teal-mid:#2E6E69; --bv-teal-deep:#13302E;
+  --bv-gold:#C6A13A; --bv-gold-soft:#D8BE73;
+  --bv-tan:#C1975A; --bv-ink:#17130F; --bv-ink-2:#211b15; --bv-rust:#B5531E;
+  --font-display:"Poiret One","Cinzel",serif;
+  --font-head:"Cinzel","Poiret One",serif;
+  --font-body:"Work Sans","Inter",system-ui,sans-serif;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bv-ink);color:var(--bv-cream);font-family:var(--font-body);font-weight:300;line-height:1.6;letter-spacing:.01em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,video,canvas{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{margin:0;font-weight:500}
+.wordmark,h1{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.16em}
+h2,h3,.flavor,.kicker{font-family:var(--font-head);text-transform:uppercase;letter-spacing:.12em}
+h2{font-size:clamp(1.5rem,3.2vw,2.6rem);line-height:1.15}
+.kicker{font-size:.7rem;letter-spacing:.28em;color:var(--bv-gold);margin-bottom:12px;display:flex;align-items:center;gap:14px}
+.kicker::before,.kicker::after{content:"";height:1px;width:34px;background:currentColor;opacity:.8}
+.kicker.center{justify-content:center}
+.kicker.left::before{display:none}
+.lead{max-width:60ch;font-size:1.02rem;opacity:.9}
+.wrap{width:min(1240px,92vw);margin:0 auto}
+.section{position:relative;padding:clamp(64px,8vw,120px) 0;overflow:hidden}
+.btn{display:inline-block;padding:.85em 1.7em;font-family:var(--font-head);text-transform:uppercase;letter-spacing:.14em;font-size:.76rem;color:var(--bv-cream);background:var(--bv-crimson);border:1px solid var(--bv-gold);outline:1px solid var(--bv-gold);outline-offset:3px;transition:background .25s,transform .25s;cursor:pointer}
+.btn:hover{background:var(--bv-crimson-deep);transform:translateY(-1px)}
+.btn.ghost{background:transparent}.btn.ghost:hover{background:rgba(198,161,58,.14)}
+.deco-divider{display:flex;align-items:center;gap:12px;color:var(--bv-gold);margin:24px 0}
+.deco-divider::before,.deco-divider::after{content:"";flex:1;height:1px;background:var(--bv-gold);opacity:.6}
+.deco-divider span{width:8px;height:8px;transform:rotate(45deg);background:var(--bv-gold)}
+.grain::after{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* ---------- NAV ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px clamp(18px,4vw,44px);transition:opacity .4s,transform .4s,background .4s;opacity:0;transform:translateY(-10px);pointer-events:none}
+.nav.show{opacity:1;transform:none;pointer-events:auto}
+.nav.solid{background:linear-gradient(rgba(23,19,15,.75),rgba(23,19,15,0));}
+.nav .wordmark{font-size:1.2rem;color:var(--bv-cream);text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.nav .wordmark b{color:var(--bv-gold);font-weight:400}
+.nav ul{list-style:none;display:flex;gap:26px;margin:0;padding:0}
+.nav li a{font-family:var(--font-head);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;opacity:.9;position:relative;text-shadow:0 1px 10px rgba(0,0,0,.6)}
+.nav li a::after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:1px;background:var(--bv-gold);transition:right .3s var(--ease)}
+.nav li a:hover::after{right:0}
+@media (max-width:760px){.nav ul{display:none}}
+
+/* ---------- SCENE (gepinnte Welt) ---------- */
+.scene{position:relative;background:var(--bv-ink)}
+.scene .pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.scene canvas.world,.scene img.world,.scene .world-css{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scene .world-css{overflow:hidden}
+.scene .world-css img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform}
+.scene .world-css img.near{-webkit-mask-image:linear-gradient(transparent 46%,#000 70%);mask-image:linear-gradient(transparent 46%,#000 70%)}
+.scene .fx{position:absolute;inset:0;pointer-events:none}
+.scene .fx.vignette{background:radial-gradient(ellipse at 50% 45%,transparent 60%,rgba(0,0,0,.42) 100%)}
+.scene .fx.topfade{background:linear-gradient(rgba(23,19,15,.55),transparent 22%)}
+.scene .fx.cool{background:linear-gradient(180deg,rgba(214,232,245,.22),rgba(170,205,230,.18));opacity:0;transition:opacity .9s var(--ease);mix-blend-mode:screen}
+.scene.cool .fx.cool{opacity:1}
+.scene .title{position:absolute;left:0;right:0;top:clamp(76px,11vh,120px);text-align:center;pointer-events:none;z-index:4}
+.scene .title .kicker{justify-content:center}
+.scene .title h2{font-size:clamp(1.5rem,3.6vw,3rem);text-shadow:0 2px 24px rgba(0,0,0,.45)}
+.scene .title p{margin:8px auto 0;max-width:52ch;font-size:.95rem;text-shadow:0 1px 12px rgba(0,0,0,.6);opacity:.95}
+.scene .title.ink h2,.scene .title.ink p{color:var(--bv-ink);text-shadow:none}
+.scene .title.side{left:clamp(18px,4vw,60px);right:auto;top:clamp(90px,16vh,160px);text-align:left;max-width:34ch}
+.scene .title.side .kicker{justify-content:flex-start}.scene .title.side .kicker::before{display:none}
+.scene .title.side p{margin-left:0}
+.scene .title.ink .kicker{color:var(--bv-crimson)}
+
+/* Tiere in der Welt */
+.beasts{position:absolute;inset:0;z-index:3}
+.beast{position:absolute;transform:translateX(-50%);width:var(--w,20%);cursor:pointer;--d:0;will-change:transform}
+.beast .art{position:relative;aspect-ratio:var(--ar,0.92);transform-style:preserve-3d;transition:transform .5s var(--ease)}
+.beast .art img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:bottom;filter:drop-shadow(0 22px 22px rgba(0,0,0,.45));transition:opacity .35s}
+.beast .art img.loop{opacity:0}
+.beast.playing .art img.loop{opacity:1}
+.beast.playing .art img.still{opacity:0}
+.beast .art::after{content:"";position:absolute;left:14%;right:14%;bottom:-2%;height:9%;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.45),transparent 70%);filter:blur(5px);z-index:-1}
+.beast.sil .art img{filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))}
+.beast.sil .art::before{content:"";position:absolute;inset:-12% -8%;background:radial-gradient(ellipse at 50% 60%,rgba(242,232,207,.42),transparent 64%);z-index:-1}
+.beast .plaque{position:absolute;left:50%;top:100%;transform:translate(-50%,10px);white-space:nowrap;background:rgba(242,232,207,.94);color:var(--bv-ink);border:1px solid var(--bv-gold);outline:1px solid var(--bv-gold);outline-offset:3px;padding:7px 14px 6px;text-align:center;opacity:0;transition:opacity .35s,transform .35s var(--ease);pointer-events:none;z-index:5}
+.beast .plaque .flavor{font-size:.72rem;letter-spacing:.16em;color:var(--bv-crimson)}
+.beast .plaque .who{font-family:var(--font-head);font-size:.56rem;letter-spacing:.24em;text-transform:uppercase;opacity:.7;margin-top:2px}
+.beast:hover .plaque,.beast.playing .plaque,.beasts.labels .beast .plaque{opacity:1;transform:translate(-50%,4px)}
+.beast{animation:idle 7s ease-in-out infinite;animation-delay:var(--delay,0s)}
+@keyframes idle{0%,100%{translate:0 0}50%{translate:0 -6px}}
+/* Einflug über Scroll: .beasts.in setzt die Tiere */
+.beast{opacity:0;transform:translateX(-50%) translateY(50px) scale(.94);transition:opacity .7s var(--ease),transform .9s var(--ease)}
+.beasts.in .beast{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+.beasts.in .beast:nth-child(2){transition-delay:.12s}.beasts.in .beast:nth-child(3){transition-delay:.24s}.beasts.in .beast:nth-child(4){transition-delay:.36s}
+.beasts.in .beast:nth-child(5){transition-delay:.48s}.beasts.in .beast:nth-child(6){transition-delay:.6s}.beasts.in .beast:nth-child(7){transition-delay:.72s}
+.beasts.in .beast:nth-child(8){transition-delay:.84s}.beasts.in .beast:nth-child(9){transition-delay:.96s}
+
+/* Toggle „on the rocks" */
+.toggle{position:absolute;right:clamp(16px,3vw,40px);top:clamp(84px,12vh,130px);z-index:6;display:flex;align-items:center;gap:10px;font-family:var(--font-head);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--bv-cream);background:rgba(23,19,15,.55);border:1px solid var(--bv-gold);padding:9px 14px;cursor:pointer;backdrop-filter:blur(6px);user-select:none}
+.toggle i{width:34px;height:16px;border:1px solid var(--bv-gold);border-radius:999px;position:relative;display:inline-block}
+.toggle i::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--bv-gold);transition:left .3s var(--ease)}
+.toggle.on i::after{left:20px;background:#cfe8f7}
+.scene .hint{position:absolute;left:50%;bottom:clamp(14px,3vh,30px);transform:translateX(-50%);z-index:4;font-family:var(--font-head);font-size:.56rem;letter-spacing:.3em;text-transform:uppercase;opacity:.75;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;text-shadow:0 1px 10px rgba(0,0,0,.7)}
+.scene .hint i{display:block;width:1px;height:38px;background:linear-gradient(var(--bv-gold),transparent);animation:drop 1.8s var(--ease) infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---------- HERO (Fuchs + Neue Linie) ---------- */
+.hero{height:280vh}
+.hero canvas.fox{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.hero .brand{position:absolute;left:0;right:0;bottom:9vh;text-align:center;z-index:3;pointer-events:none}
+.hero .brand h1{font-size:clamp(2.2rem,7vw,5.4rem);letter-spacing:.22em;text-shadow:0 2px 30px rgba(0,0,0,.6)}
+.hero .brand h1 b{font-weight:400;color:var(--bv-gold)}
+.hero .brand .tag{margin-top:8px;font-family:var(--font-head);font-size:clamp(.58rem,1.1vw,.78rem);letter-spacing:.34em;text-transform:uppercase;color:var(--bv-gold-soft)}
+.hero .black{position:absolute;inset:0;background:#000;z-index:1;pointer-events:none}
+/* Papier-Wolken als eigene Ebene: treiben langsam, von der Sonne angestrahlt (Puls ≈ Shader-Puls 8.4 s), reagieren auf die Maus */
+.hero .clouds{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.hero .clouds img{position:absolute;filter:drop-shadow(0 10px 14px rgba(40,10,0,.35));animation:cloudDrift var(--dur,60s) ease-in-out infinite alternate,cloudLit 8.4s ease-in-out infinite;will-change:transform}
+@keyframes cloudDrift{from{translate:calc(var(--amp,3vw) * -1) 0}to{translate:var(--amp,3vw) 0}}
+@keyframes cloudLit{0%,100%{filter:drop-shadow(0 10px 14px rgba(40,10,0,.35)) brightness(1)}50%{filter:drop-shadow(0 10px 14px rgba(40,10,0,.35)) brightness(1.12) saturate(1.1)}}
+.hero .title{opacity:0;transform:translate(-50%,16px);transition:opacity .6s,transform .8s var(--ease);left:50%;right:auto;width:max-content;max-width:min(92vw,760px)}
+.hero .title h2{font-size:clamp(1.5rem,3.2vw,2.7rem);letter-spacing:.12em;text-transform:uppercase;color:var(--bv-cream);text-shadow:0 2px 18px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.6)}
+.hero .title p{font-size:.92rem;color:var(--bv-cream);opacity:.92;text-shadow:0 1px 10px rgba(0,0,0,.6)}
+.hero.phase-b .title{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- Flaschen-Streifen ---------- */
+.bottles{background:var(--bv-ink);text-align:center;position:relative}
+.bottles .rays{position:absolute;left:-10%;right:-10%;top:0;height:120%;pointer-events:none;
+ background:repeating-conic-gradient(from 0deg at 50% 0%, rgba(198,161,58,.45) 0 .25deg, transparent .25deg 5deg);
+ -webkit-mask-image:radial-gradient(ellipse 55% 55% at 50% 0%,#000 0,transparent 70%);mask-image:radial-gradient(ellipse 55% 55% at 50% 0%,#000 0,transparent 70%)}
+.bottles .row{display:flex;justify-content:center;align-items:flex-end;gap:clamp(18px,4vw,64px);margin-top:36px;flex-wrap:wrap;position:relative}
+.bottle{position:relative;width:clamp(92px,10vw,140px);cursor:pointer;transition:transform .5s var(--ease)}
+.bottle img{width:100%;filter:drop-shadow(0 30px 24px rgba(0,0,0,.6))}
+.bottle::after{content:"";position:absolute;left:10%;right:10%;bottom:-14px;height:18px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.6),transparent 70%);filter:blur(4px)}
+.bottle:hover{transform:translateY(-14px) rotate(-1.5deg)}
+.bottle .lbl{margin-top:22px;font-family:var(--font-head);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--bv-gold-soft)}
+.bottles .specs{margin-top:44px;display:flex;justify-content:center;gap:clamp(18px,4vw,56px);flex-wrap:wrap;position:relative}
+.bottles .specs div{font-family:var(--font-head);font-size:.64rem;letter-spacing:.22em;text-transform:uppercase;opacity:.8;display:flex;align-items:center;gap:10px}
+.bottles .specs div::before{content:"";width:6px;height:6px;transform:rotate(45deg);background:var(--bv-gold)}
+
+/* ---------- Werkstatt-Teaser / About / Footer ---------- */
+.teaser{background:var(--bv-cream);color:var(--bv-ink)}
+.teaser .kicker{color:var(--bv-crimson)}
+.teaser .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(24px,5vw,70px);align-items:center}
+@media (max-width:860px){.teaser .grid{grid-template-columns:1fr}}
+.teaser .thumb{position:relative;border:1px solid var(--bv-gold);outline:1px solid var(--bv-gold);outline-offset:5px;overflow:hidden;aspect-ratio:21/9}
+.teaser .thumb img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.teaser .thumb:hover img{transform:scale(1.05)}
+.teaser .thumb span{position:absolute;left:14px;bottom:12px;font-family:var(--font-head);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;background:rgba(23,19,15,.7);color:var(--bv-cream);padding:6px 10px}
+.about{background:var(--bv-cream);color:var(--bv-ink)}
+.about .kicker{color:var(--bv-crimson)}
+.about .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(30px,5vw,80px);align-items:center}
+@media (max-width:860px){.about .grid{grid-template-columns:1fr}}
+.about .facts{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.about .fact{border:1px solid var(--bv-gold);outline:1px solid var(--bv-gold);outline-offset:4px;padding:18px}
+.about .fact b{display:block;font-family:var(--font-head);font-size:1.4rem;letter-spacing:.08em;color:var(--bv-crimson)}
+.about .fact span{font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;font-family:var(--font-head);opacity:.75}
+footer{background:#000;padding:56px 0 36px;font-size:.85rem}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px}
+@media (max-width:760px){footer .cols{grid-template-columns:1fr}}
+footer .wordmark{font-size:1.5rem}
+footer h4{font-family:var(--font-head);font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--bv-gold);margin-bottom:12px}
+footer p{margin:4px 0;opacity:.8}
+footer .legal{margin-top:40px;padding-top:20px;border-top:1px solid rgba(198,161,58,.25);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:.72rem;opacity:.6}
+.age{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:2px solid var(--bv-cream);border-radius:50%;font-weight:500;font-size:.7rem;margin-right:10px;vertical-align:middle}
+
+/* ---------- Lightbox ---------- */
+.lb{position:fixed;inset:0;z-index:80;background:rgba(10,8,6,.92);display:none;align-items:center;justify-content:center;padding:24px}
+.lb.open{display:flex}
+.lb .inner{display:grid;grid-template-columns:auto auto;gap:clamp(20px,4vw,60px);align-items:center;max-width:min(1100px,94vw);animation:pop .4s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.lb img.poster{height:min(78vh,760px);outline:1px solid var(--bv-gold);outline-offset:6px}
+.lb img.bot{height:min(70vh,640px);filter:drop-shadow(0 30px 30px rgba(0,0,0,.7))}
+.lb .close{position:absolute;top:22px;right:28px;font-family:var(--font-head);letter-spacing:.2em;font-size:.7rem;cursor:pointer;opacity:.8}
+@media (max-width:760px){.lb .inner{grid-template-columns:1fr}.lb img.bot{display:none}}
+
+
+/* ---------- Gruppe: Tier | Flasche, Zutaten zu Füssen ---------- */
+.beast.grp .duo{display:flex;align-items:flex-end;gap:5%}
+.beast.grp .duo .art{flex:0 0 66%;width:66%;animation:floatA 7.5s ease-in-out infinite;animation-delay:var(--delay,0s)}
+.beast.grp.sil .duo .art{flex:0 0 62%;width:62%}
+.beast.grp .bottle3{flex:0 0 22%;position:relative;top:0;aspect-ratio:var(--bar,0.26);transition:transform .5s var(--ease);z-index:2;align-self:flex-end;margin-bottom:5%;animation:floatB 6.2s ease-in-out infinite;animation-delay:calc(var(--delay,0s) - 2.6s)}
+/* Tier und Flasche schweben getrennt: eigene Rhythmen, Flasche etwas höher und versetzt */
+@keyframes floatA{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -10px;rotate:-.6deg}}
+@keyframes floatB{0%,100%{top:0}50%{top:-14px}}
+/* Neue Linie: Flaschen etwas gedrungener (7 % breiter gezogen), keine Rotation → wirkt nicht verzogen */
+.beast.grp:not(.bot) .bottle3{aspect-ratio:0.355}
+.beast.grp:not(.bot) .bottle3 img{object-fit:fill}
+.bottle3 img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:bottom}
+.bottle3 img.base{filter:drop-shadow(0 18px 18px rgba(0,0,0,.5))}
+.bottle3 .shine{position:absolute;inset:0;opacity:0;pointer-events:none;mix-blend-mode:screen;overflow:hidden;
+ /* einzige Maske = Flaschen-Alpha (exakt wie das Bild gelegt) → Schimmer nur auf der Flasche */
+ -webkit-mask-image:var(--mask);mask-image:var(--mask);-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;mask-mode:alpha}
+.bottle3 .shine::before{content:"";position:absolute;left:0;right:0;top:30%;bottom:6%;   /* Label-Band */
+ background:linear-gradient(105deg,transparent 38%,rgba(255,248,225,.9) 50%,transparent 62%);background-size:260% 100%;background-position:130% 0;background-repeat:no-repeat}.beast:hover .bottle3{transform:translateY(-6px) rotate(-1.5deg)}
+.beast:hover .bottle3 .shine,.bottle3:hover .shine{opacity:1}
+.beast:hover .bottle3 .shine::before,.bottle3:hover .shine::before{animation:shine 1.15s var(--ease) 1}
+@keyframes shine{from{background-position:130% 0}to{background-position:-30% 0}}
+/* Zutaten: eigener, nachlaufender Schwebe-Rhythmus (hängen nicht am Tier) */
+.beast.grp .ings{animation:floatC 6.8s ease-in-out infinite;animation-delay:calc(var(--delay,0s) - 1.4s)}
+@keyframes floatC{0%,100%{translate:0 0}50%{translate:0 -9px}}
+.ings{position:absolute;left:-10%;bottom:-3%;width:52%;display:flex;align-items:flex-end;gap:5%;z-index:3;pointer-events:none}
+.ings img{width:30%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));animation:bob 5.5s ease-in-out infinite}
+.ings img:nth-child(2){width:26%;animation-delay:-2.2s}
+.ings img:nth-child(3){width:24%;animation-delay:-3.8s}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+.beast.grp .plaque{top:calc(100% + 6px)}
+/* Flaschen-Streifen */
+.bottles .bottle3{position:relative;width:clamp(84px,8.5vw,120px);aspect-ratio:0.355;cursor:pointer;transition:transform .5s var(--ease)}
+.bottles .bottle3 img{object-fit:fill}
+.bottles .bottle3:hover{transform:translateY(-10px) rotate(-1.5deg)}
+.bottles .bottle3:hover .shine{opacity:1}.bottles .bottle3:hover .shine::before{animation:shine 1.15s var(--ease) 1}
+.bottles .lbl{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:18px;white-space:nowrap;font-family:var(--font-head);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--bv-gold-soft);text-align:center}
+.bottles .row{padding-bottom:40px}
+@media (max-width:900px){.ings{display:none}}
+
+.beasts.labels .beast.quiet .plaque{opacity:0;transform:translate(-50%,10px)}
+.beasts.labels .beast.quiet:hover .plaque{opacity:1;transform:translate(-50%,4px)}
+
+
+/* ---------- Flaschen-Gruppe (Quartiere/Bergtiere): Flasche vorne, Logo-Tier als Geist dahinter ---------- */
+.beast.grp.bot{width:var(--w,12%)}
+.beast.grp.bot .duo{display:block;position:relative}
+.beast.grp.bot .bottle3{position:relative;width:100%;aspect-ratio:var(--bar,0.331);margin:0 auto;z-index:2}
+.beast.grp.bot .ghost{position:absolute;left:50%;bottom:28%;width:170%;transform:translateX(-50%);z-index:1;pointer-events:none;opacity:0;transition:opacity .6s var(--ease),bottom .7s var(--ease)}
+.beast.grp.bot .ghost img{width:100%;filter:drop-shadow(0 14px 18px rgba(0,0,0,.45))}
+.beast.grp.bot.sil .ghost{opacity:.22}            /* Silhouetten dezent sichtbar als Wasserzeichen */
+.beast.grp.bot:hover .ghost{opacity:.95;bottom:40%}
+.beast.grp.bot .ings{left:-60%;bottom:-4%;width:200%;justify-content:space-between;align-items:flex-end}
+.beast.grp.bot .ings img{width:36%}
+.beast.grp.bot .ings img:nth-child(2){width:32%}
+.beast.grp.bot .ings img:nth-child(3){width:30%}
+.beast.grp.bot:hover .ings img{filter:drop-shadow(0 10px 12px rgba(0,0,0,.45)) brightness(1.08)}
+.beast.grp.bot .plaque{top:calc(100% + 4px)}
+
+/* ---------- Werkstatt ---------- */
+.werkstatt{height:100vh;height:100svh}
+.werkstatt .pin{height:100%}
+.studies{background:var(--bv-ink)}
+.studies .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:30px}
+.studies .row img{width:100%;border:1px solid var(--bv-gold);outline:1px solid var(--bv-gold);outline-offset:4px}
+.studies .row figcaption{text-align:center;margin-top:12px;font-family:var(--font-head);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bv-gold-soft)}
+.studies figure{margin:0}
+.backlink{position:fixed;top:18px;left:22px;z-index:55;font-family:var(--font-head);font-size:.64rem;letter-spacing:.22em;text-transform:uppercase;background:rgba(23,19,15,.6);border:1px solid var(--bv-gold);padding:9px 14px;backdrop-filter:blur(6px)}
+
+/* ---------- Mobile: Tiere als Raster statt frei platziert ---------- */
+@media (max-width:900px){
+  .scene .pin{height:auto;min-height:100svh;position:relative}
+  .beasts{position:relative;inset:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:18px 10px;padding:40vh 5vw 90px}
+  .beast{position:relative;left:auto!important;bottom:auto!important;width:auto!important;transform:none!important}
+  .beasts.in .beast{transform:none!important}
+  .beast .plaque{position:relative;top:auto;left:auto;transform:none!important;opacity:1;display:inline-block;margin:8px auto 0;white-space:normal}
+  .beast{text-align:center}
+  .hero{height:auto}
+  .hero .pin{height:100svh;min-height:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- Runde 9: Bergtiere still, Dunst zieht durch; Hover hebt die Zutaten ---------- */
+#bergtiere .beast,#bergtiere .beast .bottle3,#bergtiere .beast .ings,#bergtiere .ings img{animation:none}
+.beast.grp.bot .ings{transition:transform .6s var(--ease),filter .6s;transform-origin:50% 100%}
+.beast.grp.bot:hover .ings{transform:translateY(-22%) scale(1.28)}
+.beast.grp.bot .ings img{transition:filter .5s}
+/* Produktfotos matter (Papierwelt): Glanz und Kontrast leicht zurück */
+.beast.grp.bot .bottle3 img.base{filter:drop-shadow(0 14px 14px rgba(0,0,0,.45)) contrast(.93) brightness(.97) saturate(.94)}
+/* Quartiere: Zutaten näher an die eigene Flasche, pro Gruppe ein Standfleck → Zuordnung klarer */
+#quartiere .beast.grp.bot .ings{left:-38%;width:176%;bottom:-2%;gap:0}
+#quartiere .beast.grp.bot .ings img{width:40%}
+#quartiere .beast.grp.bot .ings img:nth-child(2){width:36%}
+#quartiere .beast.grp.bot .duo::after{content:"";position:absolute;left:-45%;right:-45%;bottom:-6%;height:12%;border-radius:50%;background:radial-gradient(ellipse,rgba(40,25,10,.38),transparent 70%);filter:blur(4px);z-index:0;pointer-events:none}
+#quartiere .beast.grp.bot .bottle3{z-index:2}
+/* Dunst/Wolkenschleier am Berg: zwei Ebenen (hinter und vor den Flaschen), ziehen langsam quer und den Hang hinunter */
+.mist{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.mist.back{z-index:2}.mist.front{z-index:4;opacity:.55}
+.mist i{position:absolute;display:block;width:var(--w,40vw);height:var(--h,14vh);border-radius:50%;
+ background:radial-gradient(ellipse at center,rgba(255,250,240,.55),rgba(255,250,240,.18) 45%,transparent 70%);filter:blur(14px);mix-blend-mode:screen;opacity:var(--o,.5);
+ animation:mistDrift var(--dur,70s) linear infinite;animation-delay:var(--delay,0s);will-change:transform}
+@keyframes mistDrift{0%{transform:translate(55vw,-2vh) scaleX(1)}50%{transform:translate(0vw,3vh) scaleX(1.15)}100%{transform:translate(-70vw,8vh) scaleX(1)}}
+@media (max-width:900px){.mist{display:none}}
+#quartiere .beast.grp.bot.quiet .ings img{width:34%}
+#quartiere .beast.grp.bot.quiet .ings img:nth-child(2){width:30%}
+#quartiere .beast.grp.bot.quiet{filter:brightness(.92)}   /* hintere Reihe leicht zurückgenommen = Tiefe */
+/* Hero-Titel: kräftige dunkle Kontur statt Band */
+.hero .title h2{-webkit-text-stroke:1.2px rgba(0,0,0,.55);paint-order:stroke fill;text-shadow:0 0 3px rgba(0,0,0,.9),0 2px 6px rgba(0,0,0,.8),0 4px 22px rgba(0,0,0,.6)}
+.hero .title p{-webkit-text-stroke:.5px rgba(0,0,0,.45);paint-order:stroke fill;text-shadow:0 0 3px rgba(0,0,0,.95),0 2px 8px rgba(0,0,0,.8)}
+.hero .title .kicker{text-shadow:0 0 3px rgba(0,0,0,.95),0 2px 8px rgba(0,0,0,.8)}
+/* Plakette unter dem Tier zentriert (nicht unter der ganzen Gruppe) */
+.hero .beast.grp .plaque{left:34%}
+
+/* ---------- Runde 10: OTR-Schalter = Winterwelt ---------- */
+.scene canvas.world.winter,.scene .world-css.winter{opacity:0;transition:opacity 1.4s var(--ease);z-index:1}
+.scene.cool canvas.world.winter,.scene.cool .world-css.winter{opacity:1}
+.scene canvas.snow{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+.scene .beast[data-season="w"]{opacity:0!important;pointer-events:none;transition:opacity .7s var(--ease),transform .9s var(--ease)}
+.scene.cool .beast[data-season="w"]{opacity:1!important;pointer-events:auto}
+.scene.cool .beast[data-season="s"]{opacity:0!important;pointer-events:none}
+.scene .fx.cool{background:linear-gradient(180deg,rgba(200,225,245,.10),rgba(170,205,230,.06))}   /* nur noch Hauch, die Winterwelt macht die Kälte */
+.toggle{top:auto;bottom:clamp(18px,4vh,40px);right:clamp(16px,3vw,40px)}
+.toggle b{font-weight:400;opacity:.6}.toggle.on b{opacity:1}.toggle.on span{opacity:.6}
+@media (max-width:900px){.scene canvas.world.winter{display:none}.scene.cool canvas.world{filter:saturate(.5) hue-rotate(-20deg) brightness(1.05)}}
+.scene.cool .title.side h2,.scene.cool .title.side p{text-shadow:0 1px 3px rgba(20,30,60,.7),0 2px 14px rgba(20,30,60,.5)}

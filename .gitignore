@@ -1,0 +1,31 @@
+# Geheimnisse / Umgebung — nie committen
+.env
+.env.*
+*.env
+*.pem
+*.key
+secrets*
+credentials*
+
+# System / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.cursor/
+
+# Temporäre Testkopien der Seite
+_t*.html
+assets/css/_test.css
+
+# Render-Zwischenstände (gross, reproduzierbar aus _render_lp.py / Rohvideos)
+assets/fox_seq_lp/*.png
+assets/fox_seq_lp/render.log
+assets/keyed/
+assets/video/
+assets/web/produkte_old/
+
+# Node / Build
+node_modules/
+dist/
+.cache/
