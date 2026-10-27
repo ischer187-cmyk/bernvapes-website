@@ -441,7 +441,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 /* Fuchs: taucht selten (25–40 s, zufällig) hinter dem goldenen Gipfel auf, flitzt den Grat des cremefarbenen Gipfels hoch, hält kurz, kehrt um und verschwindet wieder. JS steuert Position (Bild-Koordinaten). */
-.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028h') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
+.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028i') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
 .hero .lg-occ-f{clip-path:polygon(830px 466px,915px 395px,945px 377px,1000px 418px,1000px 480px,830px 480px)}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
@@ -608,20 +608,20 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 /* #bergtiere Leben: Overlay in Bild-Koordinaten von berg.webp (2400×1028), Transform per JS wie Welt-Shader */
 #bergtiere .berglife{position:absolute;left:0;top:0;width:2400px;height:1028px;transform-origin:0 0;z-index:1;pointer-events:none}
 /* Bergbahn: von links, langsam diagonal/serpentinig den Hang hoch (nicht auf dem Grat), 34 s Fahrt + Pause */
-#bergtiere .bt-car{position:absolute;left:0;top:0;offset-path:path('M300 790 C 420 770 470 740 540 722 S 640 705 700 684 S 800 655 860 640 S 950 612 1010 598');offset-rotate:auto;offset-anchor:50% 100%;
+#bergtiere .bt-car{position:absolute;left:0;top:0;offset-path:path('M935 738 C 975 722 1008 706 1035 693 S 1090 664 1117 652 S 1165 632 1195 624');offset-rotate:auto;offset-anchor:50% 100%;
  visibility:hidden;animation:btFahrt 52s linear infinite}
 #bergtiere .bt-car svg{position:relative;display:block;width:100%;height:100%;overflow:visible}
 #bergtiere .bt-lok{width:40px;height:29px;animation-delay:-2s}
-#bergtiere .bt-w1{width:30px;height:25px;animation-delay:-.6s}
-#bergtiere .bt-w2{width:30px;height:25px;animation-delay:.7s}
+#bergtiere .bt-w1{width:30px;height:25px;animation-delay:2s}
+#bergtiere .bt-w2{width:30px;height:25px;animation-delay:6s}
 #bergtiere .bt-car .lg-steam{animation:none;transform:scale(.6);transform-origin:0 0}
-@keyframes btFahrt{0%{offset-distance:0%;visibility:visible;opacity:0}3%{opacity:1}62%{opacity:1}66%{offset-distance:100%;opacity:0;visibility:visible}66.1%,100%{offset-distance:100%;visibility:hidden;opacity:0}}
+@keyframes btFahrt{0%{offset-distance:0%;visibility:visible;opacity:0}5%{opacity:1}62%{opacity:1}66%{offset-distance:100%;opacity:0;visibility:visible}66.1%,100%{offset-distance:100%;visibility:hidden;opacity:0}}
 /* Lawine & Pulverschnee-Welle: per JS gespawnt */
 #bergtiere .bl-chunk{position:absolute;left:0;top:0;width:var(--s);height:var(--s);margin:calc(var(--s)/-2);border-radius:42% 58% 50% 46%;background:#f4f1ea;box-shadow:0 0 4px rgba(255,255,255,.6);opacity:0}
 #bergtiere .bl-puff{position:absolute;left:0;top:0;width:var(--s);height:var(--s);margin:calc(var(--s)/-2);border-radius:50%;opacity:0;
  background:radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(240,244,250,.6) 45%,rgba(240,244,250,0) 70%);filter:blur(3px)}
 /* Weisser Fuchs: lugt hinter einem hinteren Grat hervor (Cut-out-Peak) */
-#bergtiere .bl-fox{position:absolute;left:1825px;top:463px;width:21px;height:27px;background:url('../web/fuchs_weiss.webp?v=20261028h') 0 0/100% 100% no-repeat;transform:translateY(30px);transform-origin:50% 100%;filter:brightness(.95) drop-shadow(0 0 1px rgba(80,40,20,.5))}
+#bergtiere .bl-fox{position:absolute;left:1825px;top:463px;width:21px;height:27px;background:url('../web/fuchs_weiss.webp?v=20261028i') 0 0/100% 100% no-repeat;transform:translateY(30px);transform-origin:50% 100%;filter:brightness(.95) drop-shadow(0 0 1px rgba(80,40,20,.5))}
 #bergtiere .bl-occ{position:absolute;inset:0;background:url('../web/worlds/berg.webp') 0 0/2400px 1028px no-repeat;clip-path:polygon(1780px 505px,1835px 489px,1880px 545px,1880px 570px,1780px 570px)}
 #bergtiere.cool .bl-occ{background-image:url('../web/worlds/berg_w.webp')}
 @media (max-width:900px),(prefers-reduced-motion:reduce){#bergtiere .berglife{display:none}}
