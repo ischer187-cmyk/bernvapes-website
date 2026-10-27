@@ -86,6 +86,9 @@ h2{font-size:clamp(1.5rem,3.2vw,2.6rem);line-height:1.15}
 .beast .plaque{position:absolute;left:50%;top:100%;transform:translate(-50%,10px);white-space:nowrap;background:rgba(242,232,207,.94);color:var(--bv-ink);border:1px solid var(--bv-gold);outline:1px solid var(--bv-gold);outline-offset:3px;padding:7px 14px 6px;text-align:center;opacity:0;transition:opacity .35s,transform .35s var(--ease);pointer-events:none;z-index:5}
 .beast .plaque .flavor{font-size:.72rem;letter-spacing:.16em;color:var(--bv-crimson)}
 .beast .plaque .who{font-family:var(--font-head);font-size:.56rem;letter-spacing:.24em;text-transform:uppercase;opacity:.7;margin-top:2px}
+/* Hero: Produktbeschriebe der 4 Flaschen lesbar (>=16px), Kontrast */
+.hero .beast .plaque .who{font-size:clamp(16px,1.15vw,18px);line-height:1.4;letter-spacing:.06em;opacity:1;color:var(--bv-ink);margin-top:4px}
+.hero .beast .plaque{padding:10px 16px 9px;white-space:normal;max-width:min(220px,90vw)}
 .beast:hover .plaque,.beast.playing .plaque,.beasts.labels .beast .plaque{opacity:1;transform:translate(-50%,4px)}
 .beast{animation:idle 7s ease-in-out infinite;animation-delay:var(--delay,0s)}
 @keyframes idle{0%,100%{translate:0 0}50%{translate:0 -6px}}
