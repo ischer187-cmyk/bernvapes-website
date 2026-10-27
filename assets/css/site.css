@@ -441,7 +441,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 /* Fuchs: taucht selten (25–40 s, zufällig) hinter dem goldenen Gipfel auf, flitzt den Grat des cremefarbenen Gipfels hoch, hält kurz, kehrt um und verschwindet wieder. JS steuert Position (Bild-Koordinaten). */
-.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028c') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
+.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028d') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
 .hero .lg-occ-f{clip-path:polygon(830px 466px,915px 395px,945px 377px,1000px 418px,1000px 480px,830px 480px)}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
@@ -569,3 +569,16 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .bottles .pcol,#flaschen .pcol{gap:0}
 .bottles .pcol .lbl{position:static;transform:none;margin:clamp(40px,6vh,56px) 0 clamp(10px,1.6vh,16px);transition:color .3s,transform .3s,text-shadow .3s}
 .bottles .pcol:hover .lbl,.bottles .pcol:focus-within .lbl{color:var(--bv-gold);transform:translateY(-2px);text-shadow:0 0 12px rgba(201,162,74,.45)}
+/* Badge grösser */
+#flaschen .avail{font-size:clamp(1.25rem,2.1vh,1.6rem);padding:.5em 1.4em;letter-spacing:.12em}
+@media (min-width:761px){#flaschen .bottle3{width:clamp(96px,min(14vw,14vh),196px)}}
+/* Badge: LED-Band – leuchtender Goldrand, Lichtpunkt läuft rundum (5 s), Glow pulsiert sanft (2.8 s) */
+@property --led{syntax:'<angle>';inherits:false;initial-value:0deg}
+#flaschen .avail{border-color:rgba(201,162,74,.55);outline:none;isolation:isolate;
+ box-shadow:0 0 0 1px rgba(201,162,74,.25),0 0 14px rgba(201,162,74,.35),0 6px 18px rgba(0,0,0,.35);animation:ledPulse 2.8s ease-in-out infinite}
+#flaschen .avail::before{content:"";position:absolute;inset:-2px;border-radius:inherit;padding:2px;pointer-events:none;
+ background:conic-gradient(from var(--led),rgba(201,162,74,.35) 0deg,rgba(201,162,74,.35) 250deg,#ffe7a6 300deg,#fff8e0 315deg,#ffe7a6 330deg,rgba(201,162,74,.35) 360deg);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;filter:drop-shadow(0 0 4px rgba(255,220,140,.7));animation:ledRun 5s linear infinite}
+@keyframes ledRun{to{--led:360deg}}
+@keyframes ledPulse{0%,100%{box-shadow:0 0 0 1px rgba(201,162,74,.25),0 0 12px rgba(201,162,74,.3),0 6px 18px rgba(0,0,0,.35)}50%{box-shadow:0 0 0 1px rgba(201,162,74,.35),0 0 20px rgba(201,162,74,.5),0 6px 18px rgba(0,0,0,.35)}}
+@media (prefers-reduced-motion:reduce){#flaschen .avail,#flaschen .avail::before{animation:none}}
