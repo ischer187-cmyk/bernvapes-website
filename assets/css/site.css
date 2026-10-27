@@ -358,3 +358,16 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #bergtiere .beast .ings{transform-origin:50% 100%}
 #bergtiere .beast:hover .ings,#bergtiere .beast.hi .ings{transform:translateY(-30%) scale(1.5)}
 #bergtiere .beast .plaque{bottom:calc(100% + 34%)}
+
+/* ===== Dampflok (Hero): kleiner Kartonzug fährt langsam durch die Berge =====
+   Liegt auf z-index:1 vor dem Welt-Canvas, im DOM vor .black/.fox/.beasts (z 1–3)
+   → nie über den Tieren. Reine CSS-Animation, reduced-motion = aus. */
+.hero .dampflok{position:absolute;left:0;right:0;top:var(--lok-top,58%);height:clamp(48px,7.5vw,100px);z-index:1;pointer-events:none;overflow:visible;opacity:.72;filter:sepia(.25) saturate(.8)}
+.hero .dampflok-zug{position:absolute;top:0;left:0;height:100%;aspect-ratio:260/90;transform:translateX(-110%);animation:lokFahrt 46s linear infinite;animation-delay:-14s;will-change:transform}
+.hero .dampflok-zug svg{display:block;width:100%;height:100%}
+.hero .dampf{position:absolute;left:81%;top:12%;width:16%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(242,232,207,.75),rgba(242,232,207,0) 70%);opacity:0;animation:lokDampf 2.4s ease-out infinite}
+.hero .dampf.d2{animation-delay:.8s}.hero .dampf.d3{animation-delay:1.6s}
+@keyframes lokFahrt{0%{transform:translateX(-110%)}72%{transform:translateX(100vw)}100%{transform:translateX(100vw)}}
+@keyframes lokDampf{0%{opacity:0;transform:translate(0,0) scale(.4)}20%{opacity:.8}100%{opacity:0;transform:translate(-120%,-140%) scale(1.8)}}
+@media (prefers-reduced-motion:reduce){.hero .dampflok{display:none}}
+/* ===== /Dampflok ===== */
