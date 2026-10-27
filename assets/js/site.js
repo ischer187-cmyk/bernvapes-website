@@ -9,6 +9,10 @@
   const lerp=(a,b,t)=>a+(b-a)*t;
   const ss01=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('img[src]').forEach(img=>{ if(img.closest('#hero')) return; if(!img.hasAttribute('loading')) img.loading='lazy'; img.decoding='async'; });
+  const navEl=document.getElementById('nav'), navBtn=navEl&&navEl.querySelector('.nav-toggle');
+  if(navBtn){ navBtn.addEventListener('click',()=>{ const on=navEl.classList.toggle('open'); navBtn.setAttribute('aria-expanded',on?'true':'false'); });
+    navEl.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ navEl.classList.remove('open'); navBtn.setAttribute('aria-expanded','false'); })); }
   const mobile=()=>innerWidth<(window.BV_MOBILE_BP||900);
 
   /* ---------- globale Maus (geglättet) ---------- */
@@ -284,6 +288,7 @@
     root.querySelectorAll('.beast').forEach(b=>{
       const art=b.querySelector('.art'), loop=b.querySelector('img.loop');
       let armed=false;
+      const name=b.querySelector('.flavor'); if(name&&!b.getAttribute('aria-label')) b.setAttribute('aria-label', name.textContent.trim());
       const play=()=>{ if(loop){ if(!armed){ loop.src=loop.dataset.src; armed=true; } else { const s=loop.src; loop.src=''; loop.src=s; } } b.classList.add('playing'); };
       const stop=()=>{ b.classList.remove('playing'); };
       b.addEventListener('mouseenter',play); b.addEventListener('mouseleave',()=>{stop(); if(art) art.style.transform='';});
@@ -309,10 +314,16 @@
 
   /* ---------- Lightbox ---------- */
   const lb=document.getElementById('lb');
-  function openLB(label,bottle){ if(!lb) return; lb.querySelector('.poster').src=label; const bo=lb.querySelector('.bot'); if(bottle){bo.src=bottle;bo.style.display='';} else bo.style.display='none'; lb.classList.add('open'); document.body.style.overflow='hidden'; }
+  function openLB(label,bottle,sku){ if(!lb) return; const poster=lb.querySelector('.poster'); poster.src=label; poster.alt=sku||'Etikette'; const bo=lb.querySelector('.bot'); if(bottle){bo.src=bottle;bo.alt='Flasche';bo.style.display='';} else bo.style.display='none'; const add=lb.querySelector('[data-cart-add]'); if(add){ add.hidden=!sku; add.dataset.sku=sku||''; } lb.classList.add('open'); document.body.style.overflow='hidden'; const c=lb.querySelector('.close'); if(c) c.focus(); }
   function closeLB(){ if(!lb) return; lb.classList.remove('open'); document.body.style.overflow=''; }
-  if(lb){ lb.querySelector('.close').addEventListener('click',closeLB); lb.addEventListener('click',e=>{if(e.target===lb)closeLB();}); addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();}); }
-  document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',()=>openLB(b.dataset.label,b.dataset.bottle)));
+  if(lb){ const c=lb.querySelector('.close'); c.setAttribute('role','button'); c.tabIndex=0; c.addEventListener('click',closeLB); c.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); closeLB(); } }); lb.addEventListener('click',e=>{if(e.target===lb)closeLB();}); addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();}); }
+  document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>{
+    if(!b.hasAttribute('tabindex')) b.tabIndex=0;
+    if(!b.hasAttribute('role')) b.setAttribute('role','button');
+    const act=()=>openLB(b.dataset.label,b.dataset.bottle,b.dataset.sku||'');
+    b.addEventListener('click',e=>{ e.stopPropagation(); act(); });
+    b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); } });
+  });
   const flav=document.getElementById('flaschen');
   if(flav){ flav.querySelectorAll('.bottle3[data-flavor]').forEach(b=>{
     b.addEventListener('mouseenter',()=>{ flav.dataset.tint=b.dataset.flavor; });
@@ -330,13 +341,16 @@
     const snow=sc.querySelector('canvas.snow'); if(snow) sc._snow=new Snow(snow);
     sc._grass=[...sc.querySelectorAll('canvas.grass')].map(gr=>new Grass(gr));
     initPaper(sc);
-    sc.querySelectorAll('img[src]').forEach(im=>{ const pre=new Image(); pre.src=im.src; });
+    const preload=()=>{ sc.querySelectorAll('img[src]').forEach(im=>{ if(im.dataset.pre) return; im.dataset.pre='1'; const p=new Image(); p.src=im.src; }); };
+    if(sc.id==='hero') preload();
+    else new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) preload(); }),{rootMargin:'30%'}).observe(sc);
     initFlash(sc);
     /* Sortenliste: Hover/Klick hebt die Flasche am Berg hervor, die anderen treten zurück */
     const lg=sc.querySelector('.legend');
     if(lg){ const all=()=>[...sc.querySelectorAll('.beast[data-key]')];
       const hi=k=>{ all().forEach(b=>{ b.classList.toggle('hi',b.dataset.key===k); b.classList.toggle('dim',!!k&&b.dataset.key!==k&&b.dataset.season===(sc.classList.contains('cool')?'w':'s')); }); };
-      lg.querySelectorAll('li').forEach(li=>{ li.addEventListener('mouseenter',()=>hi(li.dataset.for)); li.addEventListener('mouseleave',()=>{ const on=lg.querySelector('li.on'); hi(on?on.dataset.for:null); });
+      lg.querySelectorAll('li').forEach(li=>{ li.tabIndex=0; li.addEventListener('mouseenter',()=>hi(li.dataset.for)); li.addEventListener('mouseleave',()=>{ const on=lg.querySelector('li.on'); hi(on?on.dataset.for:null); });
+        li.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); li.click(); } });
         li.addEventListener('click',()=>{ const was=li.classList.contains('on'); lg.querySelectorAll('li.on').forEach(x=>x.classList.remove('on')); if(!was) li.classList.add('on'); hi(was?null:li.dataset.for); }); });
       all().forEach(b=>{ b.addEventListener('mouseenter',()=>{ lg.querySelectorAll('li').forEach(li=>li.classList.toggle('hot',li.dataset.for===b.dataset.key)); }); b.addEventListener('mouseleave',()=>lg.querySelectorAll('li.hot').forEach(li=>li.classList.remove('hot'))); });
     }
@@ -421,6 +435,7 @@
 
   /* ---------- Haupt-Loop ---------- */
   function frame(now){
+    if(document.hidden){ requestAnimationFrame(frame); return; }
     window.BV_TICKS=(window.BV_TICKS||0)+1;
     mouse.x=lerp(mouse.x,mouse.active?mouse.tx:0,0.06); mouse.y=lerp(mouse.y,mouse.active?mouse.ty:0,0.06);
     if(hero) hero._update(now);

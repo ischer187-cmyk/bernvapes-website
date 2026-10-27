@@ -1,0 +1,42 @@
+{
+  "currency": "CHF",
+  "shop": "preview",
+  "note": "Platzhalter für einen späteren Shop. Preise sind leer, es gibt kein Backend.",
+  "products": [
+    {"sku": "lemon-pie-60", "name": "Lemon Pie", "line": "neue", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "animal": "Lemur", "image": "assets/web/bottles3/lemon_pie.webp", "price": null},
+    {"sku": "mango-lassi-60", "name": "Mango Lassi", "line": "neue", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "animal": "Elefant", "image": "assets/web/bottles3/mango_lassi.webp", "price": null},
+    {"sku": "mandarine-nuss-60", "name": "Mandarine Nuss", "line": "neue", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "animal": "Chipmunk", "image": "assets/web/bottles3/mandarine_nuss.webp", "price": null},
+    {"sku": "apple-pie-60", "name": "Apple Pie", "line": "neue", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "animal": "Roter Panda", "image": "assets/web/bottles3/apple_pie.webp", "price": null},
+    {"sku": "monbijou-marder-60", "name": "Monbijou Marder", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "image": "assets/web/produkte/monbijou_marder_60ml.webp", "price": null},
+    {"sku": "breitsch-hirsch-60", "name": "Breitsch Hirsch", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "image": "assets/web/produkte/breitschplatz_hirsch_60ml.webp", "price": null},
+    {"sku": "breitsch-hirsch-otr-60", "name": "Breitsch Hirsch · uf Ys", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "variant": "on-the-rocks", "image": "assets/web/produkte/breitschplatz_hirsch_otr_60ml.webp", "price": null},
+    {"sku": "matte-eule-60", "name": "Matte Eule", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "image": "assets/web/produkte/matte_eule_60ml.webp", "price": null},
+    {"sku": "matte-eule-otr-60", "name": "Matte Eule · uf Ys", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "variant": "on-the-rocks", "image": "assets/web/produkte/matte_eule_otr_60ml.webp", "price": null},
+    {"sku": "laengass-dachs-60", "name": "Länggass Dachs", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "image": "assets/web/produkte/laengass_dachs_60ml.webp", "price": null},
+    {"sku": "laengass-dachs-otr-60", "name": "Länggass Dachs · uf Ys", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "variant": "on-the-rocks", "image": "assets/web/produkte/laengass_dachs_otr_60ml.webp", "price": null},
+    {"sku": "wyler-falke-60", "name": "Wyler Falke", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "image": "assets/web/produkte/wyler_falke_60ml.webp", "price": null},
+    {"sku": "wyler-falke-otr-60", "name": "Wyler Falke · uf Ys", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "variant": "on-the-rocks", "image": "assets/web/produkte/wyler_falke_otr_60ml.webp", "price": null},
+    {"sku": "schanzen-kater-60", "name": "Schanzen Kater", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "image": "assets/web/produkte/schanzen_kater_60ml.webp", "price": null},
+    {"sku": "bollwerk-koeter-60", "name": "Bollwerk Köter", "line": "quartier", "kind": "liquid", "ml": 60, "nicotineMgPerMl": 0, "image": "assets/web/produkte/bollwerk_koeter_60ml.webp", "price": null},
+    {"sku": "gipfel-adler-100", "name": "Gipfel Adler", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/gipfel_adler_100ml.webp", "price": null},
+    {"sku": "gipfel-adler-otr-100", "name": "Gipfel Adler · uf Ys", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "variant": "on-the-rocks", "image": "assets/web/produkte/gipfel_adler_otr_100ml.webp", "price": null},
+    {"sku": "nebel-wolf-100", "name": "Nebel Wolf", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/nebel_wolf_100ml.webp", "price": null},
+    {"sku": "nebel-wolf-otr-100", "name": "Nebel Wolf · uf Ys", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "variant": "on-the-rocks", "image": "assets/web/produkte/nebel_wolf_otr_100ml.webp", "price": null},
+    {"sku": "steinschlag-bock-100", "name": "Steinschlag Bock", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/steinschlag_bock_100ml.webp", "price": null},
+    {"sku": "steinschlag-bock-otr-100", "name": "Steinschlag Bock · uf Ys", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "variant": "on-the-rocks", "image": "assets/web/produkte/steinschlag_bock_otr_100ml.webp", "price": null},
+    {"sku": "waldwiesen-biene-100", "name": "Waldwiesen Biene", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/waldwiesen_biene_100ml.webp", "price": null},
+    {"sku": "wildwasser-bieber-100", "name": "Wildwasser Biber", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/wildwasser_bieber_100ml.webp", "price": null},
+    {"sku": "absturz-milan-100", "name": "Absturz Milan", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/absturz_milan_100ml.webp", "price": null},
+    {"sku": "waldbrand-salamander-100", "name": "Waldbrand Salamander", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/waldbrand_salamander_100ml.webp", "price": null},
+    {"sku": "abgrund-gemse-100", "name": "Abgrund Gemse", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/abgrund_gemse_100ml.webp", "price": null},
+    {"sku": "erdbeben-elch-100", "name": "Erdbeben Elch", "line": "berg", "kind": "liquid", "ml": 100, "nicotineMgPerMl": 0, "image": "assets/web/produkte/erdbeben_elch_100ml.webp", "price": null}
+  ],
+  "addons": [
+    {"sku": "nic-shot-10-18", "name": "Nikotin-Shot 10 ml", "kind": "nicotine-shot", "ml": 10, "nicotineMgPerMl": 18, "price": null, "note": "Zusatzartikel, Platzhalter"},
+    {"sku": "nic-shot-10-20", "name": "Nikotin-Shot 10 ml", "kind": "nicotine-shot", "ml": 10, "nicotineMgPerMl": 20, "price": null, "note": "Zusatzartikel, Platzhalter"}
+  ],
+  "hardware": [
+    {"sku": "hw-geraet", "name": "Gerät", "kind": "hardware", "price": null, "note": "Platzhalter, noch kein Modell"},
+    {"sku": "hw-coil", "name": "Verdampfkopf", "kind": "hardware", "price": null, "note": "Platzhalter, noch kein Modell"}
+  ]
+}

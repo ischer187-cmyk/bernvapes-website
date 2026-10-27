@@ -4,14 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BERNVAPES — Wärkstatt · Konzeptstudie</title>
+<meta name="description" content="Wärkstatt: Afrika ufem Kristallsee. Sächs Idee, no nid im Sortimänt.">
+<meta name="theme-color" content="#17130F">
+<meta property="og:title" content="BERNVAPES — Wärkstatt · Konzeptstudie">
+<meta property="og:description" content="Wärkstatt: Afrika ufem Kristallsee. Sächs Idee, no nid im Sortimänt.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="de_CH">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poiret+One&family=Cinzel:wght@500;700&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2317130F'/%3E%3C/svg%3E">
 </head>
 <body class="grain">
+<a class="skip" href="#inhalt">Zum Inhalt</a>
 <a class="backlink" href="index.html">← Zrügg zu BERNVAPES</a>
+<div class="agebar" role="note"><span class="age">18+</span><span>Liquids für die E-Zigarette. Nur für Erwachsene. Dieses Produkt kann Ihre Gesundheit schädigen.</span></div>
+<button class="cartbtn" type="button" data-cart-open>Chorb <b data-cart-count>0</b></button>
 
+<main id="inhalt">
+<h1 class="vh">Wärkstatt · Afrika ufem Kristallsee</h1>
 <!-- ============ Eiswelt: Afrika-Konzepte ============ -->
 <section class="scene werkstatt" id="eis">
   <div class="pin">
@@ -51,7 +62,7 @@
     <p style="text-align:center;margin-top:40px"><a class="btn ghost" href="index.html">Zrügg zur nöie Linie</a></p>
   </div>
 </section>
-
+</main>
 <footer>
   <div class="wrap">
     <div class="legal" style="margin-top:0;border-top:0">
@@ -60,7 +71,18 @@
     </div>
   </div>
 </footer>
+<div class="cart" id="cart" hidden role="dialog" aria-modal="true" aria-labelledby="cart-title">
+  <div class="cart-panel">
+    <h2 id="cart-title">Chorb</h2>
+    <p data-cart-empty>No nüt drin.</p>
+    <ul data-cart-lines></ul>
+    <div class="extras" data-shop-extras></div>
+    <button type="button" disabled>Bstellig — no ke Shop aaghänkt</button>
+    <button type="button" data-cart-close>Schliesse</button>
+  </div>
+</div>
 <script src="assets/js/worlds_data.js"></script>
 <script src="assets/js/site.js"></script>
+<script src="assets/js/shop.js"></script>
 </body>
 </html>
