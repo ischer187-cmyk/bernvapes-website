@@ -253,10 +253,18 @@
     /* Winter-Welt (zweiter Canvas, blendet über) + Schnee */
     const cw=sc.querySelector('canvas.world.winter'); if(cw){ worlds[sc.id+'_w']=new World(cw,cw.dataset.src,{strength:parseFloat(cw.dataset.strength||1)}); }
     const snow=sc.querySelector('canvas.snow'); if(snow) sc._snow=new Snow(snow);
+    /* Sortenliste: Hover/Klick hebt die Flasche am Berg hervor, die anderen treten zurück */
+    const lg=sc.querySelector('.legend');
+    if(lg){ const all=()=>[...sc.querySelectorAll('.beast[data-key]')];
+      const hi=k=>{ all().forEach(b=>{ b.classList.toggle('hi',b.dataset.key===k); b.classList.toggle('dim',!!k&&b.dataset.key!==k&&b.dataset.season===(sc.classList.contains('cool')?'w':'s')); }); };
+      lg.querySelectorAll('li').forEach(li=>{ li.addEventListener('mouseenter',()=>hi(li.dataset.for)); li.addEventListener('mouseleave',()=>{ const on=lg.querySelector('li.on'); hi(on?on.dataset.for:null); });
+        li.addEventListener('click',()=>{ const was=li.classList.contains('on'); lg.querySelectorAll('li.on').forEach(x=>x.classList.remove('on')); if(!was) li.classList.add('on'); hi(was?null:li.dataset.for); }); });
+      all().forEach(b=>{ b.addEventListener('mouseenter',()=>{ lg.querySelectorAll('li').forEach(li=>li.classList.toggle('hot',li.dataset.for===b.dataset.key)); }); b.addEventListener('mouseleave',()=>lg.querySelectorAll('li.hot').forEach(li=>li.classList.remove('hot'))); });
+    }
     const tg=sc.querySelector('.toggle');
     if(tg){ tg.addEventListener('click',()=>{ const on=tg.classList.toggle('on'); sc.classList.toggle('cool',on); tg.setAttribute('aria-pressed',on);
       sc.querySelectorAll('.beast[data-ice]').forEach(b=>{ const im=b.querySelector('img.still'); if(im) im.src=on?b.dataset.ice:b.dataset.warm; });
-      if(sc._snow) sc._snow.on=on; }); }
+      if(sc._snow) sc._snow.on=on; sc.querySelectorAll('.beast.hi,.beast.dim').forEach(b=>b.classList.remove('hi','dim')); sc.querySelectorAll('.legend li.on').forEach(x=>x.classList.remove('on')); }); }
   });
   // Scroll-Fortschritt pro Szene → Tiere einfliegen lassen
   function sceneProgress(sc){ const r=sc.getBoundingClientRect(); const total=sc.offsetHeight-innerHeight; return total>0?clamp(-r.top/total,0,1):(r.top<innerHeight*0.6?1:0); }

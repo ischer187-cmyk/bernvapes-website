@@ -156,3 +156,12 @@ Web/
 
 - **Runde 10b:** Felsenau Fuchs und Schnee Hase sind bis auf Weiteres eingestellt → aus `index.html` entfernt (Fotos bleiben in `web/produkte/`). Quartiere: 7 Sorten (hinten jetzt Kater 24 %, Köter 70 %), Bergtiere: 9 Sorten.
 - **Runde 10c:** Freistellen: Kappen oberhalb des Körpers behalten ihre eigene Kontur (100-ml-Kappe ist breiter als der Körper, wurde vorher abgeschnitten). 100 ml jetzt 393×1210 → `--bar:0.325`, `--w` 9 % kleiner. Fuchs-Übergang: `fox.black` wird ab a≈0.74 bis 0.55 durchlässig und mit der Kamerafahrt (f) ganz; Feuer halbtransparent (Welt scheint warm durch), Spitze a≈0.85, verglüht weich über f; Aussen-Bloom skaliert mit der Durchlässigkeit (`fox.spill`).
+
+---
+
+## Runde 11 (27.10.) — Bern im Hintergrund, Bergtiere-Legende, Git
+- **Quartiere-Welt:** `worlds/bern.png` (Altstadt am Aare-Ufer: Münster, Bundeshaus-Kuppel, Zytglogge, Brücke, Alpen) → `web/worlds/wald.webp`; Winter `worlds/bern_w.png` → `wald_w.webp`. Titel jetzt links (`.title.side`), damit er das Münster nicht verdeckt.
+- **Bergtiere:** Plaketten nur beim Hover (gross, über der Flasche). Links eine **Sortenliste** (`ol.legend`, Sommer/Winter getrennt); Hover/Klick auf einen Eintrag hebt die Flasche (`.hi`) und dimmt die anderen (`.dim`); Hover auf eine Flasche markiert den Listeneintrag (`.hot`). Verteilung neu als Zickzack in drei Höhen (oben 37/41, 50/35, 63/41 · Mitte 37/57, 52/60, 74/56 · unten 39/78, 56/80, 78/76; Winter-OTR 37/58, 54/52, 74/58).
+- **Gestaffeltes Einblenden** beim Umschalten: jede Saison-Flasche hat `--i` (von unten nach oben, links nach rechts), `transition-delay: --i × 130 ms`.
+- **Tierköpfe:** Varianten A/B für Lemur, Chipmunk, Panda in `assets/heads_src/` (+ `Uebersicht_Koepfe.jpg`) — noch **nicht** eingebaut, nur zum Vergleichen.
+- **Git:** Repo in `Web/`, Remote `github.com/ischer187-cmyk/bernvapes-website`, `.gitignore` schliesst .env/Secrets, Render-PNGs, Rohvideos und Testkopien aus.
