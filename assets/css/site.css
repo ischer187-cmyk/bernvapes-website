@@ -441,7 +441,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 /* Fuchs: taucht selten (25–40 s, zufällig) hinter dem goldenen Gipfel auf, flitzt den Grat des cremefarbenen Gipfels hoch, hält kurz, kehrt um und verschwindet wieder. JS steuert Position (Bild-Koordinaten). */
-.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028a') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
+.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028b') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
 .hero .lg-occ-f{clip-path:polygon(830px 466px,915px 395px,945px 377px,1000px 418px,1000px 480px,830px 480px)}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
@@ -542,3 +542,15 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .bottles .row{gap:clamp(40px,8vw,140px)}
 .bottles .pcol{gap:62px}
 @media (max-width:760px){.bottles .row{gap:56px 28px}.bottles .bottle3{width:clamp(120px,36vw,160px)}.bottles .preorder{font-size:.9rem}}
+/* #flaschen passt in den Viewport (1440×900, 1366×768, 1280×800): Grössen auch an vh gekoppelt, weniger Polster */
+@media (min-width:761px){
+ #flaschen{padding:clamp(64px,9vh,96px) 0 clamp(16px,3vh,36px)}
+ #flaschen .kicker{margin-bottom:clamp(4px,1vh,12px)}
+ #flaschen h2{font-size:clamp(1.8rem,min(4.4vw,5.6vh),3.6rem)}
+ #flaschen .row{margin-top:clamp(12px,2.6vh,36px)}
+ #flaschen .bottle3{width:clamp(96px,min(14vw,15vh),196px)}
+ #flaschen .pcol{gap:clamp(44px,6vh,62px)}
+ #flaschen .preorder{padding:.55em 1.4em;font-size:clamp(.85rem,1.6vh,1rem)}
+ #flaschen .avail{margin-top:clamp(12px,2.4vh,34px)}
+ #flaschen .specs{margin-top:clamp(12px,2.4vh,44px)}
+}
