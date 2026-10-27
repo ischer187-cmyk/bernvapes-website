@@ -11,6 +11,8 @@
 </head>
 <body class="grain">
 <a class="backlink" href="index.html">← Zrügg zu BERNVAPES</a>
+<div class="agebar" role="note"><span class="age">18+</span><span>Liquids für die E-Zigarette. Nur für Erwachsene. Dieses Produkt kann Ihre Gesundheit schädigen.</span></div>
+<button class="cartbtn" type="button" data-cart-open>Chorb <b data-cart-count>0</b></button>
 
 <!-- ============ Eiswelt: Afrika-Konzepte ============ -->
 <section class="scene werkstatt" id="eis">
@@ -60,7 +62,18 @@
     </div>
   </div>
 </footer>
+<div class="cart" id="cart" hidden role="dialog" aria-modal="true" aria-labelledby="cart-title">
+  <div class="cart-panel">
+    <h2 id="cart-title">Chorb</h2>
+    <p data-cart-empty>No nüt drin.</p>
+    <ul data-cart-lines></ul>
+    <div class="extras" data-shop-extras></div>
+    <button type="button" disabled>Bstellig — no ke Shop aaghänkt</button>
+    <button type="button" data-cart-close>Schliesse</button>
+  </div>
+</div>
 <script src="assets/js/worlds_data.js"></script>
 <script src="assets/js/site.js"></script>
+<script src="assets/js/shop.js"></script>
 </body>
 </html>
