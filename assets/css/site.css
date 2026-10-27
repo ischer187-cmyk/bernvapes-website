@@ -392,19 +392,29 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #quartiere .beast.grp.bot .bottle3 .shine,#bergtiere .beast.grp.bot .bottle3 .shine{display:none}
 #quartiere .beast.grp.bot.quiet{filter:none}
 
-/* ===== Dampflok "Grat-Fahrer" (Hero): Low-Poly-Zug fährt auf dem Bergkamm =====
+/* ===== Dampflok "Grat-Fahrer" (Hero): schwarze Low-Poly-Lok auf dem Bergkamm =====
    .lokgrat = 2400×1028-Ebene in Bild-Koordinaten von worlds/neue.webp; JS skaliert sie wie den Welt-Shader.
-   Pfad = gemessene Kante des dunkelgrünen Mittelgipfels. z-index 1, vor .black/.fox/.beasts im DOM → nie über den Tieren. */
-.hero .lokgrat{position:absolute;left:0;top:0;width:2400px;height:1028px;transform-origin:0 0;z-index:1;pointer-events:none;opacity:.88}
-.hero .lg-car{position:absolute;left:0;top:0;offset-path:path('M1150 575 L1173 560 L1252 509 L1341 462 L1384 485 L1447 509 L1517 548 L1545 563');offset-rotate:auto;offset-anchor:50% 100%;
- animation:lgFahrt 40s linear infinite;opacity:0}
-.hero .lg-lok{width:64px;height:46px;animation-delay:-12s}
-.hero .lg-w1{width:48px;height:40px;animation-delay:-7.9s}
-.hero .lg-w2{width:48px;height:40px;animation-delay:-4.3s}
-.hero .lg-car svg{display:block;width:100%;height:100%;overflow:visible}
-@keyframes lgFahrt{0%{offset-distance:0%;opacity:0}4%{opacity:1}70%{opacity:1}74%{offset-distance:100%;opacity:0}100%{offset-distance:100%;opacity:0}}
-.hero .lg-puff{position:absolute;left:62%;top:-6px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,rgba(250,240,215,.85),rgba(250,240,215,0) 70%);opacity:0;animation:lgPuff 2.2s ease-out infinite}
-.hero .lg-puff.p2{animation-delay:.73s}.hero .lg-puff.p3{animation-delay:1.46s}
-@keyframes lgPuff{0%{opacity:0;transform:translate(0,0) scale(.4)}20%{opacity:.85}100%{opacity:0;transform:translate(-22px,-26px) scale(2)}}
+   Pfad = gemessene Kante des dunkelgrünen Mittelgipfels; Start hinter dem roten Gipfel links, Ende hinter dem goldenen rechts.
+   .lg-occ = ausgeschnittene Vordergrund-Gipfel aus neue.webp ÜBER dem Zug → er taucht physisch dahinter ab (kein Fade).
+   z-index 1, vor .black/.fox/.beasts im DOM → nie über den Tieren. */
+.hero .lokgrat{position:absolute;left:0;top:0;width:2400px;height:1028px;transform-origin:0 0;z-index:1;pointer-events:none}
+.hero .lg-car{position:absolute;left:0;top:0;offset-path:path('M1088 615 L1173 560 L1252 509 L1341 462 L1384 485 L1447 509 L1517 548 L1610 605 L1690 680');offset-rotate:auto;offset-anchor:50% 100%;
+ visibility:hidden;animation:lgFahrt 48s linear infinite}
+.hero .lg-lok{width:64px;height:46px;animation-delay:-10s}
+.hero .lg-w1{width:48px;height:40px;animation-delay:-6.5s}
+.hero .lg-w2{width:48px;height:40px;animation-delay:-3.5s}
+.hero .lg-car svg{position:relative;display:block;width:100%;height:100%;overflow:visible}
+@keyframes lgFahrt{0%{offset-distance:0%;visibility:visible}76%{offset-distance:100%;visibility:visible}76.1%,100%{offset-distance:100%;visibility:hidden}}
+.hero .lg-occ{position:absolute;inset:0;background:url('../web/worlds/neue.webp') 0 0/2400px 1028px no-repeat}
+.hero .lg-occ-l{clip-path:polygon(1000px 559px,1064px 530px,1242px 608px,1300px 583px,1300px 720px,1000px 720px)}
+.hero .lg-occ-r{clip-path:polygon(1400px 617px,1517px 544px,1552px 526px,1642px 569px,1673px 542px,1732px 517px,1800px 500px,1800px 720px,1400px 720px)}
+/* Dampf: grosse, weiche Wolken, wachsen, ziehen nach hinten und verblassen; verebbt, wenn der Zug abtaucht */
+.hero .lg-steam{position:absolute;left:68%;top:-8px;width:0;height:0;animation:lgSteamOn 48s linear infinite;animation-delay:-10s}
+.hero .lg-steam i{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;
+ background:radial-gradient(circle at 45% 40%,rgba(252,246,232,.95),rgba(240,232,214,.7) 45%,rgba(240,232,214,0) 72%);opacity:0;animation:lgPuff 4.2s ease-out infinite}
+.hero .lg-steam i:nth-child(2){animation-delay:.7s}.hero .lg-steam i:nth-child(3){animation-delay:1.4s}
+.hero .lg-steam i:nth-child(4){animation-delay:2.1s}.hero .lg-steam i:nth-child(5){animation-delay:2.8s}.hero .lg-steam i:nth-child(6){animation-delay:3.5s}
+@keyframes lgPuff{0%{opacity:0;transform:translate(0,0) scale(.5)}10%{opacity:.95}60%{opacity:.7}100%{opacity:0;transform:translate(-120px,-70px) scale(3.6)}}
+@keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
