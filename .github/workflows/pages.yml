@@ -1,32 +1,26 @@
 name: Deploy to GitHub Pages
 
+# GitHub Pages liefert den Branch "gh-pages" aus. Dieser Workflow spiegelt bei jedem Push
+# den Stand von "main" dorthin — damit ist jeder Push auf main automatisch live.
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  mirror:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
         with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          fetch-depth: 0
+      - name: main → gh-pages
+        run: git push --force origin HEAD:gh-pages
