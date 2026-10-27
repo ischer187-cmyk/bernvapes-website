@@ -441,7 +441,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 /* Fuchs: taucht selten (25–40 s, zufällig) hinter dem goldenen Gipfel auf, flitzt den Grat des cremefarbenen Gipfels hoch, hält kurz, kehrt um und verschwindet wieder. JS steuert Position (Bild-Koordinaten). */
-.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028d') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
+.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028e') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
 .hero .lg-occ-f{clip-path:polygon(830px 466px,915px 395px,945px 377px,1000px 418px,1000px 480px,830px 480px)}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
@@ -582,3 +582,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes ledRun{to{--led:360deg}}
 @keyframes ledPulse{0%,100%{box-shadow:0 0 0 1px rgba(201,162,74,.25),0 0 12px rgba(201,162,74,.3),0 6px 18px rgba(0,0,0,.35)}50%{box-shadow:0 0 0 1px rgba(201,162,74,.35),0 0 20px rgba(201,162,74,.5),0 6px 18px rgba(0,0,0,.35)}}
 @media (prefers-reduced-motion:reduce){#flaschen .avail,#flaschen .avail::before{animation:none}}
+/* Quartier Monbijou Marder: Schoggi/Orange beidseitig (2. Stück gespiegelt & gedreht), heller Rand für Kontrast auf Braun */
+#quartiere .beast.schoko .ings img{filter:drop-shadow(0 0 1.5px rgba(255,238,205,.9)) drop-shadow(0 0 6px rgba(255,226,170,.35)) drop-shadow(0 8px 10px rgba(0,0,0,.35)) brightness(1.15) contrast(1.05)}
+#quartiere .beast.schoko .ings img.mir{scale:-1 1;rotate:-14deg;width:34%}
+#quartiere .beast.schoko:hover .ings img{filter:drop-shadow(0 0 2px rgba(255,238,205,.95)) drop-shadow(0 0 8px rgba(255,226,170,.45)) drop-shadow(0 10px 12px rgba(0,0,0,.45)) brightness(1.2)}
