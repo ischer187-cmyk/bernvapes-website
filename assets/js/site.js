@@ -8,6 +8,8 @@
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const lerp=(a,b,t)=>a+(b-a)*t;
   const ss01=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
+  /* Ease-out-Quart: kleine Inputs stark, grosse flachen ab (Scroll→Scrub) */
+  const easeOutQuart=t=>{t=clamp(t,0,1);return 1-Math.pow(1-t,4);};
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const mobile=()=>innerWidth<(window.BV_MOBILE_BP||900);
 
@@ -328,20 +330,33 @@
       if(mobile()){ if(autoStart===null) autoStart=now; p=clamp((now-autoStart)/4200,0,1); }   // Mobile: Entrance läuft automatisch ab
       else p=sceneProgress(hero);
       if(window.BV_FORCE_P!=null) p=window.BV_FORCE_P;          /* Debug/Test */
-      /* Tempo-Regler: der sichtbare Fortschritt folgt dem Scroll zeitbasiert und mit Höchstgeschwindigkeit —
-         ein schneller Flick zieht die Explosion nicht in einem Ruck durch (min. ~2.2 s für die Auflöse-Phase), langsames Drehen bleibt direkt. */
+      /* Scroll→Scrub mit Ease-out-Quart + Tempo-Deckel:
+         Delta d = Lücke zwischen echtem Scroll und sichtbarem Fortschritt.
+         x=min(|d|/MAX,1), Schritt=sign(d)*MAX*(1-(1-x)^4)*k — langsame Bewegungen
+         wirken fast voll, schnelle Flicks flachen ab; maxv begrenzt weiter die Geschwindigkeit.
+         FoxScrub.tick() glättet zusätzlich per Lerp. */
       const dt=Math.min(0.05,(now-(hero._t||now))/1000); hero._t=now;
       if(hero._ps==null||window.BV_FORCE_P!=null||reduce) hero._ps=p;
-      else{ const d=p-hero._ps, maxv=0.18*dt;            /* max 18 % des Hero-Scrollwegs pro Sekunde */
-        const step=Math.sign(d)*Math.min(Math.abs(d)*Math.min(1,dt*7), maxv); hero._ps+=step;
-        if(Math.abs(p-hero._ps)<0.0005) hero._ps=p; }
+      else{
+        const d=p-hero._ps;
+        const MAX=0.05;           /* Bezugs-Delta pro Frame */
+        const k=1.1;              /* leichte Verstärkung für kleine Deltas */
+        const x=Math.min(Math.abs(d)/MAX,1);
+        const eased=MAX*easeOutQuart(x)*k;
+        const maxv=0.18*dt;       /* max 18 % des Hero-Scrollwegs pro Sekunde */
+        const step=Math.sign(d)*Math.min(eased, Math.abs(d), maxv);
+        hero._ps+=step;
+        if(Math.abs(p-hero._ps)<0.0005) hero._ps=p;
+      }
       p=hero._ps;
       const ss=t=>t*t*(3-2*t);                        // smoothstep
       const a=clamp(p/0.40,0,1);                      // Phase A: Maske löst sich auf (Kamera steht) — kürzerer Scrollweg
       const f=clamp((p-0.40)/0.22,0,1);               // Phase B: erst wenn der Kopf ganz verflogen ist: Kamera fährt in die Welt, Schwarz blendet aus
+      /* Weiches Einblenden der Papierwelt: Crossfade über den Anfang von Phase B (kein harter Cut / Schwarzblitz) */
+      const worldIn=ss(clamp(f/0.34,0,1));
       if(fox){ fox.target=a; fox.scale=1.0;
         /* Maske wird durchlässig, sobald die meisten Stücke fliegen (a≈0.75): erst halb, mit der Kamerafahrt ganz */
-        fox.black=1-ss(clamp((a-0.74)/0.26,0,1))*0.55-ss(clamp(f/0.6,0,1))*0.45;
+        fox.black=1-ss(clamp((a-0.74)/0.26,0,1))*0.55-worldIn*0.45;
         fox.vignette=1-ss(clamp((a-0.45)/0.5,0,1));
         fox.soft=ss(clamp((a-0.35)/0.4,0,1));            /* Maskenkontur: im Stand hart, wird mit der Bewegung weich */
         fox.frameAlpha=1-ss(clamp((a-0.90)/0.10,0,1));   /* letzte Reste (Ohrspitzen) ausblenden */
@@ -353,8 +368,15 @@
         fox.fire=ss(clamp((a-0.62)/0.2,0,1))*(1-ss(clamp((f-0.05)/0.7,0,1)))*(0.92+0.08*Math.sin(now*0.021));
         fox.spill=1-fox.black;                            /* Licht nach aussen, sobald die Maske durchlässig wird */
         fox.now=now; }
-      if(heroWorld){ heroWorld.zoom=1.0+ ss(f)*0.34; heroWorld.dark=0; }
-      black.style.opacity=(fox&&fox.idx>=0)?0:1;   /* bis der erste Frame gezeichnet ist, bleibt der Div-Schwarz */
+      if(heroWorld){
+        heroWorld.zoom=1.0+ ss(f)*0.34;
+        /* leichte Abdunkelung nur am Beginn der Kamerafahrt, weich hochgefahren mit worldIn */
+        heroWorld.dark=f>0?(1-worldIn)*0.28:0;
+      }
+      /* Div-Schwarz weich ausfaden sobald der erste Fuchs-Frame da ist (statt hartem Cut) */
+      const wantBlk=(fox&&fox.idx>=0)?0:1;
+      hero._blk=(hero._blk==null)?wantBlk:lerp(hero._blk,wantBlk,reduce?1:0.08);
+      black.style.opacity=hero._blk;
       brand.style.opacity=clamp(1-a*3.5,0,1); brand.style.transform=`translateY(${a*70}px)`;
       const b=clamp((p-0.60)/0.2,0,1);                // Phase C: Welt steht, Tiere kommen
       hero.classList.toggle('phase-b',b>0.05); beasts.classList.toggle('in',b>0.1);
