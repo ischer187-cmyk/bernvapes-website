@@ -111,7 +111,7 @@ h2{font-size:clamp(1.5rem,3.2vw,2.6rem);line-height:1.15}
 /* ---------- HERO (Fuchs + Neue Linie) ---------- */
 .hero{height:280vh}
 .hero canvas.fox{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
-.hero .brand{position:absolute;left:0;right:0;bottom:9vh;text-align:center;z-index:3;pointer-events:none}
+.hero .brand{position:absolute;left:0;right:0;bottom:15vh;text-align:center;z-index:3;pointer-events:none}
 .hero .brand h1{font-size:clamp(2.2rem,7vw,5.4rem);letter-spacing:.22em;text-shadow:0 2px 30px rgba(0,0,0,.6)}
 .hero .brand h1 b{font-weight:400;color:var(--bv-gold)}
 .hero .brand .tag{margin-top:8px;font-family:var(--font-head);font-size:clamp(.58rem,1.1vw,.78rem);letter-spacing:.34em;text-transform:uppercase;color:var(--bv-gold-soft)}
@@ -414,14 +414,35 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .hero .lg-occ{position:absolute;inset:0;background:url('../web/worlds/neue.webp') 0 0/2400px 1028px no-repeat}
 .hero .lg-occ-l{clip-path:polygon(1000px 559px,1064px 530px,1242px 608px,1300px 583px,1300px 720px,1000px 720px)}
 .hero .lg-occ-r{clip-path:polygon(1400px 617px,1517px 544px,1552px 526px,1642px 569px,1673px 542px,1732px 517px,1800px 500px,1800px 720px,1400px 720px)}
-/* Dampf: grosse, weiche Wolken, wachsen, ziehen nach hinten und verblassen; verebbt, wenn der Zug abtaucht */
+/* Dampf: geschichtete, quellende Wolken (weiche Radial-Blobs) steigen auf und treiben gegen die Fahrtrichtung; dazu dünne Fahnen, die sich strecken und verblassen. Verebbt, wenn der Zug abtaucht */
 .hero .lg-steam{position:absolute;left:68%;top:-8px;width:0;height:0;animation:lgSteamOn 48s linear infinite;animation-delay:-10s}
-.hero .lg-steam i{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;
- background:radial-gradient(circle at 45% 40%,rgba(252,246,232,.95),rgba(240,232,214,.7) 45%,rgba(240,232,214,0) 72%);opacity:0;animation:lgPuff 4.2s ease-out infinite}
-.hero .lg-steam i:nth-child(2){animation-delay:.7s}.hero .lg-steam i:nth-child(3){animation-delay:1.4s}
-.hero .lg-steam i:nth-child(4){animation-delay:2.1s}.hero .lg-steam i:nth-child(5){animation-delay:2.8s}.hero .lg-steam i:nth-child(6){animation-delay:3.5s}
-@keyframes lgPuff{0%{opacity:0;transform:translate(0,0) scale(.5)}10%{opacity:.95}60%{opacity:.7}100%{opacity:0;transform:translate(-120px,-70px) scale(3.6)}}
+.hero .lg-steam i{position:absolute;left:calc(var(--s,30px)/-2);top:calc(var(--s,30px)/-2);width:var(--s,30px);height:var(--s,30px);border-radius:50%;opacity:0;
+ background:radial-gradient(circle at 42% 38%,rgba(255,250,238,var(--o,.9)) 0,rgba(240,231,212,calc(var(--o,.9)*.75)) 38%,rgba(226,214,192,calc(var(--o,.9)*.3)) 58%,rgba(226,214,192,0) 72%),
+  radial-gradient(circle at 70% 65%,rgba(236,226,206,calc(var(--o,.9)*.6)) 0,rgba(236,226,206,0) 50%);
+ filter:blur(1.5px);will-change:transform,opacity;animation:lgPuff var(--t,4.6s) cubic-bezier(.2,.6,.35,1) infinite;animation-delay:var(--dl,0s)}
+.hero .lg-steam i:nth-child(1){--s:30px;--t:4.2s;--dl:0s;--dx:-150px;--dy:-95px;--sc:3.4;--o:.95}
+.hero .lg-steam i:nth-child(2){--s:40px;--t:5.4s;--dl:.55s;--dx:-210px;--dy:-120px;--sc:4.2;--o:.8}
+.hero .lg-steam i:nth-child(3){--s:24px;--t:3.6s;--dl:1.1s;--dx:-120px;--dy:-80px;--sc:3.0;--o:.9}
+.hero .lg-steam i:nth-child(4){--s:46px;--t:6.2s;--dl:1.6s;--dx:-250px;--dy:-140px;--sc:4.6;--o:.6}
+.hero .lg-steam i:nth-child(5){--s:28px;--t:4.4s;--dl:2.1s;--dx:-170px;--dy:-70px;--sc:3.6;--o:.85}
+.hero .lg-steam i:nth-child(6){--s:36px;--t:5.0s;--dl:2.7s;--dx:-190px;--dy:-130px;--sc:3.9;--o:.75}
+.hero .lg-steam i:nth-child(7){--s:22px;--t:3.8s;--dl:3.2s;--dx:-135px;--dy:-105px;--sc:3.2;--o:.95}
+.hero .lg-steam i:nth-child(8){--s:50px;--t:6.8s;--dl:3.7s;--dx:-280px;--dy:-110px;--sc:4.8;--o:.5}
+.hero .lg-steam i:nth-child(9){--s:32px;--t:4.8s;--dl:4.3s;--dx:-160px;--dy:-115px;--sc:3.7;--o:.85}
+.hero .lg-steam i:nth-child(10){--s:26px;--t:4.0s;--dl:4.9s;--dx:-145px;--dy:-88px;--sc:3.3;--o:.9}
+@keyframes lgPuff{0%{opacity:0;transform:translate(0,0) scale(.45)}8%{opacity:1}35%{transform:translate(calc(var(--dx)*.3),calc(var(--dy)*.55)) scale(calc(var(--sc)*.45))}
+ 70%{opacity:.6}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(var(--sc))}}
+/* Fahnen: dünne, längliche Schwaden, die sich nach hinten ziehen */
+.hero .lg-steam b{position:absolute;left:-30px;top:-6px;width:60px;height:12px;border-radius:50%;opacity:0;transform-origin:100% 50%;
+ background:radial-gradient(ellipse at 70% 50%,rgba(245,238,222,.7),rgba(245,238,222,0) 70%);filter:blur(2px);animation:lgWisp var(--t,5s) ease-out infinite;animation-delay:var(--dl,0s)}
+.hero .lg-steam b:nth-of-type(1){--t:5.2s;--dl:.3s;--dy:-60px}
+.hero .lg-steam b:nth-of-type(2){--t:6.4s;--dl:2.4s;--dy:-95px}
+.hero .lg-steam b:nth-of-type(3){--t:5.8s;--dl:4.1s;--dy:-40px}
+@keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
+/* Fuchs: taucht selten (25–40 s, zufällig) hinter dem goldenen Gipfel auf, flitzt den Grat des cremefarbenen Gipfels hoch, hält kurz, kehrt um und verschwindet wieder. JS steuert Position (Bild-Koordinaten). */
+.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028a') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
+.hero .lg-occ-f{clip-path:polygon(830px 466px,915px 395px,945px 377px,1000px 418px,1000px 480px,830px 480px)}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
 
@@ -489,3 +510,35 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #bergtiere .toggle{top:clamp(60px,7vh,72px)}
 #bergtiere .title.side{max-width:34ch}
 @media (max-width:600px){#bergtiere .toggle{top:76px;right:12px;gap:10px;padding:10px 14px;font-size:.72rem;letter-spacing:.12em}}
+/* Quartier: Verfügbarkeits-Badge */
+.bottles .avail{position:relative;display:inline-block;margin:34px auto 0;z-index:2;pointer-events:none;white-space:nowrap;
+ font-family:var(--font-head);text-transform:uppercase;letter-spacing:.14em;font-size:clamp(.9rem,1.2vw,1.2rem);color:var(--bv-gold);
+ background:rgba(23,19,15,.82);border:1.5px solid var(--bv-gold);outline:1px solid rgba(201,162,74,.45);outline-offset:3px;border-radius:999px;padding:.5em 1.3em;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+/* Flaschen-Reihe (#flaschen): stärkerer Hover-Kipp + Platzhalter-Knopf "Vorbestellen" */
+.bottles .pcol{display:flex;flex-direction:column;align-items:center;gap:14px}
+.bottles .pcol .bottle3{transition:transform .55s cubic-bezier(.34,1.4,.5,1)}
+.bottles .pcol:hover .bottle3,.bottles .pcol:focus-within .bottle3{transform:translateY(-22px) rotate(-9deg) scale(1.18);z-index:3}
+.bottles .preorder{position:relative;z-index:4;font-family:var(--font-head);font-weight:700;text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;color:var(--bv-gold);
+ background:linear-gradient(180deg,#2a2119,#17130f);border:2px solid var(--bv-gold);border-radius:999px;padding:.7em 1.5em;cursor:pointer;
+ box-shadow:0 0 0 3px rgba(23,19,15,.9),0 0 14px rgba(201,162,74,.45),0 6px 14px rgba(0,0,0,.5);opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s,box-shadow .25s,color .25s}
+.bottles .pcol:hover .preorder,.bottles .pcol:focus-within .preorder{opacity:1;transform:none}
+.bottles .preorder:hover,.bottles .preorder:focus-visible{color:#fff3d6;box-shadow:0 0 0 3px rgba(23,19,15,.9),0 0 22px rgba(201,162,74,.8),0 6px 14px rgba(0,0,0,.5);outline:none}
+@media (hover:none),(max-width:760px){.bottles .preorder{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.bottles .pcol .bottle3,.bottles .preorder{transition:none}}
+
+/* Intro: Scroll-Hinweis höher, unter der Wortmarke */
+.hero .hint{bottom:clamp(36px,6vh,64px)}
+/* Flaschen-Sektion: volle Höhe, Inhalt vertikal zentriert */
+.bottles{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}
+.bottles>.wrap{width:100%}
+/* Flaschen-Sektion: grösser & lesbarer (alt → neu): kicker .7rem → 1rem/700; h2 clamp(1.5rem,3.2vw,2.6rem) → clamp(2rem,4.4vw,3.6rem);
+   .lbl .62rem → .9rem/700; .specs .64rem → .92rem/600; Vorbestellen .72rem → 1rem; Flasche clamp(118px,12vw,168px) → clamp(136px,14vw,196px); Abstand clamp(30px,6.5vw,104px) → clamp(40px,8vw,140px) */
+.bottles .kicker{font-size:1rem;font-weight:700}
+.bottles h2{font-size:clamp(2rem,4.4vw,3.6rem)}
+.bottles .lbl{font-size:.9rem;font-weight:700;letter-spacing:.18em}
+.bottles .specs div{font-size:.92rem;font-weight:600;opacity:.92}
+.bottles .preorder{font-size:1rem}
+.bottles .bottle3{width:clamp(136px,14vw,196px)}
+.bottles .row{gap:clamp(40px,8vw,140px)}
+.bottles .pcol{gap:62px}
+@media (max-width:760px){.bottles .row{gap:56px 28px}.bottles .bottle3{width:clamp(120px,36vw,160px)}.bottles .preorder{font-size:.9rem}}

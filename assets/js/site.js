@@ -140,7 +140,7 @@
       let im=this.frames[i]; let k=i; while((!im||!im.complete||!im.naturalWidth)&&k>0){ k--; im=this.frames[k]; }   /* Fallback: nächster geladener Frame */
       if(!im||!im.complete||!im.naturalWidth) return; i=k;
       this.idx=i; this.lastScale=this.scale; this.lastBlack=this.black; const W=this.c.width,H=this.c.height; const ctx=this.ctx;
-      const s=Math.min(W/im.naturalWidth,H/im.naturalHeight)*(this.scale||1); const w=im.naturalWidth*s,h=im.naturalHeight*s, x=(W-w)/2, y=(H-h)/2;   /* contain: ganzer Kopf immer sichtbar */
+      const s=Math.min(W/im.naturalWidth,H/im.naturalHeight)*(this.scale||1); const w=im.naturalWidth*s,h=im.naturalHeight*s, x=(W-w)/2, y=(H-h)/2-H*0.15*Math.max(0,Math.min(1,this.black==null?1:this.black));   /* Intro: Kopf ~15 % höher (Platz für Wortmarke darunter), gleitet beim Aufbrechen zurück in die Mitte; contain: ganzer Kopf immer sichtbar */
       ctx.clearRect(0,0,W,H);
       /* 1) Schwarz über alles, 2) Fenster in Fuchs-Silhouette ausstanzen, 3) Fuchs obendrauf → Welt nur dort sichtbar, wo die Maske aufbricht */
       if(this.black>0.001){
@@ -399,7 +399,7 @@
     if(hero) hero._update(now);
     if(fox) fox.tick();
     World.all.forEach(w=>w.render(now));
-    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',p>0.08||mobile()); const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
+    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',(sc.id==='quartiere'?((sc.getBoundingClientRect().top<innerHeight*0.4&&sc.getBoundingClientRect().bottom>innerHeight*0.3)?(sc._inAt=sc._inAt||now,now-sc._inAt>450):(sc._inAt=0,false)):p>0.08)||mobile());   /* Quartier: Flaschen erscheinen ~0.45 s nach Einstieg (Scroll oder #quartiere-Anker) von selbst (auch via #quartiere-Anker), nicht erst nach 8 % Pin-Scroll */ const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
     parallaxFns.forEach(f=>f());
     if(hero&&!mobile()){ hero.querySelectorAll('.clouds img').forEach(c=>{ const d=parseFloat(c.style.getPropertyValue('--d')||1); c.style.transform=`translate(${-mouse.x*14*d}px,${-mouse.y*6*d}px)`; }); }   /* Wolken: ferne Ebene, bewegt sich wenig */
     requestAnimationFrame(frame);
