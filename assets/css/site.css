@@ -424,3 +424,23 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
+
+/* ===== Quartier: lesbarere Texte (+~30 %) ===== */
+#quartiere .title.side{max-width:38ch}
+#quartiere .title.side .kicker{font-size:.9rem}
+#quartiere .title.side p{font-size:1.24rem;line-height:1.5}
+#quartiere .beast .plaque{padding:10px 18px 9px}
+#quartiere .beast .plaque .flavor{font-size:.95rem}
+#quartiere .beast .plaque .who{font-size:.74rem;margin-top:3px}
+/* ===== Quartier: Summer/On-the-rocks-Schalter oben rechts unter der Wolke, gross & deutlich ===== */
+#quartiere .toggle{top:clamp(150px,21vh,200px);bottom:auto;right:clamp(16px,3vw,40px);gap:14px;padding:13px 20px;font-size:.9rem;letter-spacing:.2em;
+ color:var(--bv-cream);background:rgba(23,19,15,.88);border:1.5px solid var(--bv-gold);border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 0 4px rgba(198,161,58,.18);cursor:pointer}
+#quartiere .toggle i{width:52px;height:24px;border-width:1.5px}
+#quartiere .toggle i::after{top:3px;left:3px;width:15px;height:15px}
+#quartiere .toggle.on i::after{left:30px}
+#quartiere .toggle.on{background:rgba(20,40,62,.9);border-color:#cfe8f7;box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 0 4px rgba(207,232,247,.25)}
+#quartiere .toggle span,#quartiere .toggle b{opacity:.55;transition:opacity .3s,color .3s}
+#quartiere .toggle:not(.on) span{opacity:1;color:var(--bv-gold)}
+#quartiere .toggle.on b{opacity:1;color:#cfe8f7}
+#quartiere .toggle:hover{box-shadow:0 10px 28px rgba(0,0,0,.45),0 0 0 5px rgba(198,161,58,.3)}
+#quartiere .toggle:focus-visible{outline:3px solid var(--bv-gold);outline-offset:4px}

@@ -20,16 +20,21 @@
 
   /* ---------- World (WebGL) ---------- */
   const VS=`attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}`;
-  const FS=`precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 res,img,m,sun;uniform float time,zoom,cool,dark,glow;
+  const FS=`precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 res,img,m,sun;uniform float time,zoom,cool,dark,glow;uniform vec4 rig;
   void main(){
     float ra=res.x/res.y, ri=img.x/img.y;
     vec2 s=(ra>ri)?vec2(1.0,ri/ra):vec2(ra/ri,1.0);
-    float depth=smoothstep(0.10,0.95,v.y);                 /* 0 = fern (oben) … 1 = nah (unten) */
+    float z=1.08*zoom;
+    /* Starre Zone (data-rigid, Bild-Koordinaten x0,y0,x1,y1, z.B. Münster): dort wird der Versatz an der Unterkante der Zone
+       ausgewertet → das Objekt verschiebt sich nur als Ganzes (keine Scherung/Neigung durch Tiefe, Wolkendrift oder Wind) */
+    vec2 u0=vec2(0.5,0.52)+(v-0.5)*s/z;
+    float rg=(rig.z>rig.x)?smoothstep(rig.x-0.015,rig.x,u0.x)*smoothstep(rig.z+0.015,rig.z,u0.x)*smoothstep(rig.y-0.03,rig.y,u0.y)*smoothstep(rig.w+0.02,rig.w,u0.y):0.0;
+    vec2 vv=vec2(v.x,mix(v.y,0.5+(rig.w-0.52)*z/s.y,rg));
+    float depth=smoothstep(0.10,0.95,vv.y);                /* 0 = fern (oben) … 1 = nah (unten) */
     vec2 par=m*(depth-0.38)*0.018;                          /* Parallaxe: vorne mehr, hinten weniger */
     float sway=sin(time*0.9+v.x*7.0)*0.0024*depth*depth;    /* Wind im Vordergrund */
-    float drift=sin(time*0.06)*0.013*(1.0-depth)*smoothstep(0.36,0.0,v.y); /* Wolken driften sichtbar hin und her (begrenzt) */
+    float drift=sin(time*0.06)*0.013*(1.0-depth)*smoothstep(0.36,0.0,vv.y); /* Wolken driften sichtbar hin und her (begrenzt) */
     vec2 off=vec2(par.x+sway+drift,par.y*0.55);
-    float z=1.08*zoom;
     vec2 uv=vec2(0.5,0.52)+(v-0.5)*s/z+off;
     vec3 c=texture2D(t,uv).rgb;
     /* Sonne als hinterleuchtete Papierlaterne: pulsierender Kern + warmer Halo, Wolken leicht angestrahlt */
@@ -66,7 +71,7 @@
       const pr=gl.createProgram(); gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)); gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)); gl.linkProgram(pr); gl.useProgram(pr);
       const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
       const loc=gl.getAttribLocation(pr,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-      this.u={res:gl.getUniformLocation(pr,'res'),img:gl.getUniformLocation(pr,'img'),m:gl.getUniformLocation(pr,'m'),time:gl.getUniformLocation(pr,'time'),zoom:gl.getUniformLocation(pr,'zoom'),cool:gl.getUniformLocation(pr,'cool'),dark:gl.getUniformLocation(pr,'dark'),sun:gl.getUniformLocation(pr,'sun'),glow:gl.getUniformLocation(pr,'glow')};
+      this.u={res:gl.getUniformLocation(pr,'res'),img:gl.getUniformLocation(pr,'img'),m:gl.getUniformLocation(pr,'m'),time:gl.getUniformLocation(pr,'time'),zoom:gl.getUniformLocation(pr,'zoom'),cool:gl.getUniformLocation(pr,'cool'),dark:gl.getUniformLocation(pr,'dark'),sun:gl.getUniformLocation(pr,'sun'),glow:gl.getUniformLocation(pr,'glow'),rig:gl.getUniformLocation(pr,'rig')};
       const sunA=(canvas.dataset.sun||'').split(',').map(parseFloat); this.sun=(sunA.length===2&&!sunA.some(isNaN))?sunA:null;
       const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,tex);
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
@@ -111,7 +116,7 @@
       gl.uniform2f(this.u.res,this.c.width,this.c.height); gl.uniform2f(this.u.img,this.img[0],this.img[1]);
       gl.uniform2f(this.u.m,this.mx,this.my); gl.uniform1f(this.u.time,reduce?0:(now-this.t0)/1000);
       gl.uniform1f(this.u.zoom,this.zoom); gl.uniform1f(this.u.cool,this.cool); gl.uniform1f(this.u.dark,this.dark);
-      gl.uniform2f(this.u.sun,this.sun?this.sun[0]:0,this.sun?this.sun[1]:0); gl.uniform1f(this.u.glow,this.sun?1:0);
+      gl.uniform2f(this.u.sun,this.sun?this.sun[0]:0,this.sun?this.sun[1]:0); gl.uniform1f(this.u.glow,this.sun?1:0); const rr=this.rig||(this.rig=(this.c.dataset.rigid||'0,0,0,0').split(',').map(Number)); gl.uniform4f(this.u.rig,rr[0],rr[1],rr[2],rr[3]);
       gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
     }
   }
