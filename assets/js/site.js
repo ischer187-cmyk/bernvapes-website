@@ -9,6 +9,10 @@
   const lerp=(a,b,t)=>a+(b-a)*t;
   const ss01=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('img[src]').forEach(img=>{ if(img.closest('#hero')) return; if(!img.hasAttribute('loading')) img.loading='lazy'; img.decoding='async'; });
+  const navEl=document.getElementById('nav'), navBtn=navEl&&navEl.querySelector('.nav-toggle');
+  if(navBtn){ navBtn.addEventListener('click',()=>{ const on=navEl.classList.toggle('open'); navBtn.setAttribute('aria-expanded',on?'true':'false'); });
+    navEl.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ navEl.classList.remove('open'); navBtn.setAttribute('aria-expanded','false'); })); }
   const mobile=()=>innerWidth<(window.BV_MOBILE_BP||900);
 
   /* ---------- globale Maus (geglättet) ---------- */
@@ -345,7 +349,8 @@
     const lg=sc.querySelector('.legend');
     if(lg){ const all=()=>[...sc.querySelectorAll('.beast[data-key]')];
       const hi=k=>{ all().forEach(b=>{ b.classList.toggle('hi',b.dataset.key===k); b.classList.toggle('dim',!!k&&b.dataset.key!==k&&b.dataset.season===(sc.classList.contains('cool')?'w':'s')); }); };
-      lg.querySelectorAll('li').forEach(li=>{ li.addEventListener('mouseenter',()=>hi(li.dataset.for)); li.addEventListener('mouseleave',()=>{ const on=lg.querySelector('li.on'); hi(on?on.dataset.for:null); });
+      lg.querySelectorAll('li').forEach(li=>{ li.tabIndex=0; li.addEventListener('mouseenter',()=>hi(li.dataset.for)); li.addEventListener('mouseleave',()=>{ const on=lg.querySelector('li.on'); hi(on?on.dataset.for:null); });
+        li.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); li.click(); } });
         li.addEventListener('click',()=>{ const was=li.classList.contains('on'); lg.querySelectorAll('li.on').forEach(x=>x.classList.remove('on')); if(!was) li.classList.add('on'); hi(was?null:li.dataset.for); }); });
       all().forEach(b=>{ b.addEventListener('mouseenter',()=>{ lg.querySelectorAll('li').forEach(li=>li.classList.toggle('hot',li.dataset.for===b.dataset.key)); }); b.addEventListener('mouseleave',()=>lg.querySelectorAll('li.hot').forEach(li=>li.classList.remove('hot'))); });
     }
@@ -430,6 +435,7 @@
 
   /* ---------- Haupt-Loop ---------- */
   function frame(now){
+    if(document.hidden){ requestAnimationFrame(frame); return; }
     window.BV_TICKS=(window.BV_TICKS||0)+1;
     mouse.x=lerp(mouse.x,mouse.active?mouse.tx:0,0.06); mouse.y=lerp(mouse.y,mouse.active?mouse.ty:0,0.06);
     if(hero) hero._update(now);

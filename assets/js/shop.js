@@ -28,8 +28,9 @@
     });
     document.querySelectorAll('[data-cart-empty]').forEach(el=>{ el.hidden=cart.length>0; });
   }
-  function openCart(){ const d=document.getElementById('cart'); if(!d) return; d.hidden=false; const c=d.querySelector('[data-cart-close]'); if(c) c.focus(); }
-  function closeCart(){ const d=document.getElementById('cart'); if(d) d.hidden=true; }
+  let opener=null;
+  function openCart(from){ const d=document.getElementById('cart'); if(!d) return; opener=from||document.activeElement; d.hidden=false; const c=d.querySelector('[data-cart-close]'); if(c) c.focus(); }
+  function closeCart(){ const d=document.getElementById('cart'); if(d) d.hidden=true; if(opener&&opener.focus) opener.focus(); }
   load();
   window.BVShop={
     get cart(){ return cart.map(l=>({...l})); },
@@ -41,7 +42,7 @@
   document.addEventListener('click',e=>{
     const t=e.target.closest('[data-cart-add],[data-cart-open],[data-cart-close]');
     if(!t) return;
-    if(t.hasAttribute('data-cart-open')){ e.preventDefault(); openCart(); }
+    if(t.hasAttribute('data-cart-open')){ e.preventDefault(); openCart(t); }
     else if(t.hasAttribute('data-cart-close')) closeCart();
     else if(t.dataset.sku) add(t.dataset.sku,1);
   });
