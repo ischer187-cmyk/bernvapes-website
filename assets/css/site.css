@@ -441,7 +441,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 /* Fuchs: taucht selten (25–40 s, zufällig) hinter dem goldenen Gipfel auf, flitzt den Grat des cremefarbenen Gipfels hoch, hält kurz, kehrt um und verschwindet wieder. JS steuert Position (Bild-Koordinaten). */
-.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028b') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
+.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028c') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
 .hero .lg-occ-f{clip-path:polygon(830px 466px,915px 395px,945px 377px,1000px 418px,1000px 480px,830px 480px)}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
@@ -554,3 +554,18 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
  #flaschen .avail{margin-top:clamp(12px,2.4vh,34px)}
  #flaschen .specs{margin-top:clamp(12px,2.4vh,44px)}
 }
+/* #flaschen Hover: grösser, nur leicht & abwechselnd gekippt */
+.bottles .pcol{--tilt:-3deg}
+.bottles .pcol:nth-child(2){--tilt:2.5deg}.bottles .pcol:nth-child(3){--tilt:-2deg}.bottles .pcol:nth-child(4){--tilt:3.5deg}
+.bottles .pcol:hover .bottle3,.bottles .pcol:focus-within .bottle3{transform:translateY(-18px) rotate(var(--tilt)) scale(1.23)}
+/* #flaschen Hover: 3D-Pop nach vorne */
+.bottles .row{perspective:900px}
+.bottles .pcol{transform-style:preserve-3d;position:relative}
+.bottles .pcol:hover,.bottles .pcol:focus-within{z-index:5}
+.bottles .pcol:hover .bottle3,.bottles .pcol:focus-within .bottle3{transform:translateY(-18px) translateZ(70px) rotate(var(--tilt)) scale(1.18)}
+.bottles .pcol .bottle3 img.base{transition:filter .5s}
+.bottles .pcol:hover .bottle3 img.base,.bottles .pcol:focus-within .bottle3 img.base{filter:drop-shadow(0 34px 30px rgba(0,0,0,.75)) drop-shadow(0 10px 10px rgba(0,0,0,.45))}
+/* #flaschen: Namensschild losgelöst unter der Flasche (statisch), dann Knopf */
+.bottles .pcol,#flaschen .pcol{gap:0}
+.bottles .pcol .lbl{position:static;transform:none;margin:clamp(40px,6vh,56px) 0 clamp(10px,1.6vh,16px);transition:color .3s,transform .3s,text-shadow .3s}
+.bottles .pcol:hover .lbl,.bottles .pcol:focus-within .lbl{color:var(--bv-gold);transform:translateY(-2px);text-shadow:0 0 12px rgba(201,162,74,.45)}
