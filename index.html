@@ -35,6 +35,32 @@
       <img src="assets/web/clouds/c3.webp" alt="" style="right:4%;top:11%;width:15%;--dur:66s;--amp:3.6vw;--d:1.0;animation-delay:-33s">
       <img src="assets/web/clouds/c1.webp" alt="" style="right:27%;top:21%;width:11%;--dur:50s;--amp:2.8vw;--d:0.75;animation-delay:-14s">
     </div>
+    <!-- Dampflok "Grat-Fahrer": Low-Poly-Zug fährt auf dem Bergkamm (Pfad in Bild-Koordinaten von worlds/neue.webp) -->
+    <div class="lokgrat" aria-hidden="true">
+      <div class="lg-car lg-w2"><svg viewBox="0 0 48 40"><g stroke="#2a211a" stroke-width=".6" stroke-linejoin="round">
+        <polygon points="3,12 45,12 43,8 5,8" fill="#264247"/><polygon points="4,12 44,12 44,24 4,24" fill="#3d6268"/><polygon points="4,24 44,24 42,33 6,33" fill="#2f4f55"/>
+        <polygon points="8,14 16,14 16,21 8,21" fill="#f0d79a"/><polygon points="20,14 28,14 28,21 20,21" fill="#f0d79a"/><polygon points="32,14 40,14 40,21 32,21" fill="#f0d79a"/>
+        <polygon points="11,32 15,30 19,32 19,36 15,38 11,36" fill="#1e1712"/><polygon points="29,32 33,30 37,32 37,36 33,38 29,36" fill="#1e1712"/></g>
+        <g fill="#c99a48"><circle cx="7" cy="27" r=".9"/><circle cx="24" cy="27" r=".9"/><circle cx="41" cy="27" r=".9"/></g><rect x="0" y="27" width="4" height="2" fill="#2a211a"/></svg></div>
+      <div class="lg-car lg-w1"><svg viewBox="0 0 48 40"><g stroke="#2a211a" stroke-width=".6" stroke-linejoin="round">
+        <polygon points="3,12 45,12 43,8 5,8" fill="#8c2723"/><polygon points="4,12 44,12 44,24 4,24" fill="#c4463c"/><polygon points="4,24 44,24 42,33 6,33" fill="#a8322d"/>
+        <polygon points="8,14 16,14 16,21 8,21" fill="#f0d79a"/><polygon points="20,14 28,14 28,21 20,21" fill="#f0d79a"/><polygon points="32,14 40,14 40,21 32,21" fill="#f0d79a"/>
+        <polygon points="11,32 15,30 19,32 19,36 15,38 11,36" fill="#1e1712"/><polygon points="29,32 33,30 37,32 37,36 33,38 29,36" fill="#1e1712"/></g>
+        <g fill="#c99a48"><circle cx="7" cy="27" r=".9"/><circle cx="24" cy="27" r=".9"/><circle cx="41" cy="27" r=".9"/></g><rect x="0" y="27" width="4" height="2" fill="#2a211a"/></svg></div>
+      <div class="lg-car lg-lok"><svg viewBox="0 0 64 46"><g stroke="#2a211a" stroke-width=".6" stroke-linejoin="round">
+        <polygon points="2,8 24,8 22,4 4,4" fill="#8c2723"/><polygon points="4,8 22,8 22,22 4,22" fill="#c4463c"/><polygon points="4,22 22,22 22,36 4,36" fill="#a8322d"/>
+        <polygon points="8,11 18,11 18,19 8,19" fill="#f0d79a"/><polygon points="8,11 18,11 8,19" fill="#fbe9bd"/>
+        <polygon points="22,18 30,14 50,14 54,20 54,30 22,30" fill="#3d6268"/><polygon points="22,18 30,14 50,14 54,20" fill="#4f7a80"/><polygon points="22,30 54,30 52,36 22,36" fill="#264247"/>
+        <polygon points="29,14 31,12 35,12 37,14" fill="#c99a48"/>
+        <polygon points="40,14 39,8 36,4 38,1 48,1 50,4 47,8 46,14" fill="#2f4f55"/><polygon points="36,4 38,1 48,1 50,4" fill="#4f7a80"/>
+        <polygon points="52,34 63,44 52,44" fill="#c99a48"/><polygon points="52,38 58,44 52,44" fill="#b3863a"/>
+        <polygon points="8,34 13,31 18,34 18,40 13,43 8,40" fill="#1e1712"/><polygon points="22,34 27,31 32,34 32,40 27,43 22,40" fill="#1e1712"/><polygon points="38,37 42,35 46,37 46,41 42,43 38,41" fill="#1e1712"/></g>
+        <line x1="13" y1="38" x2="42" y2="39" stroke="#c99a48" stroke-width="1.4"/>
+        <circle cx="56" cy="22" r="5.2" fill="#2a211a"/><circle cx="56" cy="22" r="3.8" fill="#ffe7a3"/><polygon points="54,20 58,20 56,24" fill="#fff6d6"/>
+        <g fill="#c99a48"><circle cx="26" cy="25" r=".9"/><circle cx="33" cy="25" r=".9"/><circle cx="40" cy="25" r=".9"/><circle cx="47" cy="25" r=".9"/><circle cx="6" cy="25" r=".8"/><circle cx="20" cy="25" r=".8"/></g>
+        <rect x="9" y="25" width="7" height="7" fill="#d52b1e"/><rect x="11.9" y="26.2" width="1.2" height="4.6" fill="#fff"/><rect x="10.2" y="27.9" width="4.6" height="1.2" fill="#fff"/></svg>
+        <i class="lg-puff p1"></i><i class="lg-puff p2"></i><i class="lg-puff p3"></i></div>
+    </div>
     <div class="fx vignette"></div>
     <div class="black"></div>
     <canvas class="fox" data-base="assets/web/fox_hd/" data-count="85"></canvas>
@@ -201,6 +227,13 @@
   m.addEventListener('click',function(e){if(e.target===m)close();});
   addEventListener('keydown',function(e){if(e.key==='Escape')close();});
 })();
+</script>
+<script>
+/* Dampflok-Grat: Overlay in Bild-Koordinaten (2400×1028) exakt wie der Welt-Shader abbilden (cover, Zoom 1.08·zoom, Zentrum 0.5/0.52) */
+(function(){var o=document.querySelector('#hero .lokgrat'),pin=document.querySelector('#hero .pin');if(!o||!pin)return;
+ function f(){var W=pin.clientWidth,H=pin.clientHeight,ra=W/H,ri=2400/1028,sx=ra>ri?1:ra/ri,sy=ra>ri?ri/ra:1,z=1.08*(window.heroZoom||1);
+  var bw=W*z/sx,bh=H*z/sy;o.style.transform='translate('+(W*(0.5-0.5*z/sx))+'px,'+(H*(0.5-0.52*z/sy))+'px) scale('+(bw/2400)+','+(bh/1028)+')';requestAnimationFrame(f);}
+ requestAnimationFrame(f);})();
 </script>
 </body>
 </html>

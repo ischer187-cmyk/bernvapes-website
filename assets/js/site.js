@@ -369,7 +369,7 @@
         fox.spill=1-fox.black;                            /* Licht nach aussen, sobald die Maske durchlässig wird */
         fox.now=now; }
       if(heroWorld){
-        heroWorld.zoom=1.0+ ss(f)*0.34;
+        heroWorld.zoom=1.0+ ss(f)*0.34; window.heroZoom=heroWorld.zoom;
         /* leichte Abdunkelung nur am Beginn der Kamerafahrt, weich hochgefahren mit worldIn */
         heroWorld.dark=f>0?(1-worldIn)*0.28:0;
       }
