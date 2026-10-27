@@ -197,7 +197,7 @@ footer .legal{margin-top:40px;padding-top:20px;border-top:1px solid rgba(198,161
 .bottle3 .shine::before{content:"";position:absolute;left:0;right:0;top:30%;bottom:6%;   /* Label-Band */
  background:linear-gradient(105deg,transparent 38%,rgba(255,248,225,.9) 50%,transparent 62%);background-size:260% 100%;background-position:130% 0;background-repeat:no-repeat}.beast:hover .bottle3{transform:translateY(-6px) rotate(-1.5deg)}
 .bottle3:hover .shine{opacity:1}
-.beast:hover .bottle3 .shine{opacity:.45}  /* Hero-Tiere: Glanz ca. 55% schwaecher */
+.beast:hover .bottle3 .shine{opacity:.3}  /* Hero-Tiere: Glanz ca. 70% schwaecher */
 .beast:hover .bottle3 .shine::before,.bottle3:hover .shine::before{animation:shine 1.15s var(--ease) 1}
 @keyframes shine{from{background-position:130% 0}to{background-position:-30% 0}}
 /* Zutaten: eigener, nachlaufender Schwebe-Rhythmus (hängen nicht am Tier) */
