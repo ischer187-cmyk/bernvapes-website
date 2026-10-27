@@ -462,3 +462,30 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #bergtiere .beast.grp.bot .ings img{width:45%}
 #bergtiere .beast.grp.bot .ings img:nth-child(2){width:40%}
 #bergtiere .beast.grp.bot .ings img:nth-child(3){width:37.5%}
+
+/* ===== Bärgtier: Summer/On-the-rocks-Schalter oben rechts, gleich wie Quartier (gross, dunkel, klarer Aktivzustand) ===== */
+#bergtiere .toggle{top:clamp(96px,14vh,150px);bottom:auto;right:clamp(16px,3vw,40px);gap:14px;padding:13px 20px;font-size:.9rem;letter-spacing:.2em;white-space:nowrap;z-index:12;
+ color:var(--bv-cream);background:rgba(23,19,15,.92);border:1.5px solid var(--bv-gold);border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 0 4px rgba(198,161,58,.18);cursor:pointer}
+#bergtiere .toggle i{width:52px;height:24px;border-width:1.5px}
+#bergtiere .toggle i::after{top:3px;left:3px;width:15px;height:15px}
+#bergtiere .toggle.on i::after{left:30px}
+#bergtiere .toggle.on{background:rgba(20,40,62,.92);border-color:#cfe8f7;box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 0 4px rgba(207,232,247,.25)}
+#bergtiere .toggle span,#bergtiere .toggle b{opacity:.55;transition:opacity .3s,color .3s}
+#bergtiere .toggle:not(.on) span{opacity:1;color:var(--bv-gold)}
+#bergtiere .toggle.on b{opacity:1;color:#cfe8f7}
+#bergtiere .toggle:hover{box-shadow:0 10px 28px rgba(0,0,0,.45),0 0 0 5px rgba(198,161,58,.3)}
+#bergtiere .toggle:focus-visible{outline:3px solid var(--bv-gold);outline-offset:4px}
+@media (max-width:600px){#bergtiere .toggle{top:76px;right:12px;gap:10px;padding:10px 14px;font-size:.72rem;letter-spacing:.14em}}
+/* ===== Bärgtier: linke Übersicht ~30 % grösser/kräftiger ===== */
+#bergtiere .title.side{max-width:38ch}
+#bergtiere .title.side .kicker{font-size:.9rem;font-weight:700}
+#bergtiere .title.side p{font-size:1.24rem;line-height:1.5;font-weight:500}
+#bergtiere .legend{font-size:.86rem;max-width:34ch;top:clamp(300px,44vh,420px)}
+#bergtiere .legend li{padding:6px 12px 6px 16px;border-left-width:2px}
+#bergtiere .legend li b{font-weight:700}
+#bergtiere .legend li span{font-size:.78rem;opacity:.85}
+#bergtiere .title.side h2{font-size:clamp(1.9rem,4.6vw,3.9rem)}
+#bergtiere .toggle{letter-spacing:.15em;padding:13px 18px}
+#bergtiere .toggle{top:clamp(60px,7vh,72px)}
+#bergtiere .title.side{max-width:34ch}
+@media (max-width:600px){#bergtiere .toggle{top:76px;right:12px;gap:10px;padding:10px 14px;font-size:.72rem;letter-spacing:.12em}}
