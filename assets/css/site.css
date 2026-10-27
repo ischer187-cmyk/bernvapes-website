@@ -358,6 +358,12 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #bergtiere .beast .ings{transform-origin:50% 100%}
 #bergtiere .beast:hover .ings,#bergtiere .beast.hi .ings{transform:translateY(-30%) scale(1.5)}
 #bergtiere .beast .plaque{bottom:calc(100% + 34%)}
+/* Infotafel-Platzierung: JS (BV Bärgtier-Tafel) setzt data-dir am Tier = Richtung mit dem meisten Platz, ohne Nachbarn zu verdecken und ohne über .pin/Nav zu ragen */
+#bergtiere .beast[data-dir="down"] .plaque{top:calc(100% + 10px);bottom:auto;transform-origin:50% 0;transform:translate(-50%,-8px) scale(.92)}
+#bergtiere .beast[data-dir="left"] .plaque{left:auto;right:calc(100% + 26%);top:18%;bottom:auto;transform-origin:100% 50%;transform:translate(8px,0) scale(.92)}
+#bergtiere .beast[data-dir="right"] .plaque{left:calc(100% + 26%);top:18%;bottom:auto;transform-origin:0 50%;transform:translate(-8px,0) scale(.92)}
+#bergtiere .beast[data-dir="down"]:is(:hover,.hi) .plaque{transform:translate(-50%,0) scale(1)}
+#bergtiere .beast:is([data-dir="left"],[data-dir="right"]):is(:hover,.hi) .plaque{transform:none}
 
 
 /* ===== Hero-Tiere: Hover + Klick-Modal (Fläsche + Flaschenlogo) ===== */
@@ -373,7 +379,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .tiermodal.open .tm-card{transform:none}
 .tm-animal img{display:block;height:min(64vh,540px);max-width:46vw;width:auto;object-fit:contain;filter:drop-shadow(0 18px 18px rgba(40,25,10,.35))}
 .tm-info{text-align:center}
-.tm-logo{display:block;width:84px;height:auto;margin:20px auto 0;box-shadow:0 4px 10px rgba(40,25,10,.25)}
+.tm-logo{display:block;width:105px;height:auto;margin:20px auto 0;box-shadow:0 4px 10px rgba(40,25,10,.25)}
 .tm-text{font-size:1.02rem;line-height:1.55;margin:16px 0 0}
 .tm-info h3{font-family:var(--font-head);letter-spacing:.18em;text-transform:uppercase;font-size:1.1rem;margin:0 0 6px}
 .tm-who{font-family:var(--font-head);letter-spacing:.24em;text-transform:uppercase;font-size:.62rem;opacity:.75;margin:0}

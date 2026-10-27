@@ -402,3 +402,31 @@
   window.BV_FRAME=frame;   /* Debug/Test */
   requestAnimationFrame(frame);
 })();
+
+/* ===== BV Bärgtier-Tafel: Infotafel in die Richtung mit dem meisten Platz klappen (oben/rechts/links/unten) ===== */
+(function(){
+  const sec=document.getElementById('bergtiere'); if(!sec) return;
+  const nav=document.querySelector('.nav');
+  const vis=f=>{const s=getComputedStyle(f);return s.opacity!=='0'&&s.display!=='none'&&s.visibility!=='hidden'};
+  const ov=(a,b)=>Math.max(0,Math.min(a.r,b.r)-Math.max(a.l,b.l))*Math.max(0,Math.min(a.b,b.b)-Math.max(a.t,b.t));
+  function place(f){
+    const pl=f.querySelector('.plaque'); if(!pl) return;
+    const pin=f.closest('.pin')||sec, P=pin.getBoundingClientRect();
+    const top=Math.max(P.top,nav?nav.getBoundingClientRect().bottom:0)+6, R={l:P.left+6,r:P.right-6,t:top,b:P.bottom-6};
+    const F=f.getBoundingClientRect(), w=pl.offsetWidth, h=pl.offsetHeight, cx=F.left+F.width/2;
+    const g=F.height*.32, sx=F.width*.26;   /* Platz für die beim Hover um 1.32 wachsende Flasche */
+    const C={up:{l:cx-w/2,r:cx+w/2,b:F.top-g,t:F.top-g-h},down:{l:cx-w/2,r:cx+w/2,t:F.bottom+10,b:F.bottom+10+h},
+      right:{l:F.right+sx,r:F.right+sx+w,t:F.top+F.height*.18,b:F.top+F.height*.18+h},left:{r:F.left-sx,l:F.left-sx-w,t:F.top+F.height*.18,b:F.top+F.height*.18+h}};
+    const nb=[...sec.querySelectorAll('.beast')].filter(n=>n!==f&&vis(n)).map(n=>{const r=n.getBoundingClientRect();return {l:r.left,r:r.right,t:r.top,b:r.bottom}});
+    let best='up',bs=Infinity;
+    ['up','right','left','down'].forEach((d,i)=>{const c=C[d];
+      const out=Math.max(0,R.t-c.t)+Math.max(0,c.b-R.b)+Math.max(0,R.l-c.l)+Math.max(0,c.r-R.r);
+      const s=out*w*10+nb.reduce((a,n)=>a+ov(c,n),0)+i;   /* raus aus dem Bild = schlimmer als Überdecken; Reihenfolge = Vorliebe */
+      if(s<bs){bs=s;best=d}});
+    f.dataset.dir=best;
+  }
+  sec.querySelectorAll('.beast').forEach(f=>{
+    f.addEventListener('mouseenter',()=>place(f)); f.addEventListener('focusin',()=>place(f));
+    new MutationObserver(()=>{if(f.classList.contains('hi')) place(f)}).observe(f,{attributes:true,attributeFilter:['class']});
+  });
+})();
