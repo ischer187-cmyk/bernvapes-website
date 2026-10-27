@@ -441,7 +441,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 /* Fuchs: taucht selten (25–40 s, zufällig) hinter dem goldenen Gipfel auf, flitzt den Grat des cremefarbenen Gipfels hoch, hält kurz, kehrt um und verschwindet wieder. JS steuert Position (Bild-Koordinaten). */
-.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028e') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
+.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028f') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
 .hero .lg-occ-f{clip-path:polygon(830px 466px,915px 395px,945px 377px,1000px 418px,1000px 480px,830px 480px)}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
@@ -586,3 +586,21 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #quartiere .beast.schoko .ings img{filter:drop-shadow(0 0 1.5px rgba(255,238,205,.9)) drop-shadow(0 0 6px rgba(255,226,170,.35)) drop-shadow(0 8px 10px rgba(0,0,0,.35)) brightness(1.15) contrast(1.05)}
 #quartiere .beast.schoko .ings img.mir{scale:-1 1;rotate:-14deg;width:34%}
 #quartiere .beast.schoko:hover .ings img{filter:drop-shadow(0 0 2px rgba(255,238,205,.95)) drop-shadow(0 0 8px rgba(255,226,170,.45)) drop-shadow(0 10px 12px rgba(0,0,0,.45)) brightness(1.2)}
+/* Lesbarkeit: Nav-Wortmarke ~1.75×, Nav-Links & Eyebrows grösser */
+.nav .wordmark{font-size:clamp(1.55rem,2.2vw,2.1rem);letter-spacing:.14em;white-space:nowrap}
+.nav ul{gap:clamp(16px,2vw,30px)}
+.nav li a{font-size:clamp(.78rem,.95vw,.95rem);letter-spacing:.16em;font-weight:600;white-space:nowrap}
+.kicker{font-size:.9rem;font-weight:700}
+@media (min-width:761px) and (max-width:1100px){.nav li a{font-size:.74rem;letter-spacing:.1em}.nav ul{gap:14px}}
+/* #quartiere: Intro-Text kräftiger, auf dunklem Glas-Panel, oberhalb der Flaschen und frei von Wolken */
+#quartiere .title.side{top:clamp(76px,10vh,104px);max-width:min(46ch,40vw);padding:16px 22px 18px;border-radius:14px;background:rgba(28,18,8,.5);
+ backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+#quartiere .title.side h2{white-space:nowrap;font-size:clamp(1.8rem,3.2vw,3rem);font-weight:700;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+#quartiere .title.side p{font-size:clamp(1rem,1.15vw,1.2rem);font-weight:600;line-height:1.45;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+#quartiere .title.side .kicker{font-size:1rem}
+@media (max-width:760px){#quartiere .title.side{left:12px;right:12px;max-width:none;top:70px}#quartiere .title.side h2{white-space:normal}}
+#quartiere .title.side{max-width:none;width:max-content}
+#quartiere .title.side h2{font-size:clamp(1.8rem,2.6vw,2.6rem)}
+#quartiere .title.side p{max-width:min(44ch,36vw)}
+@media (max-width:760px){#quartiere .title.side{width:auto}#quartiere .title.side p{max-width:none}}
+@media (max-width:760px){#quartiere .title.side{top:66px;padding:12px 16px 14px}#quartiere .title.side h2{white-space:nowrap;font-size:1.55rem}#quartiere .title.side p{font-size:.95rem}#quartiere .toggle{top:268px}}
