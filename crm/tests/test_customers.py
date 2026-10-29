@@ -32,7 +32,7 @@ class CustomerAccountTests(unittest.TestCase):
         db = connect()
         acc = db.execute("select password_hash, age_confirmed from customer_accounts where email='anna@example.com'").fetchone()
         cust = db.execute("select customer_type, age_verify_method, age_verified_at from customers where email='anna@example.com'").fetchone()
-        self.assertTrue(acc['password_hash'].startswith('scrypt$'))
+        self.assertTrue(acc['password_hash'].startswith(('scrypt$', 'pbkdf2$')))
         self.assertNotIn('kunden-passwort-1', acc['password_hash'])
         self.assertEqual(acc['age_confirmed'], 1)
         self.assertEqual(cust['customer_type'], 'Endkunde')

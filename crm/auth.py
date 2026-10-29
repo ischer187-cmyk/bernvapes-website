@@ -1,8 +1,15 @@
-"""Passwords (scrypt), TOTP (RFC 6238), sessions, CSRF, rate limits. Stdlib only."""
+"""Passwords, TOTP (RFC 6238), sessions, CSRF, rate limits. Stdlib only.
+
+scrypt when hashlib provides it (OpenSSL). LibreSSL in Xcode Python 3.9 has no
+hashlib.scrypt, so those builds use PBKDF2-HMAC-SHA256. sha1/sha256/hmac/pbkdf2
+are available on both. This module does not touch ssl.
+"""
 import base64, hashlib, hmac, os, secrets, struct, time
 from datetime import datetime, timedelta, timezone
 
 SESSION_HOURS = 8
+PBKDF2_ROUNDS = 600000
+SCRYPT_N, SCRYPT_R, SCRYPT_P = 2 ** 14, 8, 1
 
 def utcnow():
     return datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
@@ -10,19 +17,43 @@ def utcnow():
 def utc_plus(seconds):
     return (datetime.now(timezone.utc) + timedelta(seconds=seconds)).strftime('%Y-%m-%d %H:%M:%S')
 
+def _scrypt():
+    fn = getattr(hashlib, 'scrypt', None)
+    return fn if callable(fn) else None
+
 def hash_password(pw):
     salt = os.urandom(16)
-    dk = hashlib.scrypt(pw.encode(), salt=salt, n=2**14, r=8, p=1, dklen=32)
-    return 'scrypt$' + salt.hex() + '$' + dk.hex()
+    raw = pw.encode()
+    scrypt = _scrypt()
+    if scrypt is not None:
+        try:
+            dk = scrypt(raw, salt=salt, n=SCRYPT_N, r=SCRYPT_R, p=SCRYPT_P, dklen=32)
+        except AttributeError:
+            scrypt = None
+        else:
+            return 'scrypt$' + salt.hex() + '$' + dk.hex()
+    dk = hashlib.pbkdf2_hmac('sha256', raw, salt, PBKDF2_ROUNDS, dklen=32)
+    return 'pbkdf2$%d$%s$%s' % (PBKDF2_ROUNDS, salt.hex(), dk.hex())
 
 def verify_password(pw, stored):
     try:
-        kind, salt_hex, dk_hex = stored.split('$')
-        if kind != 'scrypt':
-            return False
-        salt = bytes.fromhex(salt_hex)
-        dk = hashlib.scrypt(pw.encode(), salt=salt, n=2**14, r=8, p=1, dklen=32)
-        return hmac.compare_digest(dk.hex(), dk_hex)
+        parts = (stored or '').split('$')
+        raw = pw.encode()
+        if len(parts) == 3 and parts[0] == 'scrypt':
+            scrypt = _scrypt()
+            if scrypt is None:
+                return False
+            salt = bytes.fromhex(parts[1])
+            dk = scrypt(raw, salt=salt, n=SCRYPT_N, r=SCRYPT_R, p=SCRYPT_P, dklen=32)
+            return hmac.compare_digest(dk.hex(), parts[2])
+        if len(parts) == 4 and parts[0] == 'pbkdf2':
+            rounds = int(parts[1])
+            if rounds < PBKDF2_ROUNDS or rounds > 5000000:
+                return False
+            salt = bytes.fromhex(parts[2])
+            dk = hashlib.pbkdf2_hmac('sha256', raw, salt, rounds, dklen=32)
+            return hmac.compare_digest(dk.hex(), parts[3])
+        return False
     except Exception:
         return False
 
