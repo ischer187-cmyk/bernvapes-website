@@ -3,9 +3,20 @@
    Die anderen beiden bleiben beim Canvas-Colorkey des MP4. */
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var GAP=2800, V='20261029g';
+  var GAP=2800, V='20261029l';
+  var BLICK_WAIT=7000, blickReadyAt=0, blickWaitDone=false;
+  function blickGate(){
+    var h=document.getElementById('hero');
+    var beasts=h&&h.querySelector('.beasts');
+    if(!h||!h.classList.contains('world-in')||!beasts||!beasts.classList.contains('in')) return false;
+    if(blickWaitDone) return true;
+    if(!blickReadyAt) blickReadyAt=performance.now()+BLICK_WAIT;
+    if(performance.now()<blickReadyAt) return false;
+    blickWaitDone=true;
+    return true;
+  }
   var slots=[
-    {id:'blick', sel:'#hero', gate:function(){var h=document.getElementById('hero');return !!(h&&h.classList.contains('world-in'));}},
+    {id:'blick', sel:'#hero', gate:blickGate},
     {id:'laufen', sel:'#quartiere'},
     {id:'pfote', sel:'#bergtiere'}
   ];
