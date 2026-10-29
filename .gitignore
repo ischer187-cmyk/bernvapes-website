@@ -1,6 +1,8 @@
 # Geheimnisse / Umgebung — nie committen
 .env
 .env.*
+!.env.example
+!**/.env.example
 *.env
 *.pem
 *.key
@@ -10,6 +12,8 @@ credentials*
 # System / Editor
 .DS_Store
 Thumbs.db
+__pycache__/
+*.pyc
 .vscode/
 .idea/
 .cursor/
@@ -29,3 +33,9 @@ assets/web/produkte_old/
 node_modules/
 dist/
 .cache/
+
+# CRM local data — never commit
+crm/crm.db
+crm/crm.db-*
+crm/mail.log
+crm/**/__pycache__/

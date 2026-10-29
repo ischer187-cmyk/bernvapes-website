@@ -3,7 +3,7 @@
    dynamische Texte (Tier-Popup) fängt ein MutationObserver. Marken- & Sortennamen bleiben unverändert. */
 (function(){
 var D={
-'Nöii Linie':['Neue Linie','New Line'],'Quartier':['Quartiere','Quarters'],'Bärgtier':['Bergtiere','Mountain Beasts'],'Wärkstatt':['Werkstatt','Workshop'],'Über üs':['Über uns','About'],
+'Nöii Linie':['Neue Linie','New Line'],'Quartier':['Quartiere','Quarters'],'Bärgtier':['Bergtiere','Mountain Beasts'],'Wärkstatt':['Werkstatt','Workshop'],'Über üs':['Über uns','About'],'Händler':['Händler','Dealers'],
 'Neue Dampf us dr Houptstadt.':['Neuer Dampf aus der Hauptstadt.','Fresh vapour from the capital.'],
 'Lemon Pie · Lemur':['Lemon Pie · Lemur','Lemon Pie · Lemur'],'Mango Lassi · Elefant':['Mango Lassi · Elefant','Mango Lassi · Elephant'],
 'Mandarine Nuss · Chipmunk':['Mandarine Nuss · Chipmunk','Mandarine Nuss · Chipmunk'],'Öpfuchueche · Roter Panda':['Apfelkuchen · Roter Panda','Apple Pie · Red Panda'],
