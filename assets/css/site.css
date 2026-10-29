@@ -660,21 +660,6 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
   .wfox-pfote{width:42vw;left:4%;right:auto;bottom:8%}
 }
 
-/* Alpenkräutertee: Krug hängt am Milan (in der Flasche), gleiche Lage, Hover und Parallaxe */
-#bergtiere .beast.tea .bottle3{overflow:visible}
-#bergtiere .beast.tea .tea-hang{position:absolute;left:44%;top:70%;width:104%;z-index:4;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none}
-#bergtiere .beast.tea .tea-cord{width:46%;height:auto;display:block;margin:-34% 0 -8% 4%}
-#bergtiere .beast.tea .tea-krug{position:relative;inset:auto;width:96%;height:auto;object-fit:contain;margin:-4% 0 0 42%;filter:drop-shadow(0 10px 8px rgba(20,12,8,.4))}
-#bergtiere .beast.tea .tea-ings{left:-70%;width:120%;bottom:2%}
-#bergtiere .beast.tea .tea-ings img{width:70%}
-@media (max-width:900px){
-  #bergtiere .beast.tea .duo{margin-bottom:46%}
-  #bergtiere .beast.tea .tea-hang{left:22%;top:74%;width:62%}
-  #bergtiere .beast.tea .tea-cord{width:46%;margin:0 0 -8% 18%}
-  #bergtiere .beast.tea .tea-krug{width:100%;margin:-6% 0 0 0}
-  #bergtiere .beast.tea .tea-ings{display:none}
-}
-
 /* Warenkorb */
 html:not([data-b2b]) [data-b2b]{display:none !important}
 .shopbar{position:fixed;top:14px;right:14px;z-index:80;display:flex;align-items:center;gap:8px;pointer-events:auto}
