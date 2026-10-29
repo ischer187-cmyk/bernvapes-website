@@ -33,5 +33,8 @@ body.b2b{min-height:100vh;background:
 .b2b input.qty{width:72px}
 .b2b .tot{margin-top:16px;display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
 .b2b .hidden{display:none}
+.b2b .agebox{display:flex;gap:10px;align-items:flex-start;margin-top:16px;max-width:62ch}
+.b2b .agebox input{width:auto;margin-top:4px}
+.b2b .nav.show{opacity:1;transform:none;pointer-events:auto;position:sticky}
 .b2b footer{opacity:.7;font-size:.78rem;margin-top:28px}
 .b2b .age{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--bv-cream);border-radius:50%;margin-right:8px;font-size:.68rem}

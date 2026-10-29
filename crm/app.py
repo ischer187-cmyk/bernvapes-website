@@ -9,6 +9,7 @@ from urllib.parse import parse_qs, urlparse
 
 import pages
 import portal
+import shop_accounts
 from auth import (
     clear_cookie, create_session, csrf_ok, delete_session, hash_password, login_limit,
     new_totp_secret, otpauth_uri, rate_clear, rate_ok, read_session, rotate_session,
@@ -157,6 +158,8 @@ class H(BaseHTTPRequestHandler):
         path, q = u.path, parse_qs(u.query)
         if path == '/healthz':
             return self.json(200, {'ok': True, 'db': 'postgres' if os.environ.get('DATABASE_URL', '').startswith('postgres') else 'sqlite'})
+        if path.startswith('/api/b2b/customer'):
+            return shop_accounts.handle(self, 'GET', path)
         if path.startswith('/api/b2b'):
             return portal.handle(self, 'GET', path)
         if path == '/fox.png':
@@ -215,6 +218,8 @@ class H(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         if path.startswith('/webhook/'):
             return self.webhook(path[len('/webhook/'):])
+        if path.startswith('/api/b2b/customer'):
+            return shop_accounts.handle(self, 'POST', path)
         if path.startswith('/api/b2b'):
             return portal.handle(self, 'POST', path)
         data = self.payload()

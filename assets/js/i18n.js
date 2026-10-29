@@ -70,7 +70,25 @@ var D={
 'Zrügg zur nöie Linie':['Zurück zur neuen Linie','Back to the new line'],'Kaffernbüffel':['Kaffernbüffel','Cape buffalo'],'Gepard':['Gepard','Cheetah'],
 'I Warechorb':['In den Warenkorb','Add to cart'],
 'Im Warechorb – d Bstellig chunnt bald':['Im Warenkorb – Bestellung folgt bald','In the cart – ordering comes soon'],
-'Warechorb':['Warenkorb','Cart'],'Nüt drin':['Leer','Empty'],'Wegneh':['Entfernen','Remove'],'Leere':['Leeren','Clear']
+'Warechorb':['Warenkorb','Cart'],'Nüt drin':['Leer','Empty'],'Wegneh':['Entfernen','Remove'],'Leere':['Leeren','Clear'],
+'Aamälde':['Anmelden','Log in'],'Registriere':['Registrieren','Register'],'Abmälden':['Abmelden','Log out'],
+'Passwort vergässe':['Passwort vergessen','Forgot password'],'Mis Konto':['Mein Konto','My account'],
+'E-Mail':['E-Mail','Email'],'Passwort':['Passwort','Password'],'Name':['Name','Name'],
+'Adrässe':['Adresse','Address'],'PLZ':['PLZ','Postcode'],'Ort':['Ort','Town'],
+'I bi 18 oder elter. Kei Usweis, nume die Bestätigung.':['Ich bin 18 oder älter. Kein Ausweis, nur diese Bestätigung.','I am 18 or older. No ID document, only this confirmation.'],
+'Konto aalege':['Konto anlegen','Create account'],'Neus Passwort':['Neues Passwort','New password'],
+'Passwort setze':['Passwort setzen','Set password'],'Zrügg zum Aamälde':['Zurück zum Anmelden','Back to log in'],
+'Händler-Portal':['Händler-Portal','Dealer portal'],
+'Die Aamäldig het nid klappet.':['Die Anmeldung hat nicht geklappt.','Login failed.'],
+'Die E-Mail git’s scho.':['Diese E-Mail gibt es schon.','This email is already registered.'],
+'Bitte 18+ bestätige.':['Bitte 18+ bestätigen.','Please confirm you are 18+.'],
+'Z vil Versüech. Churz warte.':['Zu viele Versuche. Kurz warten.','Too many attempts. Wait a moment.'],
+'CRM nid erreichbar.':['CRM nicht erreichbar.','CRM unreachable.'],
+'Du bisch agmäldet.':['Du bist angemeldet.','You are logged in.'],
+'Registriert':['Registriert','Registered'],'Letschti Aamäldig':['Letzte Anmeldung','Last login'],
+'Link isch im Mail-Log. Es wird nüt verschickt.':['Der Link steht im Mail-Log. Es wird nichts verschickt.','The link is in the mail log. Nothing is sent.'],
+'Passwort (mind. 10 Zeiche)':['Passwort (mind. 10 Zeichen)','Password (at least 10 characters)'],
+'Für Lädeli geit’s ins Händler-Portal.':['Für Läden geht es ins Händler-Portal.','Shops use the dealer portal.']
 };
 /* FR: Schweizer Französisch, vous, Berne, 1er décembre. Schlüssel = BE-Original. */
 var FR={
@@ -139,7 +157,24 @@ var FR={
 'Zrügg zur nöie Linie':'Retour à la nouvelle ligne','Kaffernbüffel':'Buffle du Cap','Gepard':'Guépard',
 'I Warechorb':'Ajouter au panier',
 'Im Warechorb – d Bstellig chunnt bald':'Dans le panier – la commande suivra bientôt',
-'Warechorb':'Panier','Nüt drin':'Vide','Wegneh':'Retirer','Leere':'Vider'
+'Warechorb':'Panier','Nüt drin':'Vide','Wegneh':'Retirer','Leere':'Vider',
+'Händler':'Revendeurs',
+'Aamälde':'Se connecter','Registriere':'Créer un compte','Abmälden':'Se déconnecter',
+'Passwort vergässe':'Mot de passe oublié','Mis Konto':'Mon compte',
+'E-Mail':'E-mail','Passwort':'Mot de passe','Name':'Nom',
+'Adrässe':'Adresse','PLZ':'NPA','Ort':'Lieu',
+'I bi 18 oder elter. Kei Usweis, nume die Bestätigung.':'J’ai 18 ans ou plus. Pas de pièce d’identité, seulement cette confirmation.',
+'Konto aalege':'Créer le compte','Neus Passwort':'Nouveau mot de passe',
+'Passwort setze':'Enregistrer le mot de passe','Zrügg zum Aamälde':'Retour à la connexion',
+'Händler-Portal':'Portail revendeurs',
+'Die Aamäldig het nid klappet.':'La connexion a échoué.',
+'Die E-Mail git’s scho.':'Cet e-mail existe déjà.',
+'Bitte 18+ bestätige.':'Veuillez confirmer 18+.','Z vil Versüech. Churz warte.':'Trop d’essais. Patientez un instant.',
+'CRM nid erreichbar.':'CRM injoignable.','Du bisch agmäldet.':'Vous êtes connecté.',
+'Registriert':'Inscrit le','Letschti Aamäldig':'Dernière connexion',
+'Link isch im Mail-Log. Es wird nüt verschickt.':'Le lien est dans le journal des mails. Rien n’est envoyé.',
+'Passwort (mind. 10 Zeiche)':'Mot de passe (10 caractères au moins)',
+'Für Lädeli geit’s ins Händler-Portal.':'Les magasins passent par le portail revendeurs.'
 };
 var LS='bv-lang',ATTR=['alt','aria-label','title','content'],ORIG=new WeakMap(),lang='be';
 try{lang=localStorage.getItem(LS)||'be';}catch(e){}

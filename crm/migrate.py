@@ -64,8 +64,11 @@ def migrate(conn=None, seed=True):
         for col, decl in cols.items():
             if col not in have:
                 conn.execute(f'alter table {table} add column {col} {decl}')
-    for name in ('schema_v3.sql', 'schema_v4.sql'):
+    for name in ('schema_v3.sql', 'schema_v4.sql', 'schema_v5.sql'):
         _apply_sql(conn, (ROOT / name).read_text(encoding='utf-8'))
+    have_dealer = _columns(conn, 'dealer_accounts')
+    if 'last_login_at' not in have_dealer:
+        conn.execute('alter table dealer_accounts add column last_login_at TEXT')
     if conn.pg:
         conn.execute('create unique index if not exists ux_orders_extref on orders(external_ref) where external_ref is not null')
     else:

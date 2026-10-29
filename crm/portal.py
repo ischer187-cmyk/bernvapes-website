@@ -170,6 +170,7 @@ def handle(handler, method, path):
                 conn.commit()
                 return handler.json(401, {'ok': False, 'error': 'totp_invalid'})
             tok, body = _issue(conn, dealer, 'full')
+            conn.execute("update dealer_accounts set last_login_at=datetime('now') where id=?", (dealer['id'],))
             rate_clear(conn, bucket)
             conn.commit()
             return handler.json(200, body, cookie=session_cookie(DEALER_COOKIE, tok))
@@ -202,6 +203,7 @@ def handle(handler, method, path):
                 conn.execute(
                     'insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
                     (dealer['customer_id'], 'notiz', 'Händlerkonto aktiv. Firmenprüfung über Einladung, keine persönliche Altersprüfung.', 'CRM'))
+            conn.execute("update dealer_accounts set last_login_at=datetime('now') where id=?", (dealer['id'],))
             dealer = conn.execute('select * from dealer_accounts where id=?', (dealer['id'],)).fetchone()
             tok, csrf = rotate_session(conn, 'dealer', token, dealer['id'], 'full')
             rate_clear(conn, bucket)

@@ -36,7 +36,7 @@ input,select,textarea{background:#0f151d;border:1px solid var(--line);color:var(
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{background:#0f151d;border:1px solid var(--line);border-radius:10px;padding:14px}
 .mu{color:var(--mu);font-size:13px}.board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.col{background:#0f151d;border:1px solid var(--line);border-radius:10px;padding:10px;min-height:160px}
 .deal{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px}.hist{border-top:1px solid var(--line);padding:8px 0;font-size:13px}"""
-NAV=[('/','Übersicht'),('/bestellungen','Bestellungen'),('/kunden','Kunden'),('/haendler','Händler'),('/preise','Preise'),('/pipeline','Pipeline'),('/kampagnen','Kampagnen'),('/aufgaben','Aufgaben'),('/agenten','Agenten'),('/steuerung','Steuerung')]
+NAV=[('/','Übersicht'),('/bestellungen','Bestellungen'),('/kunden','Kunden'),('/konten','Konten'),('/haendler','Händler'),('/preise','Preise'),('/pipeline','Pipeline'),('/kampagnen','Kampagnen'),('/aufgaben','Aufgaben'),('/agenten','Agenten'),('/steuerung','Steuerung')]
 def page(title,body,on='/',csrf=''):
   n=''.join(f'<a href="{h}" class="{"on" if h==on else ""}">{t}</a>' for h,t in NAV)
   tok = csrf or CSRF.get() or ''
@@ -265,4 +265,17 @@ def preise(q):
     f'<td><button form="pf{p["id"]}" class="pri">Speichern</button></td></tr>' for p in rows)
   return page('Preise','<section><h2>Preisstufen</h2><p class="mu">Einstieg, Händler, Grosshändler. Die ausgelieferten Zahlen sind Beispielpreise für den lokalen Test und keine Ladenpreise. Sonderpreise pro Shop stehen am Händlerkonto. Sichtbar im Portal nur nach Login und Freigabe.</p>'
     f'<table><tr><th>Produkt</th><th>Einstieg</th><th>Händler</th><th>Grosshändler</th><th></th></tr>{tr}</table></section>','/preise')
-GET={'/':uebersicht,'/bestellungen':bestellungen,'/kunden':kunden,'/haendler':haendler,'/preise':preise,'/pipeline':pipeline,'/kampagnen':kampagnen,'/aufgaben':aufgaben,'/agenten':agenten,'/steuerung':steuerung}
+def konten(q):
+  c=db()
+  rows=[]
+  for r in c.execute('select customer_id,email,name,created_at,last_login_at from customer_accounts').fetchall():
+    rows.append(('B2C', r['email'], r['name'] or '', r['created_at'], r['last_login_at'], r['customer_id'], 'aktiv'))
+  for r in c.execute('select customer_id,email,company_name,created_at,last_login_at,status from dealer_accounts').fetchall():
+    rows.append(('B2B', r['email'], r['company_name'] or '', r['created_at'], r['last_login_at'], r['customer_id'], r['status']))
+  rows.sort(key=lambda x: x[3] or '', reverse=True)
+  tr=''.join(
+    f'<tr><td>{chip(kind,"ok" if kind=="B2C" else "neu")}</td><td>{f"<a href=\"/kontakt/{cid}\">{e(who)}</a>" if cid else e(who)}</td><td>{e(email)}</td><td>{chip(status)}</td><td>{e((created or "")[:16])}</td><td>{e((last or "")[:16]) or "<span class=mu>–</span>"}</td></tr>'
+    for kind,email,who,created,last,cid,status in rows)
+  return page('Konten', '<section><h2>Kundenkonten</h2><p class="mu">B2C ist nach der Registrierung sofort aktiv (Altersbestätigung nur Checkbox, keine e-ID). B2B bleibt bis zur Freigabe gesperrt. Letzter Login und Registrierung kommen aus dem Konto, nicht aus bexio.</p>'
+    f'<table><tr><th>Typ</th><th>Name</th><th>E-Mail</th><th>Status</th><th>Registriert</th><th>Letzter Login</th></tr>{tr or empty("Noch keine Konten.",6)}</table></section>', '/konten')
+GET={'/':uebersicht,'/bestellungen':bestellungen,'/kunden':kunden,'/konten':konten,'/haendler':haendler,'/preise':preise,'/pipeline':pipeline,'/kampagnen':kampagnen,'/aufgaben':aufgaben,'/agenten':agenten,'/steuerung':steuerung}

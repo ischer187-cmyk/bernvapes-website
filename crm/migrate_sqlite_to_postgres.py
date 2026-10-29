@@ -13,7 +13,7 @@ from pathlib import Path
 TABLES = [
     'admin_users', 'customers', 'companies', 'suppliers', 'campaigns', 'products',
     'deals', 'consents', 'tasks', 'notes', 'orders', 'order_items', 'webhook_events',
-    'campaign_members', 'campaign_events', 'dealer_accounts', 'price_overrides',
+    'campaign_members', 'campaign_events', 'dealer_accounts', 'customer_accounts', 'price_overrides',
     'sessions', 'rate_limits', 'mail_log',
 ]
 
