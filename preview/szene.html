@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Vorschau · Quartiere-Szene</title>
+<style>
+  html,body{margin:0;background:#1a140f}
+  body{overflow:hidden}
+  html.desktop .scene{width:1440px;height:900px}
+  html.mobile .scene{width:390px;height:844px}
+  html.mobile .stage{position:absolute;left:50%;top:50%;width:1440px;height:900px;transform:translate(-50%,-50%) scale(.27)}
+  .scene{position:relative;overflow:hidden;background:#c9a56a;font-family:Georgia,serif}
+  .sky{position:absolute;inset:0;background:
+    radial-gradient(ellipse 42% 38% at 50% 28%, #f6edd6 0%, rgba(246,237,214,0) 70%),
+    linear-gradient(#e7d2ae, #d2b488 42%, #c49a62 100%)}
+  .sun{position:absolute;left:50%;top:18%;width:28%;aspect-ratio:1;transform:translateX(-50%);
+    border-radius:50%;background:radial-gradient(circle at 50% 50%, #fff8ea 0 46%, #f3e2c4 62%, rgba(243,226,196,0) 70%);
+    box-shadow:0 0 40px 12px rgba(255,236,196,.35)}
+  html.mobile .sun{top:8%;width:46%}
+  svg.berge,svg.haeuser{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .ground{position:absolute;left:-5%;right:-5%;bottom:0;height:28%;
+    background:linear-gradient(#c4a06c,#b08a52 40%, #9a7544);
+    clip-path:polygon(0 38%, 18% 22%, 40% 30%, 62% 16%, 100% 28%, 100% 100%, 0 100%)}
+  html.mobile .ground{height:34%}
+  .tier{position:absolute;bottom:2%;height:34%;width:auto;filter:drop-shadow(0 12px 8px rgba(40,25,10,.28));z-index:4}
+  .wolf{left:4%;height:30%}
+  .falke{left:24%;height:36%}
+  .katze{left:46%;height:32%}
+  .fuchs{right:2%;height:40%;bottom:0}
+  html.mobile .tier{bottom:1%}
+  html.mobile .wolf{left:1%;height:22%}
+  html.mobile .falke{left:22%;height:26%}
+  html.mobile .katze{left:46%;height:23%}
+  html.mobile .fuchs{right:0;height:28%}
+  .tag{position:absolute;z-index:6;left:16px;top:14px;color:#3a2a1c;letter-spacing:.14em;text-transform:uppercase;font-size:12px;opacity:.8}
+  html.mobile .tag{font-size:10px;left:10px;top:10px}
+</style>
+<script>document.documentElement.className=location.search.indexOf('mobile')>=0?'mobile':'desktop';</script>
+</head>
+<body>
+<div class="scene" id="scene"><div class="stage">
+  <div class="sky"></div>
+  <div class="sun" aria-hidden="true"></div>
+  <!-- Eiger links (steile Nordwand), Mönch mittig, Jungfrau rechts. Liegen vor der Sonne. -->
+  <svg class="berge" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+    <g stroke="#2a2118" stroke-width="1.1" stroke-linejoin="round">
+      <!-- Eiger: dunkle, fast senkrechte Nordwand links, sonnenbeschienene Flanke rechts -->
+      <polygon points="180,640 250,610 290,520 310,390 340,250 390,168 430,210 400,340 420,520 470,640" fill="#2c3840"/>
+      <polygon points="340,250 390,168 470,230 450,310 400,340" fill="#3e4c56"/>
+      <polygon points="390,168 470,230 560,280 620,640 470,640 420,520 450,310" fill="#c4a574"/>
+      <polygon points="390,168 430,150 490,176 470,230" fill="#f4ead8"/>
+      <polygon points="430,150 490,176 520,210 470,230" fill="#e4d5bc"/>
+      <polygon points="470,230 560,280 590,360 450,310" fill="#a88858"/>
+      <!-- Mönch: rundlicher, mehr Schnee, überdeckt die untere Sonne -->
+      <polygon points="520,650 600,520 680,340 760,250 840,280 920,390 980,650" fill="#b7a48a"/>
+      <polygon points="680,340 760,250 820,300 760,360" fill="#efe4d0"/>
+      <polygon points="760,250 840,230 900,290 840,280" fill="#f7f1e4"/>
+      <polygon points="840,280 900,290 960,400 920,390" fill="#d9cbb4"/>
+      <polygon points="600,520 680,340 760,360 700,480" fill="#cbb892"/>
+      <polygon points="700,480 760,360 840,280 920,390 860,560" fill="#e7dcc8"/>
+      <!-- Jungfrau: breites Schneefeld -->
+      <polygon points="900,660 980,480 1080,320 1220,250 1360,300 1440,420 1440,660" fill="#d5c6ae"/>
+      <polygon points="1080,320 1220,250 1320,290 1240,360" fill="#f6f1e6"/>
+      <polygon points="1220,250 1360,270 1400,340 1320,290" fill="#fff8ee"/>
+      <polygon points="1220,250 1320,290 1240,360 1160,400 1080,320" fill="#e7efe8"/>
+      <polygon points="1080,320 1160,400 1120,500 980,480" fill="#c9b89a"/>
+      <polygon points="1160,400 1320,290 1400,400 1280,520" fill="#f3eee4"/>
+      <polygon points="1280,520 1400,400 1440,480 1440,660 1200,660" fill="#e4d8c4"/>
+    </g>
+  </svg>
+  <!-- Zwei Häuschen vor den Bergen, hinter den Tieren -->
+  <svg class="haeuser" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+    <g stroke="#2a2118" stroke-width="1" stroke-linejoin="round">
+      <!-- Laubengang-Haus, Altstadt-Sandstein, rotes Ziegeldach -->
+      <polygon points="430,560 760,560 760,700 430,700" fill="#c4a574"/>
+      <polygon points="430,560 760,560 760,600 430,600" fill="#d4bc8e"/>
+      <polygon points="410,560 780,548 760,500 430,512" fill="#8e3a32"/>
+      <polygon points="430,512 760,500 748,478 442,490" fill="#a84838"/>
+      <polygon points="748,478 780,500 760,500" fill="#6e2c28"/>
+      <!-- Bögen -->
+      <path d="M470,700 v-70 h54 v70" fill="#3a2e26"/>
+      <path d="M470,640 q27,-28 54,0" fill="#c4a574"/>
+      <path d="M560,700 v-70 h54 v70" fill="#3a2e26"/>
+      <path d="M560,640 q27,-28 54,0" fill="#d4bc8e"/>
+      <path d="M650,700 v-70 h54 v70" fill="#3a2e26"/>
+      <path d="M650,640 q27,-28 54,0" fill="#c4a574"/>
+      <rect x="500" y="575" width="16" height="22" fill="#5c4030"/>
+      <rect x="620" y="575" width="16" height="22" fill="#5c4030"/>
+      <rect x="700" y="575" width="16" height="22" fill="#5c4030"/>
+      <!-- Zytglogge-Andeutung -->
+      <polygon points="860,470 980,470 980,700 860,700" fill="#b8956a"/>
+      <polygon points="860,470 980,470 980,520 860,520" fill="#dcc49a"/>
+      <polygon points="840,470 1000,458 980,410 860,422" fill="#8e3a32"/>
+      <polygon points="900,410 940,330 980,410" fill="#6e2c28"/>
+      <polygon points="918,330 940,300 962,330" fill="#a84838"/>
+      <circle cx="920" cy="560" r="28" fill="#f3ead8" stroke="#2a2118"/>
+      <circle cx="920" cy="560" r="3" fill="#2a2118" stroke="none"/>
+      <line x1="920" y1="560" x2="920" y2="542" stroke="#2a2118" stroke-width="2"/>
+      <line x1="920" y1="560" x2="934" y2="566" stroke="#2a2118" stroke-width="2"/>
+      <rect x="890" y="610" width="22" height="30" fill="#4a3428"/>
+      <rect x="930" y="610" width="22" height="30" fill="#4a3428"/>
+    </g>
+  </svg>
+  <div class="ground"></div>
+  <img class="tier wolf" alt="Nebel Wolf" src="../assets/web/bergtiere_cut/nebel_wolf.webp">
+  <img class="tier falke" alt="Wyler Falke" src="../assets/web/quartiere_cut/wyler_falke.webp">
+  <img class="tier katze" alt="Schanzen Kater" src="../assets/web/quartiere_cut/schanzen_kater.webp">
+  <img class="tier fuchs" alt="Fuchs" src="../assets/web/fox3/fox_cut_full.webp">
+</div>
+  <div class="tag">Vorschau · nicht live</div>
+</div>
+</body>
+</html>
