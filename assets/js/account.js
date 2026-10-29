@@ -45,31 +45,78 @@
   function field(id, label, type, extra) {
     return '<div class="fld"><label for="' + id + '">' + esc(L(label)) + '</label><input id="' + id + '" name="' + id + '" type="' + type + '" ' + (extra || '') + '></div>';
   }
+  function label() {
+    return me ? L('Mis Konto') : L('Aamälde');
+  }
   function paintHeader() {
+    var text = label();
     var a = document.getElementById('navlogin');
-    if (!a) return;
-    if (me && me.name) {
-      a.textContent = me.name;
-      a.href = 'konto.html';
-    } else {
-      a.textContent = L('Aamälde');
-      a.href = 'konto.html';
+    if (a) { a.textContent = text; a.href = 'konto.html'; }
+    var nodes = document.querySelectorAll('.menu-login-link');
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].textContent = text;
+      nodes[i].href = 'konto.html';
     }
+    var menu = document.getElementById('navmenu');
+    if (menu) menu.textContent = L('Menü');
   }
   function mountHeader() {
-    if (document.getElementById('navlogin')) { paintHeader(); return; }
-    var a = document.createElement('a');
-    a.className = 'navlogin';
-    a.id = 'navlogin';
-    a.href = 'konto.html';
-    a.textContent = L('Aamälde');
-    var cluster = document.querySelector('.navcluster');
+    var bar = document.querySelector('.shopbar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.className = 'shopbar';
+      document.body.appendChild(bar);
+    }
+    var a = document.getElementById('navlogin');
+    if (!a) {
+      a = document.createElement('a');
+      a.className = 'navlogin';
+      a.id = 'navlogin';
+      a.href = 'konto.html';
+      a.textContent = L('Aamälde');
+    }
+    if (a.parentElement !== bar) bar.insertBefore(a, bar.firstChild);
     var cart = document.querySelector('.navcart');
+    if (cart && cart.parentElement !== bar) bar.appendChild(cart);
     var sw = document.querySelector('.langsw');
-    if (cluster) cluster.insertBefore(a, cluster.firstChild);
-    else if (cart && cart.parentElement) cart.parentElement.insertBefore(a, cart);
-    else if (sw && sw.parentElement) sw.parentElement.insertBefore(a, sw);
-    else { a.classList.add('fixed'); document.body.appendChild(a); }
+    if (sw && sw.parentElement !== bar) bar.appendChild(sw);
+    var lists = document.querySelectorAll('.nav ul');
+    for (var i = 0; i < lists.length; i++) {
+      if (lists[i].querySelector('.menu-login')) continue;
+      var li = document.createElement('li');
+      li.className = 'menu-login';
+      var link = document.createElement('a');
+      link.className = 'menu-login-link';
+      link.href = 'konto.html';
+      link.textContent = L('Aamälde');
+      li.appendChild(link);
+      lists[i].appendChild(li);
+    }
+    if (!document.getElementById('navmenu') && document.querySelector('.nav')) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'navmenu';
+      btn.className = 'navmenubtn';
+      btn.setAttribute('aria-expanded', 'false');
+      btn.textContent = L('Menü');
+      btn.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        var nav = document.querySelector('.nav');
+        if (!nav) return;
+        var open = nav.classList.toggle('menu-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      document.addEventListener('click', function (ev) {
+        var nav = document.querySelector('.nav');
+        if (!nav || !nav.classList.contains('menu-open')) return;
+        if (ev.target.closest && ev.target.closest('.nav a')) {
+          nav.classList.remove('menu-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      document.body.appendChild(btn);
+    }
+    paintHeader();
   }
 
   function shell(html) {
@@ -201,6 +248,7 @@
   }
   function boot() {
     mountHeader();
+    setTimeout(mountHeader, 0);
     api('/me').then(function (r) {
       me = (r.status === 200 && r.data && r.data.ok) ? r.data : null;
       paintHeader();

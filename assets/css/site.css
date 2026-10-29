@@ -675,9 +675,21 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 
 /* Warenkorb */
 html:not([data-b2b]) [data-b2b]{display:none !important}
-.navlogin{display:inline-flex;align-items:center;height:32px;padding:0 12px;border:1px solid rgba(214,178,94,.55);border-radius:999px;background:rgba(23,19,15,.55);color:var(--bv-cream);font-family:var(--font-head);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.shopbar{position:fixed;top:14px;right:14px;z-index:80;display:flex;align-items:center;gap:8px;pointer-events:auto}
+.shopbar .navcart,.shopbar .navcart.fixed{position:relative;top:auto;right:auto;margin:0}
+.shopbar .langsw{margin-left:0}
+.navlogin{display:inline-flex;align-items:center;height:32px;padding:0 12px;border:1px solid rgba(214,178,94,.55);border-radius:999px;background:rgba(23,19,15,.92);color:var(--bv-cream);font-family:var(--font-head);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
 .navlogin:hover{color:#fff3d6;border-color:var(--bv-gold)}
 .navlogin:focus-visible{outline:2px solid var(--bv-gold);outline-offset:2px}
+.menu-login{display:none}
+.navmenubtn{display:none}
+@media (max-width:760px){
+  .backlink{display:none}
+  .navmenubtn{display:inline-flex;align-items:center;position:fixed;top:14px;left:14px;z-index:80;height:32px;padding:0 12px;border:1px solid rgba(214,178,94,.55);border-radius:999px;background:rgba(23,19,15,.92);color:var(--bv-cream);font-family:var(--font-head);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+  .nav.menu-open{opacity:1;transform:none;pointer-events:auto;background:rgba(23,19,15,.94)}
+  .nav.menu-open ul{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;margin:0;padding:8px 18px 18px;background:rgba(23,19,15,.96);gap:12px;z-index:70}
+  .nav.menu-open .menu-login{display:list-item}
+}
 .navcart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:32px;margin-left:8px;border:1px solid rgba(214,178,94,.55);border-radius:999px;background:rgba(23,19,15,.55);color:var(--bv-cream);cursor:pointer;flex:none}
 .navcart svg{width:18px;height:18px}
 .navcart-n{position:absolute;top:-7px;right:-7px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--bv-gold);color:#1b140c;font-family:var(--font-head);font-size:.62rem;font-weight:700;line-height:16px;text-align:center}
