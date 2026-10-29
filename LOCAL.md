@@ -46,7 +46,9 @@ Die Steuerzentrale hört nur auf [http://127.0.0.1:18734](http://127.0.0.1:18734
 
 `crm/crm.db` und `crm/mail.log` bleiben lokal und stehen in `.gitignore`.
 
-## 3. Webseite und Händlerportal starten
+## 3. Webseite starten
+
+Der Knopf oben rechts und `konto.html` sind der Endkunden-Login. `B2B_ENABLED` bleibt leer oder `false`: dann ist `haendler.html` nicht verlinkt und zeigt nur «Chunnt bald.». Das Händlerportal im Code bleibt und geht an, wenn `B2B_ENABLED=true` gesetzt wird.
 
 Terminal B, im Repo-Root (nicht in `crm/`):
 

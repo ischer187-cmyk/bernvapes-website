@@ -674,6 +674,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 }
 
 /* Warenkorb */
+html:not([data-b2b]) [data-b2b]{display:none !important}
 .navlogin{display:inline-flex;align-items:center;height:32px;padding:0 12px;border:1px solid rgba(214,178,94,.55);border-radius:999px;background:rgba(23,19,15,.55);color:var(--bv-cream);font-family:var(--font-head);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
 .navlogin:hover{color:#fff3d6;border-color:var(--bv-gold)}
 .navlogin:focus-visible{outline:2px solid var(--bv-gold);outline-offset:2px}

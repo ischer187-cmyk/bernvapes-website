@@ -88,7 +88,8 @@ var D={
 'Registriert':['Registriert','Registered'],'Letschti Aamäldig':['Letzte Anmeldung','Last login'],
 'Link isch im Mail-Log. Es wird nüt verschickt.':['Der Link steht im Mail-Log. Es wird nichts verschickt.','The link is in the mail log. Nothing is sent.'],
 'Passwort (mind. 10 Zeiche)':['Passwort (mind. 10 Zeichen)','Password (at least 10 characters)'],
-'Für Lädeli geit’s ins Händler-Portal.':['Für Läden geht es ins Händler-Portal.','Shops use the dealer portal.']
+'Für Lädeli geit’s ins Händler-Portal.':['Für Läden geht es ins Händler-Portal.','Shops use the dealer portal.'],
+'Chunnt bald.':['Kommt bald.','Coming soon.']
 };
 /* FR: Schweizer Französisch, vous, Berne, 1er décembre. Schlüssel = BE-Original. */
 var FR={
@@ -174,7 +175,8 @@ var FR={
 'Registriert':'Inscrit le','Letschti Aamäldig':'Dernière connexion',
 'Link isch im Mail-Log. Es wird nüt verschickt.':'Le lien est dans le journal des mails. Rien n’est envoyé.',
 'Passwort (mind. 10 Zeiche)':'Mot de passe (10 caractères au moins)',
-'Für Lädeli geit’s ins Händler-Portal.':'Les magasins passent par le portail revendeurs.'
+'Für Lädeli geit’s ins Händler-Portal.':'Les magasins passent par le portail revendeurs.',
+'Chunnt bald.':'Bientôt disponible.'
 };
 var LS='bv-lang',ATTR=['alt','aria-label','title','content'],ORIG=new WeakMap(),lang='be';
 try{lang=localStorage.getItem(LS)||'be';}catch(e){}

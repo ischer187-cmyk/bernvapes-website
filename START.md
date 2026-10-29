@@ -31,7 +31,7 @@ Browser: http://127.0.0.1:8080
 
 Login oben rechts, Konto-Seite: http://127.0.0.1:8080/konto.html
 
-Händler: http://127.0.0.1:8080/haendler.html
+Das ist der Endkunden-Login. Das Händlerportal ist aus. Name, den du nicht setzen musst: B2B_ENABLED
 
 Optionaler Name, nur wenn die Links nicht auf diesen Rechner zeigen sollen: WEBSITE_PUBLIC_URL
 

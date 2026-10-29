@@ -229,6 +229,12 @@
     });
   }
 
+  if (!window.BV_B2B_ENABLED) return;
+  var soon = document.getElementById('b2b-soon');
+  var live = document.getElementById('b2b-live');
+  if (soon) soon.hidden = true;
+  if (live) live.hidden = false;
+  if (!root) return;
   root.addEventListener('click', function (ev) {
     var go = ev.target && ev.target.getAttribute && ev.target.getAttribute('data-go');
     if (go === 'login') { state.error = ''; renderLogin(); }

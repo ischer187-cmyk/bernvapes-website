@@ -118,12 +118,43 @@ class CustomerAccountTests(unittest.TestCase):
         admin = harness.admin_login(self.port)
         st, _, html = admin.request('GET', '/konten')
         self.assertEqual(st, 200)
-        self.assertIn('B2C', html)
-        self.assertIn('B2B', html)
         self.assertIn('lea@example.com', html)
-        self.assertIn('shop@example.com', html)
+        self.assertNotIn('shop@example.com', html)
         self.assertIn('Letzter Login', html)
         self.assertIn('Registriert', html)
+        st, _, alle = admin.request('GET', '/konten?typ=alle')
+        self.assertIn('lea@example.com', alle)
+        self.assertIn('shop@example.com', alle)
+        self.assertIn('B2B', alle)
+        st, _, nur = admin.request('GET', '/konten?typ=b2b')
+        self.assertIn('shop@example.com', nur)
+        self.assertNotIn('lea@example.com', nur)
+
+class ShopFlagTests(unittest.TestCase):
+    def test_b2b_flag_defaults_off_and_injects_into_html(self):
+        import sys
+        from pathlib import Path
+        root = str(Path(__file__).resolve().parents[2])
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        import serve_local
+        old = os.environ.get('B2B_ENABLED')
+        try:
+            os.environ.pop('B2B_ENABLED', None)
+            self.assertFalse(serve_local.b2b_enabled())
+            os.environ['B2B_ENABLED'] = 'false'
+            self.assertFalse(serve_local.b2b_enabled())
+            page = serve_local.inject_flags(b'<html><head><title>x</title></head></html>')
+            self.assertIn(b'window.BV_B2B_ENABLED=false', page)
+            self.assertLess(page.lower().find(b'bv_b2b_enabled'), page.lower().find(b'</head>'))
+            os.environ['B2B_ENABLED'] = 'yes'
+            self.assertTrue(serve_local.b2b_enabled())
+            self.assertIn(b'window.BV_B2B_ENABLED=true', serve_local.inject_flags(b'<html><head></head></html>'))
+        finally:
+            if old is None:
+                os.environ.pop('B2B_ENABLED', None)
+            else:
+                os.environ['B2B_ENABLED'] = old
 
 if __name__ == '__main__':
     unittest.main()

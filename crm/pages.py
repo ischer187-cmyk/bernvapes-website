@@ -266,12 +266,16 @@ def preise(q):
   return page('Preise','<section><h2>Preisstufen</h2><p class="mu">Einstieg, Händler, Grosshändler. Die ausgelieferten Zahlen sind Beispielpreise für den lokalen Test und keine Ladenpreise. Sonderpreise pro Shop stehen am Händlerkonto. Sichtbar im Portal nur nach Login und Freigabe.</p>'
     f'<table><tr><th>Produkt</th><th>Einstieg</th><th>Händler</th><th>Grosshändler</th><th></th></tr>{tr}</table></section>','/preise')
 def konten(q):
+  typ=(q.get('typ') or ['b2c'])[0].strip().lower()
+  if typ not in ('b2c','b2b','alle'): typ='b2c'
   c=db()
   rows=[]
-  for r in c.execute('select customer_id,email,name,created_at,last_login_at from customer_accounts').fetchall():
-    rows.append(('B2C', r['email'], r['name'] or '', r['created_at'], r['last_login_at'], r['customer_id'], 'aktiv'))
-  for r in c.execute('select customer_id,email,company_name,created_at,last_login_at,status from dealer_accounts').fetchall():
-    rows.append(('B2B', r['email'], r['company_name'] or '', r['created_at'], r['last_login_at'], r['customer_id'], r['status']))
+  if typ!='b2b':
+    for r in c.execute('select customer_id,email,name,created_at,last_login_at from customer_accounts').fetchall():
+      rows.append(('B2C', r['email'], r['name'] or '', r['created_at'], r['last_login_at'], r['customer_id'], 'aktiv'))
+  if typ!='b2c':
+    for r in c.execute('select customer_id,email,company_name,created_at,last_login_at,status from dealer_accounts').fetchall():
+      rows.append(('B2B', r['email'], r['company_name'] or '', r['created_at'], r['last_login_at'], r['customer_id'], r['status']))
   rows.sort(key=lambda x: x[3] or '', reverse=True)
   def _who(cid, who):
     if not cid:
@@ -284,6 +288,6 @@ def konten(q):
     '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (
       chip(kind, 'ok' if kind=='B2C' else 'neu'), _who(cid, who), e(email), chip(status), _when(created), _when(last))
     for kind,email,who,created,last,cid,status in rows)
-  return page('Konten', '<section><h2>Kundenkonten</h2><p class="mu">B2C ist nach der Registrierung sofort aktiv (Altersbestätigung nur Checkbox, keine e-ID). B2B bleibt bis zur Freigabe gesperrt. Letzter Login und Registrierung kommen aus dem Konto, nicht aus bexio.</p>'
-    f'<table><tr><th>Typ</th><th>Name</th><th>E-Mail</th><th>Status</th><th>Registriert</th><th>Letzter Login</th></tr>{tr or empty("Noch keine Konten.",6)}</table></section>', '/konten')
+  tabs=''.join('<a href="/konten?typ=%s" class="%s">%s</a>' % (key, 'on' if key==typ else '', label) for key,label in (('b2c','B2C'),('b2b','B2B'),('alle','Alle')))
+  return page('Konten', '<section><h2>Kundenkonten</h2><div class="tabs">%s</div><p class="mu">Standard ist B2C (sofort aktiv, Altersbestätigung nur Checkbox). B2B bleibt in der Liste und ist auf der Website aus, solange B2B_ENABLED nicht gesetzt ist.</p><table><tr><th>Typ</th><th>Name</th><th>E-Mail</th><th>Status</th><th>Registriert</th><th>Letzter Login</th></tr>%s</table></section>' % (tabs, tr or empty('Noch keine Konten.', 6)), '/konten')
 GET={'/':uebersicht,'/bestellungen':bestellungen,'/kunden':kunden,'/konten':konten,'/haendler':haendler,'/preise':preise,'/pipeline':pipeline,'/kampagnen':kampagnen,'/aufgaben':aufgaben,'/agenten':agenten,'/steuerung':steuerung}

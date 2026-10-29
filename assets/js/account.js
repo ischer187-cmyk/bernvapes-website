@@ -35,7 +35,7 @@
   function errText(code) {
     if (code === 'login_failed') return L('Die Aamäldig het nid klappet.');
     if (code === 'email_taken') return L('Die E-Mail git’s scho.');
-    if (code === 'dealer_email') return L('Für Lädeli geit’s ins Händler-Portal.');
+    if (code === 'dealer_email') return window.BV_B2B_ENABLED ? L('Für Lädeli geit’s ins Händler-Portal.') : L('Die E-Mail git’s scho.');
     if (code === 'age_required') return L('Bitte 18+ bestätige.');
     if (code === 'rate_limited') return L('Z vil Versüech. Churz warte.');
     if (code === 'crm_unreachable') return L('CRM nid erreichbar.');
@@ -94,7 +94,7 @@
       + '<br>' + esc(L('Letschti Aamäldig')) + ': ' + esc((me.last_login_at || '').slice(0, 16)) + '</p>'
       + '<p class="muted">18+ · Checkbox. Kei e-ID, kei Usweis.</p>'
       + '<p><button class="btn" type="button" id="out">' + esc(L('Abmälden')) + '</button></p>'
-      + '<p><a href="haendler.html">' + esc(L('Händler-Portal')) + '</a></p>'
+      + (window.BV_B2B_ENABLED ? '<p><a href="haendler.html">' + esc(L('Händler-Portal')) + '</a></p>' : '')
     );
     if (!root) return;
     root.querySelector('#out').onclick = function () {
@@ -113,7 +113,7 @@
       + field('password', 'Passwort', 'password', 'required autocomplete="current-password"')
       + '<p style="margin-top:16px"><button class="btn" type="submit">' + esc(L('Aamälde')) + '</button></p></form>'
       + '<p><a href="konto.html?neu=1">' + esc(L('Registriere')) + '</a> · <a href="konto.html?vergessen=1">' + esc(L('Passwort vergässe')) + '</a></p>'
-      + '<p class="muted"><a href="haendler.html">' + esc(L('Händler-Portal')) + '</a></p>'
+      + (window.BV_B2B_ENABLED ? '<p class="muted"><a href="haendler.html">' + esc(L('Händler-Portal')) + '</a></p>' : '')
     );
     if (!root) return;
     root.querySelector('#f').onsubmit = function (ev) {

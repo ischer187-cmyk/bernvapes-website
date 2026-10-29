@@ -17,6 +17,19 @@ TYPES = {
     '.webm': 'video/webm', '.mp4': 'video/mp4',
 }
 
+def b2b_enabled():
+    """Shop login is B2C until B2B_ENABLED is true/1/yes/on. Default false."""
+    return os.environ.get('B2B_ENABLED', 'false').strip().lower() in ('1', 'true', 'yes', 'on')
+
+def inject_flags(html):
+    flag = b'true' if b2b_enabled() else b'false'
+    snippet = b'<script>window.BV_B2B_ENABLED=' + flag + b';if(window.BV_B2B_ENABLED)document.documentElement.setAttribute("data-b2b","1");</script>'
+    lower = html.lower()
+    at = lower.find(b'</head>')
+    if at < 0:
+        return snippet + html
+    return html[:at] + snippet + html[at:]
+
 def _blocked(rel):
     parts = Path(rel).parts
     if not parts:
@@ -56,7 +69,10 @@ class H(BaseHTTPRequestHandler):
         if not full.is_file():
             return self._send(404, b'not found', 'text/plain')
         data = full.read_bytes()
-        return self._send(200, data, TYPES.get(full.suffix.lower(), 'application/octet-stream'))
+        ct = TYPES.get(full.suffix.lower(), 'application/octet-stream')
+        if full.suffix.lower() == '.html':
+            data = inject_flags(data)
+        return self._send(200, data, ct)
 
     def _proxy(self):
         u = urlsplit(UPSTREAM)
