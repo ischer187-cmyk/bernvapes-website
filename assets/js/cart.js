@@ -8,20 +8,22 @@
   function count(items){ return items.reduce(function(n,it){ return n+(it.qty||1); },0); }
   function t(s){ return (window.bvI18n&&bvI18n.t)?bvI18n.t(s):s; }
 
-  function add(id,name){
+  function add(id,name,opts){
     if(!id) return;
+    var pre=!!(opts&&opts.preorder);
     var items=load(), f=null;
     for(var i=0;i<items.length;i++) if(items[i].id===id) f=items[i];
-    if(f) f.qty=(f.qty||1)+1; else items.push({id:id,name:name||id,qty:1});
+    if(f){ f.qty=(f.qty||1)+1; if(pre) f.preorder=true; }
+    else items.push({id:id,name:name||id,qty:1,preorder:pre});
     save(items);
-    toast();
+    toast(pre);
   }
 
   var toastEl, panel, listEl, emptyEl, badge, btn;
-  function toast(){
+  function toast(pre){
     if(!toastEl) return;
     toastEl.hidden=false;
-    toastEl.textContent='Im Warechorb – d Bstellig chunnt bald';
+    toastEl.textContent=pre?'Vorbstellt – d Bstellig chunnt bald':'Im Warechorb – d Bstellig chunnt bald';
     clearTimeout(toastEl._t);
     toastEl._t=setTimeout(function(){ toastEl.hidden=true; }, 2800);
   }
@@ -32,7 +34,13 @@
     listEl.innerHTML='';
     items.forEach(function(it){
       var li=document.createElement('li');
-      var nm=document.createElement('span'); nm.textContent=it.name+'  ×'+(it.qty||1);
+      var nm=document.createElement('span');
+      nm.appendChild(document.createTextNode(it.name+'  ×'+(it.qty||1)));
+      if(it.preorder){
+        nm.appendChild(document.createTextNode(' · '));
+        var mark=document.createElement('i'); mark.className='cartpre'; mark.textContent='Vorbstellig';
+        nm.appendChild(mark);
+      }
       var rm=document.createElement('button'); rm.type='button'; rm.className='cart-rm'; rm.textContent='Wegneh';
       rm.addEventListener('click',function(){
         var next=load().filter(function(x){ return x.id!==it.id; });
@@ -99,9 +107,7 @@
   }
 
   function scan(){
-    document.querySelectorAll('#flaschen .pcol').forEach(function(col){
-      var name=nameOf(col); place(col, slug(name), name);
-    });
+    /* Nur #flaschen .preorder ist eine Vorbestellung. Alle anderen Knöpfe bestellen direkt. */
     document.querySelectorAll('#hero .beast, #quartiere .beast, #bergtiere .beast, .werkstatt .beast, .studies figure').forEach(function(fig){
       var name=nameOf(fig);
       var id=fig.dataset.key||slug(name);
@@ -110,6 +116,17 @@
     ['#lb .tocart','#tiermodal .tocart'].forEach(function(sel){
       var b=document.querySelector(sel); if(!b||b._cart) return; b._cart=1;
       b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); add(b.dataset.cart, b.dataset.name); });
+    });
+    /* Genau ein Knopf pro neuer Flasche. Der Listener sitzt nur hier, einmal. */
+    document.querySelectorAll('#flaschen .preorder').forEach(function(b){
+      if(b._pre) return; b._pre=1;
+      b.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var col=b.closest('.pcol');
+        var name=nameOf(col);
+        add(slug(name), name, {preorder:true});
+      });
     });
   }
 

@@ -6,7 +6,34 @@
   var csrf = null;
 
   function L(s) {
-    return (window.bvI18n && window.bvI18n.t) ? window.bvI18n.t(s) : s;
+    var de = {
+      'Aamälde': 'Anmelden',
+      'Mis Konto': 'Mein Konto',
+      'Registriere': 'Registrieren',
+      'Abmälden': 'Abmelden',
+      'Passwort vergässe': 'Passwort vergessen',
+      'Adrässe': 'Adresse',
+      'I bi 18 oder elter. Kei Usweis, nume die Bestätigung.': 'Ich bin 18 oder älter. Kein Ausweis, nur diese Bestätigung.',
+      'Konto aalege': 'Konto anlegen',
+      'Neus Passwort': 'Neues Passwort',
+      'Passwort setze': 'Passwort setzen',
+      'Zrügg zum Aamälde': 'Zurück zum Anmelden',
+      'Die Aamäldig het nid klappet.': 'Die Anmeldung hat nicht geklappt.',
+      'Die E-Mail git’s scho.': 'Diese E-Mail gibt es schon.',
+      'Bitte 18+ bestätige.': 'Bitte 18+ bestätigen.',
+      'Z vil Versüech. Churz warte.': 'Zu viele Versuche. Kurz warten.',
+      'CRM nid erreichbar.': 'CRM nicht erreichbar.',
+      'Letschti Aamäldig': 'Letzte Anmeldung',
+      'Link isch im Mail-Log. Es wird nüt verschickt.': 'Der Link steht im Mail-Log. Es wird nichts verschickt.',
+      'Passwort (mind. 10 Zeiche)': 'Passwort (mind. 10 Zeichen)'
+    };
+    var german = de[s] || s;
+    var lang = (window.bvI18n && window.bvI18n.lang) || 'de';
+    if ((lang === 'fr' || lang === 'en') && window.bvI18n && window.bvI18n.t) {
+      var via = window.bvI18n.t(german);
+      if (via && via !== german) return via;
+    }
+    return german;
   }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
