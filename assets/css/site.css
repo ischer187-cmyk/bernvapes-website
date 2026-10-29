@@ -678,7 +678,40 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .navcart svg{width:18px;height:18px}
 .navcart-n{position:absolute;top:-7px;right:-7px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--bv-gold);color:#1b140c;font-family:var(--font-head);font-size:.62rem;font-weight:700;line-height:16px;text-align:center}
 .navcart:focus-visible,.tocart:focus-visible,.cartx:focus-visible,.cartclear:focus-visible,.cart-rm:focus-visible{outline:2px solid var(--bv-gold);outline-offset:2px}
-.navcluster.fixed{position:fixed;top:12px;right:14px;z-index:61;display:flex;align-items:center;gap:8px}
+.navcluster{display:flex;align-items:center;gap:8px}
+.navcluster .langsw,.navcluster .navcart,.navcluster .navlogin{margin-left:0}
+.navcluster.fixed{position:fixed;top:12px;right:14px;z-index:61}
+@media (max-width:760px){.nav > .navcluster{margin-left:auto}}
+.navlogin{position:relative;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 9px;border:1px solid rgba(214,178,94,.55);border-radius:999px;background:rgba(23,19,15,.55);color:var(--bv-cream);font-family:var(--font-head);font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.45);flex:none;backdrop-filter:blur(4px)}
+.navlogin svg{width:16px;height:16px;display:block}
+.navlogin:hover{color:var(--bv-gold)}
+.navlogin:focus-visible{outline:2px solid var(--bv-gold);outline-offset:2px}
+@media (max-width:760px){
+  .nav{padding:12px 10px}
+  .nav .wordmark{font-size:1.15rem;letter-spacing:.08em}
+  .navlogin{height:30px;padding:0 8px 0 7px;font-size:.58rem;letter-spacing:.08em;gap:4px}
+  .navcluster{gap:6px}
+  .langsw button{padding:4px 5px}
+}
+@media (max-width:380px){.navlogin span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.navlogin{padding:0;width:32px;justify-content:center}}
+.loginscrim{position:fixed;inset:0;z-index:80;background:rgba(23,19,15,.62);display:flex;align-items:center;justify-content:center;padding:18px}
+.loginscrim[hidden]{display:none}
+.logincard{width:min(420px,100%);max-height:min(92svh,720px);overflow:auto;background:var(--bv-cream);color:var(--bv-ink);border:1px solid var(--bv-gold);outline:1px solid var(--bv-gold);outline-offset:4px;padding:26px 24px 20px;box-shadow:0 24px 50px rgba(0,0,0,.4)}
+.loginhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.loginhead h2{margin:0;font-family:var(--font-head);font-weight:500;font-size:1.15rem;letter-spacing:.16em;text-transform:uppercase}
+.loginx{all:unset;cursor:pointer;width:32px;height:32px;border:1px solid var(--bv-gold);border-radius:50%;text-align:center;line-height:32px;color:var(--bv-ink)}
+.loginx:focus-visible,.loginlink:focus-visible,.logincard .btn:focus-visible,.fld input:focus-visible{outline:2px solid var(--bv-gold);outline-offset:2px}
+.fld{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.fld label{font-family:var(--font-head);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bv-crimson)}
+.fld input{font:inherit;font-size:1rem;padding:10px 12px;border:1px solid var(--bv-tan);background:#fffaf0;color:var(--bv-ink);border-radius:2px}
+.loginrow{margin:18px 0 0}
+.logincard .btn{display:inline-block}
+.loginlinks{display:flex;flex-wrap:wrap;gap:8px 16px;margin:14px 0 0}
+.loginlink{all:unset;cursor:pointer;color:var(--bv-crimson);text-decoration:underline;text-underline-offset:3px;font-size:.92rem}
+.loginhint{margin:16px 0 0;padding-top:12px;border-top:1px solid rgba(193,151,90,.55);font-size:.9rem;line-height:1.45}
+.loginhint .loginlink{display:block;width:fit-content;margin-top:4px}
+.loginnotice{margin:14px 0 0;padding:10px 12px;background:rgba(30,77,74,.1);border:1px solid var(--bv-teal);font-size:.92rem;line-height:1.45}
+.loginnotice[hidden]{display:none}
 .navcart.fixed{position:fixed;top:14px;right:16px;z-index:61}
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .tocart{font-family:var(--font-head);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;color:#1b140c;background:var(--bv-gold);border:0;border-radius:999px;padding:.55em 1.05em;cursor:pointer;pointer-events:auto}

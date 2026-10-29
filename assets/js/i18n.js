@@ -70,7 +70,24 @@ var D={
 'Zrügg zur nöie Linie':['Zurück zur neuen Linie','Back to the new line'],'Kaffernbüffel':['Kaffernbüffel','Cape buffalo'],'Gepard':['Gepard','Cheetah'],
 'I Warechorb':['In den Warenkorb','Add to cart'],
 'Im Warechorb – d Bstellig chunnt bald':['Im Warenkorb – Bestellung folgt bald','In the cart – ordering comes soon'],
-'Warechorb':['Warenkorb','Cart'],'Nüt drin':['Leer','Empty'],'Wegneh':['Entfernen','Remove'],'Leere':['Leeren','Clear']
+'Warechorb':['Warenkorb','Cart'],'Nüt drin':['Leer','Empty'],'Wegneh':['Entfernen','Remove'],'Leere':['Leeren','Clear'],
+'Login':['Anmelden','Log in'],
+'Aamälde':['Anmelden','Log in'],
+'E-Mail':['E-Mail','Email'],
+'Passwort':['Passwort','Password'],
+'Passwort vergässe?':['Passwort vergessen?','Forgot password?'],
+'Noch kes Konto? Registriere':['Noch kein Konto? Registrieren','No account yet? Register'],
+'Händler mälde sech spöter im Portal a.':['Händler melden sich später im Portal an.','Trade customers will sign in through the portal later.'],
+'Zum Händlerportal':['Zum Händlerportal','Dealer portal'],
+'D Aamäldig isch no nid aktiv. Mir speichere kes Passwort u schicke nüt ewäg.':['Die Anmeldung ist noch nicht aktiv. Wir speichern kein Passwort und schicken nichts weg.','Sign-in is not live yet. We do not store your password and we do not send anything.'],
+'Passwort zruggsetze':['Passwort zurücksetzen','Reset password'],
+'Mir schicke no kei Mail. S Zruggsetze chunnt spöter.':['Wir schicken noch keine E-Mail. Das Zurücksetzen kommt später.','We do not send an email yet. Reset comes later.'],
+'Konto alege':['Konto anlegen','Create account'],
+'Name':['Name','Name'],
+'Registriere chunnt spöter. Es wird no kes Konto aagleit.':['Die Registrierung kommt später. Es wird noch kein Konto angelegt.','Registration comes later. No account is created yet.'],
+'Zrügg zum Login':['Zurück zum Login','Back to login'],
+'Ds Händlerportal isch no nid verbunde.':['Das Händlerportal ist hier noch nicht verbunden.','The dealer portal is not connected on this page yet.'],
+'Schliesse':['Schliessen','Close']
 };
 /* FR: Schweizer Französisch, vous, Berne, 1er décembre. Schlüssel = BE-Original. */
 var FR={
@@ -139,7 +156,24 @@ var FR={
 'Zrügg zur nöie Linie':'Retour à la nouvelle ligne','Kaffernbüffel':'Buffle du Cap','Gepard':'Guépard',
 'I Warechorb':'Ajouter au panier',
 'Im Warechorb – d Bstellig chunnt bald':'Dans le panier – la commande suivra bientôt',
-'Warechorb':'Panier','Nüt drin':'Vide','Wegneh':'Retirer','Leere':'Vider'
+'Warechorb':'Panier','Nüt drin':'Vide','Wegneh':'Retirer','Leere':'Vider',
+'Login':'Connexion',
+'Aamälde':'Connexion',
+'E-Mail':'E-mail',
+'Passwort':'Mot de passe',
+'Passwort vergässe?':'Mot de passe oublié ?',
+'Noch kes Konto? Registriere':'Pas encore de compte ? Créer un compte',
+'Händler mälde sech spöter im Portal a.':'Les revendeurs se connecteront plus tard via le portail.',
+'Zum Händlerportal':'Portail revendeurs',
+'D Aamäldig isch no nid aktiv. Mir speichere kes Passwort u schicke nüt ewäg.':'La connexion n’est pas encore active. Nous n’enregistrons pas votre mot de passe et n’envoyons rien.',
+'Passwort zruggsetze':'Réinitialiser le mot de passe',
+'Mir schicke no kei Mail. S Zruggsetze chunnt spöter.':'Nous n’envoyons pas encore d’e-mail. La réinitialisation viendra plus tard.',
+'Konto alege':'Créer un compte',
+'Name':'Nom',
+'Registriere chunnt spöter. Es wird no kes Konto aagleit.':'L’inscription viendra plus tard. Aucun compte n’est créé pour l’instant.',
+'Zrügg zum Login':'Retour à la connexion',
+'Ds Händlerportal isch no nid verbunde.':'Le portail revendeurs n’est pas encore relié à cette page.',
+'Schliesse':'Fermer'
 };
 var LS='bv-lang',ATTR=['alt','aria-label','title','content'],ORIG=new WeakMap(),lang='be';
 try{lang=localStorage.getItem(LS)||'be';}catch(e){}
