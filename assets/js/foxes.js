@@ -1,9 +1,9 @@
 /* Drei weisse Low-Poly-Füchse. Nie gleichzeitig, 2.8 s Pause, einmal pro Sichtbarkeit.
-   H.264 wird im Canvas per Colorkey freigestellt (VP9-Alpha schreibt dieser ffmpeg-Build nicht).
-   Standbilder sind transparente WebPs. prefers-reduced-motion zeigt nur das Standbild. */
+   Blick (Hero): deckendes WebP mit echtem Alpha, fährt hinter der Bergkante hoch und wieder runter.
+   Die anderen beiden bleiben beim Canvas-Colorkey des MP4. */
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var GAP=2800, V='20261029c';
+  var GAP=2800, V='20261029g';
   var slots=[
     {id:'blick', sel:'#hero', gate:function(){var h=document.getElementById('hero');return !!(h&&h.classList.contains('world-in'));}},
     {id:'laufen', sel:'#quartiere'},
@@ -18,7 +18,9 @@
     var el=document.createElement('div');
     el.className='wfox wfox-'+s.id;
     el.setAttribute('aria-hidden','true');
-    if(reduce){
+    if(s.id==='blick'){
+      el.innerHTML='<div class="wfox-mask"><img alt="" src="assets/web/fox3/blick_solid.webp?v='+V+'"></div>';
+    }else if(reduce){
       el.innerHTML='<img class="wfox-still" alt="" src="'+poster+'">';
     }else{
       el.innerHTML='<canvas></canvas><video muted playsinline preload="none" src="assets/web/fox3/'+s.id+'.mp4?v='+V+'"></video>';
@@ -33,8 +35,33 @@
     return Math.max(0,overlap)/Math.min(vh, Math.max(1,r.height));
   }
   function hide(s){
+    if(s.peek){ try{s.peek.cancel();}catch(e){} s.peek=null; }
+    if(s.hold){ clearTimeout(s.hold); s.hold=0; }
     if(s.el) s.el.classList.remove('on');
+    var img=s.el&&s.el.querySelector('img');
+    if(img&&s.id==='blick') img.style.transform='translateY(70%)';
     if(s.video){ s.video.pause(); try{s.video.currentTime=0;}catch(e){} }
+  }
+  function playBlick(s){
+    var img=s.el.querySelector('img');
+    img.style.transform='translateY(70%)';
+    var up=img.animate(
+      [{transform:'translateY(70%)'},{transform:'translateY(0%)'}],
+      {duration:1700,easing:'cubic-bezier(.16,.84,.28,1)',fill:'forwards'}
+    );
+    s.peek=up;
+    up.onfinish=function(){
+      if(playing!==s) return;
+      s.hold=setTimeout(function(){
+        if(playing!==s) return;
+        var down=img.animate(
+          [{transform:'translateY(0%)'},{transform:'translateY(70%)'}],
+          {duration:1500,easing:'cubic-bezier(.4,.05,.75,1)',fill:'forwards'}
+        );
+        s.peek=down;
+        down.onfinish=function(){ if(playing===s) finish(s); };
+      }, 1300);
+    };
   }
   function finish(s){ hide(s); if(playing===s){ playing=null; cancelAnimationFrame(raf); } pauseUntil=performance.now()+GAP; played[s.id]=1; }
 
@@ -64,6 +91,7 @@
 
   function play(s){
     playing=s; s.el.classList.add('on');
+    if(s.id==='blick'){ if(!reduce) playBlick(s); else { var img=s.el.querySelector('img'); if(img) img.style.transform='translateY(0%)'; } return; }
     if(reduce||!s.video) return;
     try{ s.video.currentTime=0; }catch(e){}
     var p=s.video.play(); if(p&&p.catch) p.catch(function(){});
@@ -82,7 +110,11 @@
         var r=ratio(s.sec);
         if(r>0.4 && (!best||r>best.r)) best={s:s,r:r};
       });
-      slots.forEach(function(s){ if(s.el) s.el.classList.toggle('on', !!(best&&best.s===s)); });
+      slots.forEach(function(s){
+        if(!s.el) return;
+        s.el.classList.toggle('on', !!(best&&best.s===s));
+        if(s.id==='blick'){ var img=s.el.querySelector('img'); if(img) img.style.transform=s.el.classList.contains('on')?'translateY(0%)':'translateY(70%)'; }
+      });
       return;
     }
     if(playing){
