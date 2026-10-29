@@ -9,6 +9,7 @@ from auth import (
     new_token, rate_clear, rate_ok, read_session, session_cookie, token_hash, utc_plus, utcnow,
     verify_password,
 )
+import checkout
 from db import IntegrityError
 from mailer import get_mailer
 
@@ -57,6 +58,11 @@ def handle(handler, method, path):
             body = _row_public(row)
             body['csrf_token'] = session['csrf_token']
             return handler.json(200, body)
+        row = _load(conn, session)
+        if method == 'GET' and rel == '/order':
+            if not row:
+                return handler.json(401, {'ok': False, 'error': 'login_required'})
+            return checkout.customer_order(handler, conn, row)
         if method != 'POST':
             return handler.json(404, {'ok': False, 'error': 'not_found'})
         data = handler.payload()
@@ -68,6 +74,12 @@ def handle(handler, method, path):
             return _forgot(handler, conn, ip, data)
         if rel == '/reset':
             return _reset(handler, conn, ip, data)
+        if rel == '/checkout':
+            if not row:
+                return handler.json(401, {'ok': False, 'error': 'login_required'})
+            if not session or not csrf_ok(session, handler.csrf_presented(data)):
+                return handler.json(403, {'ok': False, 'error': 'csrf'})
+            return checkout.customer_checkout(handler, conn, row, data)
         if rel == '/logout':
             if session and not csrf_ok(session, handler.csrf_presented(data)):
                 return handler.json(403, {'ok': False, 'error': 'csrf'})

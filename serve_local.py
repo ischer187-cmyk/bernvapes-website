@@ -55,7 +55,9 @@ class H(BaseHTTPRequestHandler):
     def _route(self):
         path = urlsplit(self.path).path
         if path.startswith('/b2b-api'):
-            return self._proxy()
+            return self._proxy('/api/b2b' + self.path[len('/b2b-api'):])
+        if path == '/webhook/postfinance':
+            return self._proxy(self.path)
         rel = unquote(path).lstrip('/') or 'index.html'
         if _blocked(rel) or '..' in rel.split('/'):
             return self._send(404, b'not found', 'text/plain')
@@ -74,9 +76,8 @@ class H(BaseHTTPRequestHandler):
             data = inject_flags(data)
         return self._send(200, data, ct)
 
-    def _proxy(self):
+    def _proxy(self, target):
         u = urlsplit(UPSTREAM)
-        target = '/api/b2b' + self.path[len('/b2b-api'):]
         n = int(self.headers.get('Content-Length') or 0)
         body = self.rfile.read(n) if n else None
         headers = {}

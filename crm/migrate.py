@@ -20,7 +20,9 @@ ADD = {
     'orders': {
         'payment_provider': 'TEXT', 'payment_tx_id': 'TEXT', 'external_ref': 'TEXT', 'updated_at': 'TEXT',
         'payment_status': 'TEXT', 'currency': "TEXT DEFAULT 'CHF'", 'is_test': 'INTEGER DEFAULT 0',
-        'payment_method': 'TEXT', 'dealer_account_id': 'INTEGER'},
+        'payment_method': 'TEXT', 'dealer_account_id': 'INTEGER',
+        'customer_account_id': 'INTEGER', 'postfinance_state': 'TEXT'},
+    'order_items': {'preorder': 'INTEGER DEFAULT 0'},
 }
 
 def _columns(conn, table):

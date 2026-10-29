@@ -37,4 +37,14 @@ Optionaler Name, nur wenn die Links nicht auf diesen Rechner zeigen sollen: WEBS
 
 Leer lassen: DATABASE_URL und BEXIO_WRITE_ENABLED
 
+Für die Test-Kasse (PostFinance), nur die Namen:
+
+- POSTFINANCE_SPACE_ID
+- POSTFINANCE_USER_ID
+- POSTFINANCE_SPACE_KEY
+
+Webhook im CRM: POST /webhook/postfinance
+
+bexio nach der Zahlung bleibt aus. Namen, nur wenn du es einschaltest: BEXIO_SYNC_ENABLED, BEXIO_API_TOKEN, BEXIO_USER_ID
+
 Passwort-vergessen-Links stehen im CRM unter **Steuerung → Mail-Log**. Es geht keine echte Mail raus.

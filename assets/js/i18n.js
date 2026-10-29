@@ -89,7 +89,19 @@ var D={
 'Registriert':['Registriert','Registered'],'Letzte Anmeldung':['Letzte Anmeldung','Last login'],
 'Der Link steht im Mail-Log. Es wird nichts verschickt.':['Der Link steht im Mail-Log. Es wird nichts verschickt.','The link is in the mail log. Nothing is sent.'],
 'Passwort (mind. 10 Zeichen)':['Passwort (mind. 10 Zeichen)','Password (at least 10 characters)'],
-'kommt bald.':['kommt bald.','Coming soon.']
+'kommt bald.':['kommt bald.','Coming soon.'],
+'Zur Kasse':['Zur Kasse','Checkout'],
+'Testzahlung über PostFinance.':['Testzahlung über PostFinance.','Test payment via PostFinance.'],
+'Jetzt bezahlen':['Jetzt bezahlen','Pay now'],
+'Zahlung wird bestätigt':['Zahlung wird bestätigt','Payment is being confirmed'],
+'Die Zahlung ist nicht durchgegangen.':['Die Zahlung ist nicht durchgegangen.','The payment did not go through.'],
+'Vorbestellung':['Vorbestellung','Pre-order'],
+'Bitte zuerst anmelden.':['Bitte zuerst anmelden.','Please log in first.'],
+'Der Warenkorb ist leer.':['Der Warenkorb ist leer.','The cart is empty.'],
+'Total':['Total','Total'],
+'Zurück zum Shop':['Zurück zum Shop','Back to the shop'],
+'Bezahlt. Die Bestellung ist deinem Konto zugeordnet.':['Bezahlt. Die Bestellung ist deinem Konto zugeordnet.','Paid. The order is stored on your account.'],
+'Warten auf die Bestätigung von PostFinance.':['Warten auf die Bestätigung von PostFinance.','Waiting for PostFinance to confirm.']
 };
 /* FR: Schweizer Französisch, vous, Berne, 1er décembre. Schlüssel = BE-Original. */
 var FR={
@@ -176,7 +188,19 @@ var FR={
 'Registriert':'Inscrit le','Letzte Anmeldung':'Dernière connexion',
 'Der Link steht im Mail-Log. Es wird nichts verschickt.':'Le lien est dans le journal des mails. Rien n’est envoyé.',
 'Passwort (mind. 10 Zeichen)':'Mot de passe (10 caractères au moins)',
-'kommt bald.':'Bientôt disponible.'
+'kommt bald.':'Bientôt disponible.',
+'Zur Kasse':'Vers la caisse',
+'Testzahlung über PostFinance.':'Paiement test via PostFinance.',
+'Jetzt bezahlen':'Payer maintenant',
+'Zahlung wird bestätigt':'Le paiement est en cours de confirmation',
+'Die Zahlung ist nicht durchgegangen.':'Le paiement n’a pas abouti.',
+'Vorbestellung':'Précommande',
+'Bitte zuerst anmelden.':'Veuillez d’abord vous connecter.',
+'Der Warenkorb ist leer.':'Le panier est vide.',
+'Total':'Total',
+'Zurück zum Shop':'Retour à la boutique',
+'Bezahlt. Die Bestellung ist deinem Konto zugeordnet.':'Payé. La commande est enregistrée sur votre compte.',
+'Warten auf die Bestätigung von PostFinance.':'En attente de la confirmation PostFinance.'
 };
 var LS='bv-lang',ATTR=['alt','aria-label','title','content'],ORIG=new WeakMap(),lang='be';
 try{lang=localStorage.getItem(LS)||'be';}catch(e){}

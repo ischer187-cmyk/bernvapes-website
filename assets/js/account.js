@@ -152,6 +152,11 @@
     root.innerHTML = html;
     return root;
   }
+  function nextPage() {
+    var n = new URLSearchParams(location.search).get('next') || '';
+    if (/^(kasse|kasse-ok|kasse-fail)\.html$/.test(n)) return n;
+    return '';
+  }
   function mode() {
     var q = new URLSearchParams(location.search);
     if (q.get('token')) return 'reset';
@@ -194,7 +199,13 @@
       ev.preventDefault();
       var fd = new FormData(ev.target);
       api('/login', { method: 'POST', body: { email: fd.get('email'), password: fd.get('password') } }).then(function (r) {
-        if (r.status === 200 && r.data.ok) { me = r.data; paintHeader(); renderAccount(); return; }
+        if (r.status === 200 && r.data.ok) {
+          me = r.data; paintHeader();
+          var n = nextPage();
+          if (n) { location.href = n; return; }
+          renderAccount();
+          return;
+        }
         renderLogin(errText(r.data && r.data.error));
       });
     };
@@ -223,7 +234,13 @@
         zip: fd.get('zip'), city: fd.get('city'), password: fd.get('password'),
         age_18: fd.get('age_18') === 'on'
       }}).then(function (r) {
-        if ((r.status === 201 || r.status === 200) && r.data.ok) { me = r.data; paintHeader(); renderAccount(); return; }
+        if ((r.status === 201 || r.status === 200) && r.data.ok) {
+          me = r.data; paintHeader();
+          var n = nextPage();
+          if (n) { location.href = n; return; }
+          renderAccount();
+          return;
+        }
         renderRegister(errText(r.data && r.data.error));
       });
     };
@@ -279,6 +296,8 @@
     api('/me').then(function (r) {
       me = (r.status === 200 && r.data && r.data.ok) ? r.data : null;
       paintHeader();
+      var n = nextPage();
+      if (me && n && document.getElementById('konto')) { location.href = n; return; }
       renderPage();
     });
   }

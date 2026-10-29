@@ -16,6 +16,12 @@ Im Terminal, bevor `app.py` startet. Keine Secrets in Dateien im Git.
 | `WEBSITE_PUBLIC_URL` | nein | Default `http://127.0.0.1:8080`. Steht in den Einladungslinks |
 | `DATABASE_URL` | nein | **leer lassen.** Gesetzt heisst Postgres |
 | `BEXIO_WRITE_ENABLED` | nein | **auf 0 lassen.** Der Stub ruft bexio nicht auf |
+| `POSTFINANCE_SPACE_ID` | nein | Test-Space für die Kasse. Ohne die drei Space-Namen bleibt die Zahlung aus |
+| `POSTFINANCE_USER_ID` | nein | Wallee-User für die MAC-Signatur |
+| `POSTFINANCE_SPACE_KEY` | nein | Auth-Key. Wird nie geloggt |
+| `BEXIO_SYNC_ENABLED` | nein | **aus lassen.** Erst dann legt eine bezahlte Shop-Bestellung Kunde und Rechnung in bexio an |
+| `BEXIO_API_TOKEN` | nein | Nur zusammen mit `BEXIO_SYNC_ENABLED` |
+| `BEXIO_USER_ID` | nein | bexio-User für Kontakt und Rechnung |
 | `EMAIL_DRIVER` | nein | Default `log`. Es gibt keinen SMTP-Versand |
 
 Beispielpreise (Einstieg / Händler / Grosshändler) liegen nach dem ersten Start in der Datenbank. Das sind keine Ladenpreise. Echte Stufen setzt Dominic später in der Steuerzentrale unter **Preise**.

@@ -94,9 +94,9 @@ def bestellung(oid):
   c=db(); o=c.execute('select o.*,cu.name cn,cu.email ce from orders o left join customers cu on cu.id=o.customer_id where o.id=?',(oid,)).fetchone()
   if not o: return None
   it=c.execute('select * from order_items where order_id=?',(oid,)).fetchall()
-  ih=''.join(f'<tr><td>{e(i["article"])}</td><td>{e(i["qty"])}</td><td>{e(i["unit_chf"])}</td></tr>' for i in it) or empty('Keine Positionen.',3)
+  ih=''.join('<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>' % (e(i['article']), ' · Vorbestellung' if i['preorder'] else '', e(i['qty']), e(i['unit_chf'])) for i in it) or empty('Keine Positionen.',3)
   info=(f'<table><tr><td>Kunde</td><td><a href="/kontakt/{o["customer_id"]}">{e(o["cn"])}</a> · {e(o["ce"])}</td></tr><tr><td>Externe Ref.</td><td>{e(o["external_ref"])}</td></tr>'
-   f'<tr><td>Kanal</td><td>{e(o["channel"])}</td></tr><tr><td>Status</td><td>{chip(o["status"])}</td></tr><tr><td>Zahlungsart</td><td>{e(o["payment_method"] or "–")}</td></tr><tr><td>Zahlung</td><td>{e(o["payment_status"])} {e(o["payment_provider"] or "")}</td></tr>'
+   f'<tr><td>Kanal</td><td>{e(o["channel"])}</td></tr><tr><td>Status</td><td>{chip(o["status"])}</td></tr><tr><td>Zahlungsart</td><td>{e(o["payment_method"] or "–")}</td></tr><tr><td>Zahlung</td><td>{e(o["payment_status"])} {e(o["payment_provider"] or "")}</td></tr><tr><td>PostFinance</td><td>{e(o["postfinance_tx_id"])} {e(o["postfinance_state"] or "")}</td></tr>'
    f'<tr><td>Total</td><td><b>{e(o["currency"] or "CHF")} {(o["total_chf"] or 0):.2f}</b></td></tr><tr><td>Erstellt</td><td>{e(o["created_at"])}</td></tr><tr><td>Test</td><td>{chip("TEST","no") if o["is_test"] else "nein"}</td></tr></table>')
   return page(f'Bestellung #{oid}',f'<section><p><a href="/bestellungen">← Bestellungen</a></p><h2>Bestellung #{oid}</h2><div class="grid2"><div class="card"><h3>Details</h3>{info}</div><div class="card"><h3>Positionen</h3><table><tr><th>Artikel</th><th>Menge</th><th>CHF/Stk</th></tr>{ih}</table></div></div></section>','/bestellungen')
 # ---------- Kunden ----------
@@ -229,8 +229,10 @@ def agenten(q):
   return page('Agenten','''<section><h2>Agenten</h2><div class="grid2"><div class="card"><b>Newsletter-Bot</b> <span class="mu">○ in Vorbereitung</span><p class="mu">Noch nicht eingerichtet. Später nur für Kontakte mit bestätigter Einwilligung (Double-Opt-in), Entwürfe immer zur Freigabe.</p></div>
   <div class="card"><b>Verkaufs-Bot</b> <span class="mu">○ in Vorbereitung</span><p class="mu">Noch nicht eingerichtet. Später z. B. Nachfass-Entwürfe für Kampagnen an potenzielle Neukunden – nur Entwürfe, kein automatischer Versand.</p></div></div></section>''','/agenten')
 def steuerung(q):
-  c=db(); sec='gesetzt' if os.environ.get('CRM_WEBHOOK_SECRET') else 'NICHT gesetzt → alle Webhooks antworten 503'
+  c=db(); sec='gesetzt' if os.environ.get('CRM_WEBHOOK_SECRET') else 'NICHT gesetzt → die oberen Webhooks antworten 503'
   tr=''.join(f'<tr><td><code>POST /webhook/{k}</code></td><td>{v}</td><td><code>{", ".join(REQ[k])}</code></td></tr>' for k,v in WEBHOOKS.items())
+  pf_on=bool(os.environ.get('POSTFINANCE_SPACE_ID') and os.environ.get('POSTFINANCE_USER_ID') and os.environ.get('POSTFINANCE_SPACE_KEY'))
+  tr+='<tr><td><code>POST /webhook/postfinance</code></td><td>PostFinance Checkout. Markiert die Bestellung als bezahlt und speichert sie beim Kunden. Space-Key %s, der Wert wird nie angezeigt.</td><td><code>entityId</code></td></tr>'%('gesetzt' if pf_on else 'nicht gesetzt')
   ev=c.execute('select * from webhook_events order by id desc limit 20').fetchall()
   eh=''.join(f'<tr><td>{e(x["received_at"])}</td><td>{e(x["source"])}</td><td>{e(x["event_id"])}</td><td>{e(x["status"])}</td></tr>' for x in ev) or empty('Noch keine Events.',4)
   sup=c.execute('select * from suppliers order by name').fetchall()

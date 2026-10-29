@@ -1,4 +1,4 @@
-/* Minimaler Client-Warenkorb. localStorage, kein Checkout, keine Zahlung.
+/* Client-Warenkorb. localStorage. Zur Kasse öffnet kasse.html (PostFinance Payment Page).
    Knöpfe auf jeder Produktkarte und in den Detailansichten (Lightbox, Tier-Modal). */
 (function(){
   var KEY='bv-cart';
@@ -49,6 +49,7 @@
       li.appendChild(nm); li.appendChild(rm); listEl.appendChild(li);
     });
     if(emptyEl) emptyEl.hidden=items.length>0;
+    var go=panel&&panel.querySelector('.cartgo'); if(go) go.hidden=items.length<1;
   }
   function openPanel(on){
     if(!panel) return;
@@ -72,7 +73,7 @@
     }else { btn.classList.add('fixed'); document.body.appendChild(btn); }
     panel=document.createElement('div');
     panel.className='cartpanel'; panel.setAttribute('role','dialog'); panel.setAttribute('aria-modal','false'); panel.hidden=true;
-    panel.innerHTML='<div class="carthead"><b>Warechorb</b><button type="button" class="cartx" aria-label="Schliesse">✕</button></div><p class="cartempty">Nüt drin</p><ul></ul><button type="button" class="cartclear">Leere</button><p class="cartnote">Im Warechorb – d Bstellig chunnt bald</p>';
+    panel.innerHTML='<div class="carthead"><b>Warechorb</b><button type="button" class="cartx" aria-label="Schliesse">✕</button></div><p class="cartempty">Nüt drin</p><ul></ul><button type="button" class="cartclear">Leere</button><p class="cartnote">Testzahlung über PostFinance.</p><a class="btn cartgo" href="kasse.html">Zur Kasse</a>';
     document.body.appendChild(panel);
     listEl=panel.querySelector('ul'); emptyEl=panel.querySelector('.cartempty');
     toastEl=document.createElement('div'); toastEl.className='carttoast'; toastEl.setAttribute('role','status'); toastEl.setAttribute('aria-live','polite'); toastEl.hidden=true;

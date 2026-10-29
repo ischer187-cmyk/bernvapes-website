@@ -18,6 +18,7 @@ from auth import (
 from crmlib import convert, enroll_prospects, set_member_status
 from db import IntegrityError, begin_request, connect, end_request
 from migrate import migrate
+import checkout
 from orders import process_order
 from portal import create_invite
 from pricing import normalize_tier
@@ -415,7 +416,30 @@ class H(BaseHTTPRequestHandler):
         finally:
             c.close()
 
+    def postfinance_webhook(self):
+        try:
+            data = json.loads(_limit_body(self).decode() or '{}')
+        except ValueError:
+            return self.json(400, {'ok': False, 'error': 'invalid json'})
+        if not isinstance(data, dict):
+            return self.json(400, {'ok': False, 'error': 'invalid json'})
+        c = self.db()
+        try:
+            code, body = checkout.apply_webhook(c, data)
+        except Exception:
+            traceback.print_exc()
+            try:
+                c.rollback()
+            except Exception:
+                pass
+            return self.json(500, {'ok': False, 'error': 'server'})
+        finally:
+            c.close()
+        return self.json(code, body)
+
     def webhook(self, name):
+        if name == 'postfinance':
+            return self.postfinance_webhook()
         if name not in pages.WEBHOOKS:
             return self.json(404, {'error': 'unknown webhook'})
         secret = os.environ.get('CRM_WEBHOOK_SECRET') or ''

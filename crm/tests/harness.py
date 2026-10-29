@@ -15,6 +15,12 @@ def configure(db_path):
     os.environ['CRM_ADMIN_PASSWORD'] = 'local-test-password'
     os.environ['CRM_WEBHOOK_SECRET'] = 'whsec-test'
     os.environ['BEXIO_WRITE_ENABLED'] = '0'
+    os.environ['BEXIO_SYNC_ENABLED'] = '0'
+    for key in (
+        'POSTFINANCE_SPACE_ID', 'POSTFINANCE_USER_ID', 'POSTFINANCE_SPACE_KEY', 'POSTFINANCE_API_BASE',
+        'BEXIO_API_TOKEN', 'BEXIO_USER_ID', 'BEXIO_OWNER_ID', 'BEXIO_TAX_ID',
+    ):
+        os.environ.pop(key, None)
     os.environ['EMAIL_DRIVER'] = 'log'
     os.environ['WEBSITE_PUBLIC_URL'] = 'http://127.0.0.1:8080'
     os.environ['CRM_MAIL_LOG'] = str(Path(db_path).parent / 'mail.log')

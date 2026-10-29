@@ -1,0 +1,156 @@
+/* Zur Kasse: Vorschau, dann Redirect auf die PostFinance Payment Page. */
+(function () {
+  var API = '/b2b-api/customer';
+
+  function t(s) { return (window.bvI18n && window.bvI18n.t) ? window.bvI18n.t(s) : s; }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+  function cart() {
+    try {
+      var v = JSON.parse(localStorage.getItem('bv-cart'));
+      return Array.isArray(v) ? v : [];
+    } catch (e) { return []; }
+  }
+  function refOk(ref) { return /^bv-\d{1,18}$/.test(ref || ''); }
+  function money(n) {
+    var v = Number(n);
+    if (!isFinite(v)) return '';
+    return 'CHF ' + v.toFixed(2);
+  }
+  function errText(code) {
+    var map = {
+      login_required: 'Bitte zuerst anmelden.',
+      empty_cart: 'Der Warenkorb ist leer.',
+      unknown_item: 'Eine Position ist unbekannt.',
+      invalid_qty: 'Die Menge stimmt nicht.',
+      postfinance_not_configured: 'PostFinance ist noch nicht konfiguriert.',
+      postfinance_failed: 'PostFinance hat die Zahlung nicht gestartet.',
+      csrf: 'Seite neu laden und noch einmal versuchen.',
+      crm_unreachable: 'CRM nicht erreichbar.'
+    };
+    return t(map[code] || 'Das hat nicht geklappt.');
+  }
+  function api(path, opts) {
+    opts = opts || {};
+    var headers = { 'Accept': 'application/json' };
+    if (opts.body) headers['Content-Type'] = 'application/json';
+    if (opts.csrf && opts.method && opts.method !== 'GET') headers['X-CSRF-Token'] = opts.csrf;
+    return fetch(API + path, {
+      method: opts.method || 'GET',
+      headers: headers,
+      credentials: 'same-origin',
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (data) {
+        return { status: r.status, data: data };
+      });
+    }).catch(function () { return { status: 0, data: { error: 'crm_unreachable' } }; });
+  }
+  function itemsPayload() {
+    return cart().map(function (it) {
+      return { id: it.id, name: it.name, qty: it.qty || 1, preorder: !!it.preorder };
+    });
+  }
+  function linesHtml(items) {
+    return '<ul class="kasse-lines">' + items.map(function (it) {
+      var mark = it.preorder ? ' <i class="premark">' + esc(t('Vorbestellung')) + '</i>' : '';
+      return '<li><span>' + esc(it.name) + ' ×' + esc(it.qty) + mark + '</span><span>' + esc(money(it.line_chf)) + '</span></li>';
+    }).join('') + '</ul>';
+  }
+
+  function renderKasse(root, me) {
+    var items = itemsPayload();
+    if (!me) {
+      root.innerHTML = '<p>' + esc(t('Bitte zuerst anmelden.')) + '</p><p><a class="btn" href="konto.html?next=kasse.html">' + esc(t('Anmelden')) + '</a></p>';
+      return;
+    }
+    if (!items.length) {
+      root.innerHTML = '<p>' + esc(t('Der Warenkorb ist leer.')) + '</p><p><a href="index.html">' + esc(t('Zurück zum Shop')) + '</a></p>';
+      return;
+    }
+    root.innerHTML = '<p class="muted">…</p>';
+    api('/checkout', { method: 'POST', csrf: me.csrf_token, body: { items: items, preview: true } }).then(function (r) {
+      if (r.status === 401) return renderKasse(root, null);
+      if (r.status !== 200 || !r.data.ok) {
+        root.innerHTML = '<p class="err">' + esc(errText(r.data && r.data.error)) + '</p>';
+        return;
+      }
+      root.innerHTML = linesHtml(r.data.items)
+        + '<p><b>' + esc(t('Total')) + ' ' + esc(money(r.data.total_chf)) + '</b></p>'
+        + '<p class="muted">' + esc(t('Testzahlung über PostFinance.')) + '</p>'
+        + '<p><button class="btn" type="button" id="pay">' + esc(t('Jetzt bezahlen')) + '</button></p>'
+        + '<p id="kasse-err" class="err" hidden></p>';
+      root.querySelector('#pay').onclick = function () {
+        var btn = root.querySelector('#pay');
+        var box = root.querySelector('#kasse-err');
+        btn.disabled = true;
+        api('/checkout', { method: 'POST', csrf: me.csrf_token, body: { items: itemsPayload(), preview: false } }).then(function (pay) {
+          btn.disabled = false;
+          if (pay.status === 200 && pay.data.integrationMode === 'PaymentPage' && pay.data.paymentUrl) {
+            location.href = pay.data.paymentUrl;
+            return;
+          }
+          box.hidden = false;
+          box.textContent = errText(pay.data && pay.data.error);
+        });
+      };
+    });
+  }
+
+  function renderReturn(root, ok) {
+    var ref = new URLSearchParams(location.search).get('ref') || '';
+    if (!refOk(ref)) {
+      root.innerHTML = '<p>' + esc(ok ? t('Zahlung wird bestätigt') : t('Die Zahlung ist nicht durchgegangen.')) + '</p><p><a href="index.html">' + esc(t('Zurück zum Shop')) + '</a></p>';
+      return;
+    }
+    function paint(data) {
+      var status = data && data.payment_status;
+      var text = ok
+        ? (status === 'bezahlt' || status === 'paid' ? 'Bezahlt. Die Bestellung ist deinem Konto zugeordnet.' : 'Warten auf die Bestätigung von PostFinance.')
+        : 'Die Zahlung ist nicht durchgegangen.';
+      var list = (data && data.items) ? data.items.map(function (it) {
+        return '<li><span>' + esc(it.name) + (it.preorder ? ' · ' + esc(t('Vorbestellung')) : '') + ' ×' + esc(it.qty) + '</span></li>';
+      }).join('') : '';
+      root.innerHTML = '<p>' + esc(t(text)) + '</p>'
+        + (list ? '<ul class="kasse-lines">' + list + '</ul>' : '')
+        + '<p class="muted">' + esc(ref) + (data && data.total_chf != null ? ' · ' + esc(money(data.total_chf)) : '') + '</p>'
+        + '<p><a href="konto.html">' + esc(t('Mein Konto')) + '</a> · <a href="kasse.html">' + esc(t('Zur Kasse')) + '</a> · <a href="index.html">' + esc(t('Zurück zum Shop')) + '</a></p>';
+    }
+    api('/me').then(function (me) {
+      if (me.status !== 200) {
+        root.innerHTML = '<p>' + esc(t(ok ? 'Zahlung wird bestätigt' : 'Die Zahlung ist nicht durchgegangen.')) + '</p><p><a class="btn" href="konto.html?next=' + (ok ? 'kasse-ok.html' : 'kasse-fail.html') + '">' + esc(t('Anmelden')) + '</a></p>';
+        return;
+      }
+      var n = 0;
+      function poll() {
+        api('/order?ref=' + encodeURIComponent(ref)).then(function (r) {
+          paint(r.status === 200 ? r.data : null);
+          n += 1;
+          if (ok && r.status === 200 && r.data.payment_status !== 'bezahlt' && r.data.payment_status !== 'paid' && n < 15) {
+            setTimeout(poll, 2000);
+          }
+        });
+      }
+      poll();
+    });
+  }
+
+  function boot() {
+    var kasse = document.getElementById('kasse');
+    var ok = document.getElementById('kasse-ok');
+    var fail = document.getElementById('kasse-fail');
+    if (!kasse && !ok && !fail) return;
+    api('/me').then(function (r) {
+      var me = (r.status === 200 && r.data && r.data.ok) ? r.data : null;
+      if (kasse) renderKasse(kasse, me);
+      if (ok) renderReturn(ok, true);
+      if (fail) renderReturn(fail, false);
+    });
+  }
+  document.addEventListener('bv-lang', boot);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
