@@ -439,8 +439,9 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 @keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 @keyframes lgSteamOn{0%,66%{opacity:1}74%,100%{opacity:0}}
 /* Fuchs: taucht selten (25–40 s, zufällig) hinter dem goldenen Gipfel auf, flitzt den Grat des cremefarbenen Gipfels hoch, hält kurz, kehrt um und verschwindet wieder. JS steuert Position (Bild-Koordinaten). */
-.hero .lg-fox{position:absolute;left:0;top:0;width:33px;height:42px;background:url('../web/fuchs_grat.webp?v=20261028k') 0 0/100% 100% no-repeat;visibility:hidden;transform-origin:50% 100%;filter:brightness(.92) saturate(.85)}
-.hero .lg-occ-f{clip-path:polygon(830px 466px,915px 395px,945px 377px,1000px 418px,1000px 480px,830px 480px)}
+/* Grat-Fuchs (braun, fuchs_grat.webp) und sein Gipfel-Duplikat .lg-occ-f sind weg.
+   .lg-occ-f hat neue.webp noch einmal über den sonnenbeleuchteten Mittelgipfel gelegt
+   und wirkte über dem Elefanten wie ein zweiter, matter Gipfel. */
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
 
@@ -618,13 +619,10 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #bergtiere .bl-chunk{position:absolute;left:0;top:0;width:var(--s);height:var(--s);margin:calc(var(--s)/-2);border-radius:42% 58% 50% 46%;background:#f4f1ea;box-shadow:0 0 4px rgba(255,255,255,.6);opacity:0}
 #bergtiere .bl-puff{position:absolute;left:0;top:0;width:var(--s);height:var(--s);margin:calc(var(--s)/-2);border-radius:50%;opacity:0;
  background:radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(240,244,250,.6) 45%,rgba(240,244,250,0) 70%);filter:blur(3px)}
-/* Weisser Fuchs: lugt hinter einem hinteren Grat hervor (Cut-out-Peak) */
-#bergtiere .bl-fox{position:absolute;left:1825px;top:463px;width:21px;height:27px;background:url('../web/fuchs_weiss.webp?v=20261028k') 0 0/100% 100% no-repeat;transform:translateY(30px);transform-origin:50% 100%;filter:brightness(.95) drop-shadow(0 0 1px rgba(80,40,20,.5))}
-#bergtiere .bl-occ{position:absolute;inset:0;background:url('../web/worlds/berg.webp') 0 0/2400px 1028px no-repeat;clip-path:polygon(1780px 505px,1835px 489px,1880px 545px,1880px 570px,1780px 570px)}
-#bergtiere.cool .bl-occ{background-image:url('../web/worlds/berg_w.webp')}
+/* Alter Sprite-Fuchs (bl-fox / bl-occ) ist durch die drei Video-Füchse ersetzt. */
 @media (max-width:900px),(prefers-reduced-motion:reduce){#bergtiere .berglife{display:none}}
 
-/* Sprachwahl BE / DE / EN */
+/* Sprachwahl BE / DE / FR / EN */
 .nav ul{margin-left:auto}
 .langsw{display:inline-flex;gap:2px;margin-left:clamp(14px,1.8vw,28px);padding:3px;border:1px solid rgba(214,178,94,.55);border-radius:999px;background:rgba(23,19,15,.55);backdrop-filter:blur(4px);flex:none}
 .langsw button{all:unset;cursor:pointer;font-family:var(--font-head);font-size:.74rem;font-weight:700;letter-spacing:.12em;padding:5px 10px;border-radius:999px;color:var(--bv-cream);opacity:.75;transition:background .25s,color .25s,opacity .25s}
@@ -633,7 +631,69 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .langsw button:focus-visible{outline:2px solid var(--bv-gold);outline-offset:2px}
 .langsw.fixed{position:fixed;top:14px;right:16px;z-index:60}
 @media (min-width:761px) and (max-width:1100px){.langsw button{padding:4px 7px;font-size:.66rem}.langsw{margin-left:10px}}
+@media (max-width:760px){
+  .nav{gap:8px;padding:10px 12px}
+  .langsw{margin-left:6px;gap:1px;padding:2px}
+  .langsw button{padding:4px 6px;font-size:.62rem;letter-spacing:.06em}
+}
+@media (max-width:380px){.langsw button{padding:4px 4px;font-size:.56rem;letter-spacing:.04em}}
 
 /* #bergtiere mobil: Intro-Text auf dunklem Glas-Panel (wie #quartiere) */
 @media (max-width:760px){#bergtiere .title.side{left:12px;right:12px;max-width:none;padding:12px 16px 14px;border-radius:14px;background:rgba(14,18,28,.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
  #bergtiere .title.side p{font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.8)}}
+
+/* ===== Weisse Low-Poly-Füchse (einer nach dem anderen) ===== */
+.wfox{position:absolute;z-index:2;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .55s ease}
+.wfox.on{opacity:1;visibility:visible}
+.wfox img,.wfox canvas{width:100%;height:auto;background:transparent}
+.wfox video{display:none}
+.wfox-blick{right:3%;top:14%;width:min(28vw,320px);-webkit-mask-image:linear-gradient(#000 0 58%,transparent 80%);mask-image:linear-gradient(#000 0 58%,transparent 80%)}
+.wfox-laufen{right:6%;top:30%;width:min(17vw,220px);-webkit-mask-image:linear-gradient(#000 0 48%,transparent 82%);mask-image:linear-gradient(#000 0 48%,transparent 82%)}
+.wfox-pfote{left:6%;right:auto;bottom:14%;width:min(18vw,220px)}
+@media (max-width:900px){
+  .wfox-blick{width:52vw;top:6%;right:0}
+  .wfox-laufen{width:40vw;top:auto;bottom:42%;right:1%}
+  .wfox-pfote{width:42vw;left:4%;right:auto;bottom:8%}
+}
+
+/* Alpenkräutertee: Krug rechts der Kräuter; mobil unter dem Text */
+#bergtiere .beast.tea .tea-ings{width:300%;left:-78%;justify-content:flex-end;align-items:flex-end;gap:4%}
+#bergtiere .beast.tea .tea-ings img:not(.tea-krug){width:18%}
+#bergtiere .pin > img.tea-krug{position:absolute;right:28px;top:22%;width:220px !important;max-width:none !important;height:auto;filter:drop-shadow(0 18px 16px rgba(12,10,8,.45));z-index:6;pointer-events:none}
+@media (max-width:900px){
+  #bergtiere .beast.tea{display:flex;flex-direction:column;align-items:center}
+  #bergtiere .beast.tea .duo{order:1}
+  #bergtiere .beast.tea .plaque{order:2}
+  #bergtiere .beast.tea .tea-ings{display:flex;position:relative;left:auto;bottom:auto;width:auto;order:3;margin-top:12px;justify-content:center}
+  #bergtiere .beast.tea .tea-ings img:not(.tea-krug){display:none}
+  #bergtiere figure.beast.tea img.tea-krug{position:static !important;left:auto !important;bottom:auto !important;width:min(210px,70vw) !important;max-width:none !important;height:auto;margin:10px auto 0;display:block}
+}
+
+/* Warenkorb */
+.navcart{position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:32px;margin-left:8px;border:1px solid rgba(214,178,94,.55);border-radius:999px;background:rgba(23,19,15,.55);color:var(--bv-cream);cursor:pointer;flex:none}
+.navcart svg{width:18px;height:18px}
+.navcart-n{position:absolute;top:-7px;right:-7px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--bv-gold);color:#1b140c;font-family:var(--font-head);font-size:.62rem;font-weight:700;line-height:16px;text-align:center}
+.navcart:focus-visible,.tocart:focus-visible,.cartx:focus-visible,.cartclear:focus-visible,.cart-rm:focus-visible{outline:2px solid var(--bv-gold);outline-offset:2px}
+.navcluster.fixed{position:fixed;top:12px;right:14px;z-index:61;display:flex;align-items:center;gap:8px}
+.navcart.fixed{position:fixed;top:14px;right:16px;z-index:61}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.tocart{font-family:var(--font-head);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;color:#1b140c;background:var(--bv-gold);border:0;border-radius:999px;padding:.55em 1.05em;cursor:pointer;pointer-events:auto}
+.tocart:hover{background:#e6c56a}
+.bottles .tocart{margin-top:10px}
+.beast > .tocart{position:absolute;left:50%;bottom:-34px;transform:translateX(-50%);z-index:6;white-space:nowrap;font-size:.58rem;letter-spacing:.08em}
+#hero .beast > .tocart{bottom:auto;top:calc(100% + 74px)}
+@media (max-width:900px){.beast > .tocart{position:static;transform:none;display:inline-flex;margin-top:8px}}
+.studies .tocart{display:inline-flex;margin:12px auto 0}
+.studies figure{text-align:center}
+.lb .inner{display:flex;flex-direction:column;align-items:center}
+.lb .tocart,.tm-info .tocart{margin-top:16px}
+.cartpanel{position:fixed;top:64px;right:16px;z-index:70;width:min(320px,calc(100vw - 24px));background:rgba(23,19,15,.94);color:var(--bv-cream);border:1px solid var(--bv-gold);border-radius:16px;padding:14px 16px 16px;box-shadow:0 16px 40px rgba(0,0,0,.45)}
+.carthead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.carthead b{font-family:var(--font-head);letter-spacing:.16em;text-transform:uppercase;font-size:.78rem}
+.cartx{all:unset;cursor:pointer;width:28px;height:28px;border:1px solid var(--bv-gold);border-radius:50%;text-align:center;line-height:28px}
+.cartpanel ul{list-style:none;margin:12px 0;padding:0;max-height:46vh;overflow:auto}
+.cartpanel li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(198,161,58,.25);font-size:.92rem}
+.cart-rm,.cartclear{font-family:var(--font-head);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--bv-gold);border:1px solid var(--bv-gold);border-radius:999px;padding:.4em .8em;cursor:pointer}
+.cartempty,.cartnote{margin:8px 0 0;font-size:.88rem;opacity:.85}
+.carttoast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;background:var(--bv-gold);color:#1b140c;font-family:var(--font-head);letter-spacing:.06em;font-size:.82rem;padding:.7em 1.1em;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,.35);max-width:min(92vw,420px);text-align:center}
+@media (max-width:760px){.cartpanel{top:auto;bottom:16px;right:12px;left:12px;width:auto}}

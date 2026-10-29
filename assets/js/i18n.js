@@ -1,4 +1,4 @@
-/* BERNVAPES i18n: BE (Bärndütsch, Quelltext = Standard) · DE · EN.
+/* BERNVAPES i18n: BE (Bärndütsch, Quelltext = Standard) · DE · FR · EN.
    Schlüssel = BE-Originaltext (Textknoten + alt/aria-label/title). Beim Start werden alle übersetzbaren Elemente mit data-i18n markiert;
    dynamische Texte (Tier-Popup) fängt ein MutationObserver. Marken- & Sortennamen bleiben unverändert. */
 (function(){
@@ -67,11 +67,84 @@ var D={
 'Für jedi nöii Sorte hei mir mehreri Tier probiert. Die hie hei mir gärn übercho — aber nume eis pro Sorte darf uf d Fläsche.':['Für jede neue Sorte haben wir mehrere Tiere ausprobiert. Diese hier mögen wir sehr — aber nur eines pro Sorte darf auf die Flasche.','For every new flavour we tried several beasts. We grew fond of these — but only one per flavour gets onto the bottle.'],
 'Mango Lassi · Fuutier':['Mango Lassi · Faultier','Mango Lassi · Sloth'],'Mango Lassi · Faultier':['Mango Lassi · Faultier','Mango Lassi · Sloth'],'Mango Lassi · Tiger':['Mango Lassi · Tiger','Mango Lassi · Tiger'],
 'Mandarine Nuss · Eichhörnli':['Mandarine Nuss · Eichhörnchen','Mandarine Nuss · Squirrel'],'Mandarine Nuss · Eichhörnchen':['Mandarine Nuss · Eichhörnchen','Mandarine Nuss · Squirrel'],'Mandarine Nuss · Siebenschläfer':['Mandarine Nuss · Siebenschläfer','Mandarine Nuss · Dormouse'],
-'Zrügg zur nöie Linie':['Zurück zur neuen Linie','Back to the new line'],'Kaffernbüffel':['Kaffernbüffel','Cape buffalo'],'Gepard':['Gepard','Cheetah']
+'Zrügg zur nöie Linie':['Zurück zur neuen Linie','Back to the new line'],'Kaffernbüffel':['Kaffernbüffel','Cape buffalo'],'Gepard':['Gepard','Cheetah'],
+'I Warechorb':['In den Warenkorb','Add to cart'],
+'Im Warechorb – d Bstellig chunnt bald':['Im Warenkorb – Bestellung folgt bald','In the cart – ordering comes soon'],
+'Warechorb':['Warenkorb','Cart'],'Nüt drin':['Leer','Empty'],'Wegneh':['Entfernen','Remove'],'Leere':['Leeren','Clear']
+};
+/* FR: Schweizer Französisch, vous, Berne, 1er décembre. Schlüssel = BE-Original. */
+var FR={
+'Nöii Linie':'Nouvelle ligne','Quartier':'Quartiers','Bärgtier':'Bêtes de montagne','Wärkstatt':'Atelier','Über üs':'À propos',
+'Neue Dampf us dr Houptstadt.':'De la vapeur fraîche, depuis la capitale.',
+'Lemon Pie · Lemur':'Lemon Pie · Lémur','Mango Lassi · Elefant':'Mango Lassi · Éléphant',
+'Mandarine Nuss · Chipmunk':'Mandarine Nuss · Chipmunk','Öpfuchueche · Roter Panda':'Tarte aux pommes · Panda roux',
+'Scrolle':'Défiler',
+'60 ml · Schwarzi Chubby-Gorilla-Fläsche':'60 ml · Flacon noir Chubby Gorilla',
+'Di nöii Linie uf dr Fläsche':'La nouvelle ligne, en flacon',
+'Vorbestellen':'Précommander','Erhältlich ab 1. Dez.':'Disponible dès le 1er décembre',
+'0 mg/ml Nikotin':'0 mg/ml de nicotine','60 ml Shortfill':'Shortfill 60 ml','Gmischt z Bärn':'Mélangé à Berne',
+'Wyter i d Quartier':'Continuer vers les quartiers',
+'D Klassiker':'Les classiques','Bärner Quartier':'Quartiers bernois',
+'Sibe Sorte, benannt nach Bärner Quartier. Vier dervo gits o on the rocks — schalt uf Winter. U nid hüle, wes chaut wird.':'Sept saveurs, nommées d’après les quartiers bernois. Quatre existent aussi on the rocks — passez en mode hiver. Et ne vous plaignez pas quand il fait froid.',
+'Zartbitter · Orange · garantiert kalorieefrei':'Chocolat noir · Orange · garanti sans calories',
+'Öpfu · Pistache':'Pomme · Pistache','Ingwer · Mandarine · Party':'Gingembre · Mandarine · Party',
+'Suuri Mango · Holunder':'Mangue acidulée · Sureau','Jasmin · Schwarztee · hate it or love it':'Jasmin · Thé noir · on adore ou on déteste',
+'Kaffi · Amaretto · fürs Morge drnah':'Café · Amaretto · pour le lendemain matin',
+'Tubak · Fyge · für langi Nächt':'Tabac · Figue · pour les longues nuits',
+'Breitsch Hirsch · uf Ys':'Breitsch Hirsch · sur glace','Matte Eule · uf Ys':'Matte Eule · sur glace',
+'Länggass Dachs · uf Ys':'Länggass Dachs · sur glace','Wyler Falke · uf Ys':'Wyler Falke · sur glace',
+'Gipfel Adler · uf Ys':'Gipfel Adler · sur glace','Nebel Wolf · uf Ys':'Nebel Wolf · sur glace','Steinschlag Bock · uf Ys':'Steinschlag Bock · sur glace',
+'Öpfu · Pistache · Koolada':'Pomme · Pistache · Koolada','Ingwer · Mandarine · Koolada':'Gingembre · Mandarine · Koolada',
+'Suuri Mango · Holunder · Koolada':'Mangue acidulée · Sureau · Koolada','Jasmin · Schwarztee · Koolada':'Jasmin · Thé noir · Koolada',
+'Summer':'Été','On the rocks':'On the rocks',
+'Us de Aupe':'Depuis les Alpes',
+'100 ml, Schwyzer Zuetate, nün Tier am Bärg. Je höcher, desto wiuder. Drü dervo chaut wie dr Gipfu säuber — schalt uf Winter.':'100 ml, ingrédients suisses, neuf bêtes à la montagne. Plus on monte, plus c’est sauvage. Trois d’entre elles sont froides comme le sommet — passez en mode hiver.',
+'Zitronegras · Gingerale · Koolada':'Citronnelle · Ginger ale · Koolada','Öpfumues · Truube · Koolada':'Compote de pommes · Raisin · Koolada',
+'Aprikosetee · Citrusblüete · Koolada':'Thé à l’abricot · Fleur d’agrumes · Koolada',
+'Gingerale · Zitronegras':'Ginger ale · Citronnelle','Öpfumues · Truube · Edelwyss':'Compote de pommes · Raisin · Edelweiss',
+'Aprikosetee · Citrusblüete':'Thé à l’abricot · Fleur d’agrumes','Honig · Melisse':'Miel · Mélisse',
+'Caramelchöpfli — wie bi dr Grosi':'Petites crèmes caramel — comme chez grand-maman','Aupechrütertee':'Thé aux herbes alpines',
+'Ananas · Hibiskus · Zitrone':'Ananas · Hibiscus · Citron','Himbeeri · Mascarpone':'Framboise · Mascarpone',
+'Erdbeer-Cheesecake':'Cheesecake à la fraise',
+'Was z Bärn grad entsteit.':'Ce qui se prépare à Berne en ce moment.',
+'Konzeptstudie, wo no nid im Sortimänt si: d Afrika-Tier ufem Kristallsee — Büffu, Impala, Kudu, Flamingo, Mandrill u Gepard. Luege lohnt sech. Choufe cha me se no nid, o we me no so bettlet.':'Études de concept qui ne sont pas encore dans l’assortiment : les bêtes d’Afrique sur le lac de cristal — buffle, impala, koudou, flamant, mandrill et guépard. Cela vaut le coup d’œil. On ne peut pas encore les acheter, même en insistant.',
+'I d Wärkstatt':'Vers l’atelier','Konzeptstudie · Yswäut':'Étude de concept · Monde de glace',
+'Über BERNVAPES':'À propos de BERNVAPES','Vo Hand gmischt z Bärn.':'Mélangé à la main à Berne.',
+'BERNVAPES si nikotinfreii Arome vo dr Kontrast Kompositions GmbH a dr Fährstrass z Bärn. Jedi Sorte überchunnt ihres eigete Tier — vom Bärner Quartier bis uf e Gipfu — u wird i chlyne Charge gmischt, abgfüllt u etikettiert. Kes Masseprodukt: es Atelier, viu Geduld u e Schwächi für Art Déco u Papier. Däni häut aus zäme, Domi risst a.':'BERNVAPES, ce sont des arômes sans nicotine de la Kontrast Kompositions GmbH, Fährstrasse à Berne. Chaque saveur reçoit sa bête — du quartier bernois jusqu’au sommet — et est mélangée, embouteillée et étiquetée en petites séries. Pas un produit de masse : un atelier, beaucoup de patience et un faible pour l’Art déco et le papier. Däni tient l’ensemble, Domi tire en avant.',
+'Säg hallo':'Dites bonjour','Nikotin pro ml':'Nicotine par ml','Sorte':'Saveurs',
+'Bärn · Fährstrass 29':'Berne · Fährstrasse 29','Papier':'Papier','Es Tier pro Sorte':'Une bête par saveur',
+'Liquids us Bärn · Null Nikotin · Vou Charakter':'Liquides de Berne · Zéro nicotine · Plein de caractère',
+'Härsteller':'Fabricant','Wäute':'Univers',
+'Liquids für die E-Zigarette. Nur für Erwachsene. Von Kindern fernhalten. Dieses Produkt kann Ihre Gesundheit schädigen.':'Liquides pour cigarette électronique. Réservé aux adultes. Tenir hors de portée des enfants. Ce produit peut nuire à votre santé.',
+'Liquids für die E-Zigarette. Nur für Erwachsene. Dieses Produkt kann Ihre Gesundheit schädigen.':'Liquides pour cigarette électronique. Réservé aux adultes. Ce produit peut nuire à votre santé.',
+'Schliesse ✕':'Fermer ✕','Schliesse':'Fermer','Sorten':'Saveurs',
+'Lemur – Lemon Pie – Fläsche aaluege':'Lémur – Lemon Pie – voir le flacon','Elefant – Mango Lassi – Fläsche aaluege':'Éléphant – Mango Lassi – voir le flacon',
+'Chipmunk – Mandarine Nuss – Fläsche aaluege':'Chipmunk – Mandarine Nuss – voir le flacon','Roter Panda – Apple Pie – Fläsche aaluege':'Panda roux – Apple Pie – voir le flacon',
+'Lemon Pie vorbestellen':'Précommander Lemon Pie','Mango Lassi vorbestellen':'Précommander Mango Lassi','Mandarine Nuss vorbestellen':'Précommander Mandarine Nuss','Apple Pie vorbestellen':'Précommander Apple Pie',
+'Werkstatt — Eiswelt':'Atelier — Monde de glace',
+'Knuspriger Mürbeteig, spritzige Zitronencreme und e Wolke Baiser obendruf – so frisch, dass dr Lemur vor Fröid grad no höcher hüpft.':'Pâte sablée croustillante, crème au citron vive et un nuage de meringue par-dessus – si frais que le lémur saute encore plus haut de joie.',
+'Eine reife Mango, schmeckt supergeil mit der cremigen Milch und ergibt so ein fantastisches Mango-Lassi-Erlebnis.':'Une mangue mûre, délicieuse avec le lait crémeux : une expérience de mango lassi vraiment réussie.',
+'Saftigi Mandarine trifft uf gröschteti Nüss – Chippy hamschteret das Aroma scho dr ganz Herbscht i sini Backe.':'La mandarine juteuse rencontre les noix grillées – Chippy met cette saveur de côté dans ses bajoues tout l’automne.',
+'Warmi Öpfu, e Hauch Zimt und buttrige Chueche-Teig – wie früsch us Grosis Ofe, nume flauschiger.':'Pommes tièdes, une pointe de cannelle et une pâte au beurre – comme sortie du four de grand-maman, en plus moelleux.',
+'BERNVAPES — Wärkstatt · Konzeptstudie':'BERNVAPES — Atelier · Étude de concept','BERNVAPES — Liquids us Bärn':'BERNVAPES — Liquides de Berne',
+'← Zrügg zu BERNVAPES':'← Retour à BERNVAPES','Wärkstatt · Konzeptstudie':'Atelier · Étude de concept',
+'Afrika ufem Kristallsee':'L’Afrique sur le lac de cristal',
+'Sächs Idee, no nid im Sortimänt. Mir zeige se trotzdäm — wüu si üs gfaue. Choufe geit no nid, gluschte scho.':'Six idées, pas encore dans l’assortiment. Nous les montrons quand même — parce qu’elles nous plaisent. On ne peut pas encore acheter, on peut déjà en avoir envie.',
+'Kaffernbüffu · Konzept':'Buffle du Cap · Concept','Impala · Konzept':'Impala · Concept','Kudu · Konzept':'Koudou · Concept',
+'Flamingo · Konzept':'Flamant · Concept','Mandrill · Konzept':'Mandrill · Concept','Gepard · Konzept':'Guépard · Concept',
+'Us em Skizzebuech':'Tiré du carnet de croquis','Alternative, wo s nid worde si':'Des alternatives qui n’ont pas été retenues',
+'Für jedi nöii Sorte hei mir mehreri Tier probiert. Die hie hei mir gärn übercho — aber nume eis pro Sorte darf uf d Fläsche.':'Pour chaque nouvelle saveur, nous avons essayé plusieurs bêtes. Celles-ci, nous les aimons beaucoup — mais une seule par saveur a le droit de figurer sur le flacon.',
+'Mango Lassi · Fuutier':'Mango Lassi · Paresseux','Mango Lassi · Faultier':'Mango Lassi · Paresseux','Mango Lassi · Tiger':'Mango Lassi · Tigre',
+'Mandarine Nuss · Eichhörnli':'Mandarine Nuss · Écureuil','Mandarine Nuss · Eichhörnchen':'Mandarine Nuss · Écureuil','Mandarine Nuss · Siebenschläfer':'Mandarine Nuss · Loir',
+'Zrügg zur nöie Linie':'Retour à la nouvelle ligne','Kaffernbüffel':'Buffle du Cap','Gepard':'Guépard',
+'I Warechorb':'Ajouter au panier',
+'Im Warechorb – d Bstellig chunnt bald':'Dans le panier – la commande suivra bientôt',
+'Warechorb':'Panier','Nüt drin':'Vide','Wegneh':'Retirer','Leere':'Vider'
 };
 var LS='bv-lang',ATTR=['alt','aria-label','title','content'],ORIG=new WeakMap(),lang='be';
 try{lang=localStorage.getItem(LS)||'be';}catch(e){}
-function tr(be){var t=be.trim(),e=D[t];if(!e||lang==='be')return be;var v=e[lang==='de'?0:1];return be.replace(t,v);}
+if(['be','de','fr','en'].indexOf(lang)<0) lang='be';
+function tr(be){var t=be.trim(),e=D[t];if(!e||lang==='be')return be;var v=lang==='fr'?(FR[t]||e[0]):e[lang==='de'?0:1];return be.replace(t,v);}
 function doText(n){if(!ORIG.has(n)){if(!D[n.nodeValue.trim()])return;ORIG.set(n,n.nodeValue);if(n.parentElement&&!n.parentElement.hasAttribute('data-i18n'))n.parentElement.setAttribute('data-i18n',n.nodeValue.trim().slice(0,40));}
  var v=tr(ORIG.get(n));if(n.nodeValue!==v)n.nodeValue=v;}
 function doEl(el){ATTR.forEach(function(a){if(a==='content'&&el.getAttribute('name')!=='description')return;var k='data-i18n-'+a,o=el.getAttribute(k);
@@ -80,14 +153,15 @@ function walk(root){if(root.nodeType===3){doText(root);return;}if(root.nodeType!
  var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){var p=n.parentNode&&n.parentNode.nodeName;return p==='SCRIPT'||p==='STYLE'?2:1;}}),n;while((n=w.nextNode()))doText(n);
  doEl(root);root.querySelectorAll('[alt],[aria-label],[title],meta[name=description]').forEach(doEl);}
 var busy=false;
-function apply(){busy=true;document.documentElement.lang=lang==='be'?'de-CH':(lang==='de'?'de':'en');walk(document.head);walk(document.body);
- document.querySelectorAll('.langsw button').forEach(function(b){var on=b.dataset.lang===lang;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});busy=false;}
-function set(l){lang=l;try{localStorage.setItem(LS,l);}catch(e){}apply();}
-function pill(){var nav=document.querySelector('.nav, nav');if(document.querySelector('.langsw'))return;var d=document.createElement('div');d.className='langsw';d.setAttribute('role','group');d.setAttribute('aria-label','Sprache / Language');
- [['be','BE','Bärndütsch'],['de','DE','Deutsch'],['en','EN','English']].forEach(function(x){var b=document.createElement('button');b.type='button';b.dataset.lang=x[0];b.textContent=x[1];b.title=x[2];b.addEventListener('click',function(){set(x[0]);});d.appendChild(b);});
+function apply(){busy=true;document.documentElement.lang={be:'de-CH',de:'de',fr:'fr-CH',en:'en'}[lang]||'de-CH';walk(document.head);walk(document.body);
+ document.querySelectorAll('.langsw button').forEach(function(b){var on=b.dataset.lang===lang;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});busy=false;
+ try{document.dispatchEvent(new CustomEvent('bv-lang',{detail:lang}));}catch(e){}}
+function set(l){if(['be','de','fr','en'].indexOf(l)<0) l='be';lang=l;try{localStorage.setItem(LS,l);}catch(e){}apply();}
+function pill(){var nav=document.querySelector('.nav, nav');if(document.querySelector('.langsw'))return;var d=document.createElement('div');d.className='langsw';d.setAttribute('role','group');d.setAttribute('aria-label','Sprache / Langue / Language');
+ [['be','BE','Bärndütsch'],['de','DE','Deutsch'],['fr','FR','Français'],['en','EN','English']].forEach(function(x){var b=document.createElement('button');b.type='button';b.dataset.lang=x[0];b.textContent=x[1];b.title=x[2];b.addEventListener('click',function(){set(x[0]);});d.appendChild(b);});
  if(nav)nav.appendChild(d);else{d.classList.add('fixed');document.body.appendChild(d);}}
 function init(){pill();apply();new MutationObserver(function(ms){if(busy)return;busy=true;ms.forEach(function(m){if(m.type==='characterData'){if(ORIG.has(m.target)&&D[m.target.nodeValue.trim()])ORIG.delete(m.target);doText(m.target);}else m.addedNodes.forEach(function(n){if(n.nodeType===3&&ORIG.has(n))ORIG.delete(n);walk(n);});});busy=false;})
  .observe(document.body,{childList:true,subtree:true,characterData:true});}
-window.bvI18n={set:set,get lang(){return lang;}};
+window.bvI18n={set:set,t:function(s){return tr(s);},get lang(){return lang;}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

@@ -278,10 +278,10 @@
 
   /* ---------- Lightbox ---------- */
   const lb=document.getElementById('lb');
-  function openLB(label,bottle){ if(!lb) return; lb.querySelector('.poster').src=label; const bo=lb.querySelector('.bot'); if(bottle){bo.src=bottle;bo.style.display='';} else bo.style.display='none'; lb.classList.add('open'); document.body.style.overflow='hidden'; }
+  function openLB(label,bottle,meta){ if(!lb) return; lb.querySelector('.poster').src=label; const bo=lb.querySelector('.bot'); if(bottle){bo.src=bottle;bo.style.display='';} else bo.style.display='none'; const cb=lb.querySelector('.tocart'); if(cb){ if(meta&&meta.id){cb.hidden=false;cb.dataset.cart=meta.id;cb.dataset.name=meta.name||'';}else cb.hidden=true; } lb.classList.add('open'); document.body.style.overflow='hidden'; }
   function closeLB(){ if(!lb) return; lb.classList.remove('open'); document.body.style.overflow=''; }
   if(lb){ lb.querySelector('.close').addEventListener('click',closeLB); lb.addEventListener('click',e=>{if(e.target===lb)closeLB();}); addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();}); }
-  document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',()=>openLB(b.dataset.label,b.dataset.bottle)));
+  document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',e=>{ if(e.target.closest('.tocart')) return; const host=b.closest('.pcol,.beast'); const btn=host&&host.querySelector('.tocart'); openLB(b.dataset.label,b.dataset.bottle,btn?{id:btn.dataset.cart,name:btn.dataset.name}:null); }));
 
   /* ---------- Szenen aufsetzen ---------- */
   const worlds={}; const parallaxFns=[];
@@ -385,6 +385,7 @@
       brand.style.opacity=clamp(1-a*3.5,0,1); brand.style.transform=`translateY(${a*70}px)`;
       const b=clamp((p-0.60)/0.2,0,1);                // Phase C: Welt steht, Tiere kommen
       hero.classList.toggle('phase-b',b>0.05); beasts.classList.toggle('in',b>0.1);
+      hero.classList.toggle('world-in', worldIn>0.82);
       if(b>0.5&&!hero._flashed){ hero._flashed=true; beasts.classList.add('labels'); setTimeout(()=>beasts.classList.remove('labels'),3200); }
       if(hint) hint.style.opacity=p>0.9?0:1;
       if(nav){ nav.classList.toggle('show',p>0.12); nav.classList.toggle('solid',p>0.5); }
