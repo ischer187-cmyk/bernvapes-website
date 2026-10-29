@@ -660,17 +660,19 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
   .wfox-pfote{width:42vw;left:4%;right:auto;bottom:8%}
 }
 
-/* Alpenkräutertee: Krug rechts der Kräuter; mobil unter dem Text */
-#bergtiere .beast.tea .tea-ings{width:300%;left:-78%;justify-content:flex-end;align-items:flex-end;gap:4%}
-#bergtiere .beast.tea .tea-ings img:not(.tea-krug){width:18%}
-#bergtiere .pin > img.tea-krug{position:absolute;right:28px;top:22%;width:220px !important;max-width:none !important;height:auto;filter:drop-shadow(0 18px 16px rgba(12,10,8,.45));z-index:6;pointer-events:none}
+/* Alpenkräutertee: Krug hängt am Milan (in der Flasche), gleiche Lage, Hover und Parallaxe */
+#bergtiere .beast.tea .bottle3{overflow:visible}
+#bergtiere .beast.tea .tea-hang{position:absolute;left:44%;top:70%;width:104%;z-index:4;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none}
+#bergtiere .beast.tea .tea-cord{width:46%;height:auto;display:block;margin:-34% 0 -8% 4%}
+#bergtiere .beast.tea .tea-krug{position:relative;inset:auto;width:96%;height:auto;object-fit:contain;margin:-4% 0 0 42%;filter:drop-shadow(0 10px 8px rgba(20,12,8,.4))}
+#bergtiere .beast.tea .tea-ings{left:-70%;width:120%;bottom:2%}
+#bergtiere .beast.tea .tea-ings img{width:70%}
 @media (max-width:900px){
-  #bergtiere .beast.tea{display:flex;flex-direction:column;align-items:center}
-  #bergtiere .beast.tea .duo{order:1}
-  #bergtiere .beast.tea .plaque{order:2}
-  #bergtiere .beast.tea .tea-ings{display:flex;position:relative;left:auto;bottom:auto;width:auto;order:3;margin-top:12px;justify-content:center}
-  #bergtiere .beast.tea .tea-ings img:not(.tea-krug){display:none}
-  #bergtiere figure.beast.tea img.tea-krug{position:static !important;left:auto !important;bottom:auto !important;width:min(210px,70vw) !important;max-width:none !important;height:auto;margin:10px auto 0;display:block}
+  #bergtiere .beast.tea .duo{margin-bottom:46%}
+  #bergtiere .beast.tea .tea-hang{left:22%;top:74%;width:62%}
+  #bergtiere .beast.tea .tea-cord{width:46%;margin:0 0 -8% 18%}
+  #bergtiere .beast.tea .tea-krug{width:100%;margin:-6% 0 0 0}
+  #bergtiere .beast.tea .tea-ings{display:none}
 }
 
 /* Warenkorb */
