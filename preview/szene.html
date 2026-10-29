@@ -2,63 +2,72 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Vorschau · Quartiere-Szene</title>
+<title>Vorschau · Berner Silhouette</title>
 <style>
-  html,body{margin:0;background:#1a140f}
+  html,body{margin:0;background:#c9a56a}
   body{overflow:hidden}
   html.desktop .scene{width:1440px;height:900px}
   html.mobile .scene{width:390px;height:844px}
-  html.mobile .stage{position:absolute;left:50%;top:50%;width:1440px;height:900px;transform:translate(-50%,-50%) scale(.27)}
-  .scene{position:relative;overflow:hidden;background:#c9a56a;font-family:Georgia,serif}
+  .scene{position:relative;overflow:hidden;background:#c9a56a;
+    font-family:"Inter","Source Sans 3",system-ui,sans-serif}
   .sky{position:absolute;inset:0;background:
-    radial-gradient(ellipse 42% 38% at 50% 28%, #f6edd6 0%, rgba(246,237,214,0) 70%),
-    linear-gradient(#e7d2ae, #d2b488 42%, #c49a62 100%)}
+    radial-gradient(ellipse 46% 40% at 50% 34%, #f6edd6 0%, rgba(246,237,214,0) 68%),
+    linear-gradient(#e7d2ae 0%, #d8bc90 46%, #c49a62 100%)}
   .sun{position:absolute;left:50%;top:18%;width:28%;aspect-ratio:1;transform:translateX(-50%);
     border-radius:50%;background:radial-gradient(circle at 50% 50%, #fff8ea 0 46%, #f3e2c4 62%, rgba(243,226,196,0) 70%);
-    box-shadow:0 0 40px 12px rgba(255,236,196,.35)}
-  html.mobile .sun{top:8%;width:46%}
-  svg.berge,svg.haeuser{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-  .ground{position:absolute;left:-5%;right:-5%;bottom:0;height:28%;
-    background:linear-gradient(#c4a06c,#b08a52 40%, #9a7544);
-    clip-path:polygon(0 38%, 18% 22%, 40% 30%, 62% 16%, 100% 28%, 100% 100%, 0 100%)}
-  html.mobile .ground{height:34%}
-  .tier{position:absolute;bottom:2%;height:34%;width:auto;filter:drop-shadow(0 12px 8px rgba(40,25,10,.28));z-index:4}
-  .wolf{left:4%;height:30%}
-  .falke{left:24%;height:36%}
-  .katze{left:46%;height:32%}
-  .fuchs{right:2%;height:40%;bottom:0}
-  html.mobile .tier{bottom:1%}
-  html.mobile .wolf{left:1%;height:22%}
-  html.mobile .falke{left:22%;height:26%}
-  html.mobile .katze{left:46%;height:23%}
-  html.mobile .fuchs{right:0;height:28%}
-  .tag{position:absolute;z-index:6;left:16px;top:14px;color:#3a2a1c;letter-spacing:.14em;text-transform:uppercase;font-size:12px;opacity:.8}
-  html.mobile .tag{font-size:10px;left:10px;top:10px}
+    box-shadow:0 0 40px 12px rgba(255,236,196,.35);z-index:0}
+  html.mobile .sun{top:22%;width:54%}
+  svg.berge,svg.stadt{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+  svg.stadt{z-index:2}
+  html.mobile svg.berge,html.mobile svg.stadt{
+    top:auto;bottom:16%;left:0;width:100%;height:50%}
+  .ground{position:absolute;left:-8%;right:-8%;bottom:0;height:24%;z-index:3;
+    background:linear-gradient(#c4a06c,#b08a52 46%, #9a7544);
+    clip-path:polygon(0 42%, 16% 28%, 34% 36%, 58% 18%, 78% 30%, 100% 22%, 100% 100%, 0 100%)}
+  html.mobile .ground{height:20%}
+  .tier{position:absolute;bottom:1.5%;height:34%;width:auto;z-index:4;
+    filter:drop-shadow(0 10px 8px rgba(40,25,10,.22))}
+  .wolf{left:3.5%;height:30%}
+  .falke{left:23%;height:36%}
+  .katze{left:45.5%;height:32%}
+  .fuchs{right:1.5%;height:40%;bottom:0}
+  html.mobile .tier{bottom:0.6%}
+  html.mobile .wolf{left:0;height:17%}
+  html.mobile .falke{left:22%;height:19%}
+  html.mobile .katze{left:46%;height:17%}
+  html.mobile .fuchs{right:-1%;height:21%}
+  .copy{position:absolute;z-index:6;left:56px;top:42px;max-width:34ch;color:#17130f}
+  .copy .kicker{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#9E2A2B;margin-bottom:8px}
+  .copy h2{margin:0;font-family:"Liberation Serif","Noto Serif",Georgia,serif;font-weight:400;
+    font-size:34px;letter-spacing:.06em;line-height:1.05}
+  .copy p{margin:10px 0 0;font-size:15px;line-height:1.45;font-weight:400;color:#211b15}
+  html.mobile .copy{left:18px;top:28px;max-width:22ch}
+  html.mobile .copy h2{font-size:26px}
+  html.mobile .copy p{font-size:13px;line-height:1.4}
+  .tag{position:absolute;z-index:6;right:22px;top:18px;text-align:right;color:#3a2a1c;letter-spacing:.16em;
+    text-transform:uppercase;font-size:11px;line-height:1.55;opacity:.78}
+  .tag b{display:block;letter-spacing:.18em;font-weight:600}
+  html.mobile .tag{right:12px;top:12px;font-size:9px}
 </style>
-<script>document.documentElement.className=location.search.indexOf('mobile')>=0?'mobile':'desktop';</script>
 </head>
 <body>
-<div class="scene" id="scene"><div class="stage">
+<div class="scene" id="scene">
   <div class="sky"></div>
   <div class="sun" aria-hidden="true"></div>
-  <!-- Eiger links (steile Nordwand), Mönch mittig, Jungfrau rechts. Liegen vor der Sonne. -->
-  <svg class="berge" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <svg class="berge" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice">
     <g stroke="#2a2118" stroke-width="1.1" stroke-linejoin="round">
-      <!-- Eiger: dunkle, fast senkrechte Nordwand links, sonnenbeschienene Flanke rechts -->
       <polygon points="180,640 250,610 290,520 310,390 340,250 390,168 430,210 400,340 420,520 470,640" fill="#2c3840"/>
       <polygon points="340,250 390,168 470,230 450,310 400,340" fill="#3e4c56"/>
       <polygon points="390,168 470,230 560,280 620,640 470,640 420,520 450,310" fill="#c4a574"/>
       <polygon points="390,168 430,150 490,176 470,230" fill="#f4ead8"/>
       <polygon points="430,150 490,176 520,210 470,230" fill="#e4d5bc"/>
       <polygon points="470,230 560,280 590,360 450,310" fill="#a88858"/>
-      <!-- Mönch: rundlicher, mehr Schnee, überdeckt die untere Sonne -->
       <polygon points="520,650 600,520 680,340 760,250 840,280 920,390 980,650" fill="#b7a48a"/>
       <polygon points="680,340 760,250 820,300 760,360" fill="#efe4d0"/>
       <polygon points="760,250 840,230 900,290 840,280" fill="#f7f1e4"/>
       <polygon points="840,280 900,290 960,400 920,390" fill="#d9cbb4"/>
       <polygon points="600,520 680,340 760,360 700,480" fill="#cbb892"/>
       <polygon points="700,480 760,360 840,280 920,390 860,560" fill="#e7dcc8"/>
-      <!-- Jungfrau: breites Schneefeld -->
       <polygon points="900,660 980,480 1080,320 1220,250 1360,300 1440,420 1440,660" fill="#d5c6ae"/>
       <polygon points="1080,320 1220,250 1320,290 1240,360" fill="#f6f1e6"/>
       <polygon points="1220,250 1360,270 1400,340 1320,290" fill="#fff8ee"/>
@@ -68,46 +77,222 @@
       <polygon points="1280,520 1400,400 1440,480 1440,660 1200,660" fill="#e4d8c4"/>
     </g>
   </svg>
-  <!-- Zwei Häuschen vor den Bergen, hinter den Tieren -->
-  <svg class="haeuser" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-    <g stroke="#2a2118" stroke-width="1" stroke-linejoin="round">
-      <!-- Laubengang-Haus, Altstadt-Sandstein, rotes Ziegeldach -->
-      <polygon points="430,560 760,560 760,700 430,700" fill="#c4a574"/>
-      <polygon points="430,560 760,560 760,600 430,600" fill="#d4bc8e"/>
-      <polygon points="410,560 780,548 760,500 430,512" fill="#8e3a32"/>
-      <polygon points="430,512 760,500 748,478 442,490" fill="#a84838"/>
-      <polygon points="748,478 780,500 760,500" fill="#6e2c28"/>
-      <!-- Bögen -->
-      <path d="M470,700 v-70 h54 v70" fill="#3a2e26"/>
-      <path d="M470,640 q27,-28 54,0" fill="#c4a574"/>
-      <path d="M560,700 v-70 h54 v70" fill="#3a2e26"/>
-      <path d="M560,640 q27,-28 54,0" fill="#d4bc8e"/>
-      <path d="M650,700 v-70 h54 v70" fill="#3a2e26"/>
-      <path d="M650,640 q27,-28 54,0" fill="#c4a574"/>
-      <rect x="500" y="575" width="16" height="22" fill="#5c4030"/>
-      <rect x="620" y="575" width="16" height="22" fill="#5c4030"/>
-      <rect x="700" y="575" width="16" height="22" fill="#5c4030"/>
-      <!-- Zytglogge-Andeutung -->
-      <polygon points="860,470 980,470 980,700 860,700" fill="#b8956a"/>
-      <polygon points="860,470 980,470 980,520 860,520" fill="#dcc49a"/>
-      <polygon points="840,470 1000,458 980,410 860,422" fill="#8e3a32"/>
-      <polygon points="900,410 940,330 980,410" fill="#6e2c28"/>
-      <polygon points="918,330 940,300 962,330" fill="#a84838"/>
-      <circle cx="920" cy="560" r="28" fill="#f3ead8" stroke="#2a2118"/>
-      <circle cx="920" cy="560" r="3" fill="#2a2118" stroke="none"/>
-      <line x1="920" y1="560" x2="920" y2="542" stroke="#2a2118" stroke-width="2"/>
-      <line x1="920" y1="560" x2="934" y2="566" stroke="#2a2118" stroke-width="2"/>
-      <rect x="890" y="610" width="22" height="30" fill="#4a3428"/>
-      <rect x="930" y="610" width="22" height="30" fill="#4a3428"/>
-    </g>
-  </svg>
+  <svg class="stadt" id="stadt" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice"></svg>
   <div class="ground"></div>
-  <img class="tier wolf" alt="Nebel Wolf" src="../assets/web/bergtiere_cut/nebel_wolf.webp">
-  <img class="tier falke" alt="Wyler Falke" src="../assets/web/quartiere_cut/wyler_falke.webp">
-  <img class="tier katze" alt="Schanzen Kater" src="../assets/web/quartiere_cut/schanzen_kater.webp">
+  <img class="tier wolf" alt="Wolf" src="../assets/web/bergtiere_cut/nebel_wolf.webp">
+  <img class="tier falke" alt="Falke" src="../assets/web/quartiere_cut/wyler_falke.webp">
+  <img class="tier katze" alt="Katze" src="../assets/web/quartiere_cut/schanzen_kater.webp">
   <img class="tier fuchs" alt="Fuchs" src="../assets/web/fox3/fox_cut_full.webp">
+  <div class="copy">
+    <div class="kicker">D Klassiker</div>
+    <h2>Bärner Quartier</h2>
+    <p>Sibe Sorte, benannt nach Bärner Quartier. Vier dervo gits o on the rocks.</p>
+  </div>
+  <div class="tag" id="tag"></div>
 </div>
-  <div class="tag">Vorschau · nicht live</div>
-</div>
+<script>
+const q = new URLSearchParams(location.search);
+const variant = q.get('v') === 'b' ? 'b' : 'a';
+document.documentElement.className = q.has('mobile') ? 'mobile' : 'desktop';
+document.getElementById('tag').innerHTML =
+  '<b>' + (variant === 'b' ? 'B · viel Stadt' : 'A · etwas Stadt') + '</b>Vorschau · nicht live';
+
+const INK = '#2a2118';
+const stones = ['#d9c6a4', '#cbb892', '#e4d4b6', '#c4a574'];
+const stonesDim = ['#b79a70', '#a88858', '#c4a574', '#b08960'];
+const roofs = ['#8e3a32', '#9a4036', '#7d322c'];
+const roofDim = '#6e2c28';
+
+function poly(pts, fill, extra) {
+  extra = extra || '';
+  const stroke = /stroke=/.test(extra) ? '' : ' stroke="' + INK + '"';
+  const sw = /stroke-width=/.test(extra) ? '' : ' stroke-width="1"';
+  return '<polygon points="' + pts.join(' ') + '" fill="' + fill + '"' + stroke + sw + ' stroke-linejoin="round"' + extra + '/>';
+}
+
+function house(h, far) {
+  const x = h.x, w = h.w, base = h.base, wall = h.wall;
+  const y = base - wall;
+  const si = h.tone % stones.length;
+  const stone = stones[si];
+  const dim = stonesDim[si];
+  const roof = roofs[h.tone % roofs.length];
+  const rh = h.gable ? Math.round(w * 0.46) : Math.round(Math.max(22, w * 0.26));
+  const depth = Math.max(8, Math.round(w * (far ? 0.06 : 0.1)));
+  const stroke = far ? '0.7' : '1';
+  let s = '';
+  s += poly([x + w, y, x + w + depth, y - 6, x + w + depth, base - 4, x + w, base], dim, ' stroke-width="' + stroke + '"');
+  s += poly([x, y, x + w, y, x + w, base, x, base], far ? '#e6d7bc' : stone, ' stroke-width="' + stroke + '"');
+  if (h.gable) {
+    s += poly([x - 3, y, x + w / 2, y - rh, x + w + 3, y], roof, ' stroke-width="' + stroke + '"');
+    s += poly([x + w / 2, y - rh, x + w + 3, y, x + w + depth, y - 6], roofDim, ' stroke-width="' + stroke + '"');
+    s += poly([x + w * 0.22, y - 2, x + w / 2, y - rh + 4, x + w * 0.78, y - 2], far ? '#c45a4a' : '#a84838', ' stroke="none"');
+  } else {
+    const oh = Math.round(w * 0.06);
+    s += poly([x - oh, y + 1, x + w + oh, y - 3, x + w - 1, y - rh, x + 1, y - rh + 4], roof, ' stroke-width="' + stroke + '"');
+    s += poly([x + w + oh, y - 3, x + w + depth + 2, y - 10, x + w - 1, y - rh], roofDim, ' stroke-width="' + stroke + '"');
+    s += poly([x + 4, y - 2, x + w - 4, y - 5, x + w - 6, y - 12, x + 6, y - 9], '#a84838', ' stroke="none"');
+  }
+  if (!far && h.lauben) {
+    const n = Math.max(2, Math.min(4, Math.round(w / 40)));
+    const pad = 8;
+    const aw = (w - pad * (n + 1)) / n;
+    const ah = Math.min(64, Math.max(48, wall * 0.48));
+    const foot = y + Math.min(wall - 8, ah + 18);
+    for (let i = 0; i < n; i++) {
+      const ax = x + pad + i * (aw + pad);
+      const spring = foot - ah * 0.55;
+      s += '<path d="M' + ax.toFixed(1) + ',' + foot.toFixed(1) +
+        ' V' + spring.toFixed(1) +
+        ' Q' + (ax + aw / 2).toFixed(1) + ',' + (foot - ah).toFixed(1) +
+        ' ' + (ax + aw).toFixed(1) + ',' + spring.toFixed(1) +
+        ' V' + foot.toFixed(1) + ' Z" fill="#241c16"/>';
+    }
+  }
+  return s;
+}
+
+function muenster(cx, base, lift) {
+  const w = 58;
+  const x = cx - w / 2;
+  const bodyTop = base - 168 - lift;
+  let s = '';
+  s += poly([x + w, bodyTop, x + w + 12, bodyTop - 8, x + w + 12, base - 6, x + w, base], '#a88858');
+  s += poly([x, bodyTop, x + w, bodyTop, x + w, base, x, base], '#d2bc96');
+  s += poly([x + 16, bodyTop + 36, x + 28, bodyTop + 36, x + 28, bodyTop + 78, x + 16, bodyTop + 78], '#4a3428');
+  const w2 = 40, x2 = cx - w2 / 2, t2 = bodyTop - 52;
+  s += poly([x2, t2, x2 + w2, t2, x2 + w2, bodyTop, x2, bodyTop], '#e4d4b6');
+  const w3 = 24, x3 = cx - w3 / 2, t3 = t2 - 36;
+  s += poly([x3, t3, x3 + w3, t3, x3 + w3, t2, x3, t2], '#cbb892');
+  const tip = t3 - (168 + lift);
+  s += poly([x3 - 1, t3, cx, tip, x3 + w3 + 1, t3], '#b7a48a');
+  s += poly([cx, tip, x3 + w3 + 1, t3, cx + 5, t3 + 30], '#8d7b62');
+  s += '<line x1="' + cx + '" y1="' + tip + '" x2="' + cx + '" y2="' + (tip - 16) + '" stroke="' + INK + '" stroke-width="1.4"/>';
+  s += '<line x1="' + (cx - 6) + '" y1="' + (tip - 10) + '" x2="' + (cx + 6) + '" y2="' + (tip - 10) + '" stroke="' + INK + '" stroke-width="1.4"/>';
+  return s;
+}
+
+function zytglogge(x, base) {
+  const w = 78, y = base - 132;
+  let s = '';
+  s += poly([x + w, y, x + w + 14, y - 8, x + w + 14, base - 5, x + w, base], '#a88858');
+  s += poly([x, y, x + w, y, x + w, base, x, base], '#dcc49a');
+  s += poly([x - 6, y, x + w + 8, y - 3, x + w - 4, y - 46, x + 4, y - 42], '#8e3a32');
+  s += poly([x + w + 8, y - 3, x + w + 16, y - 12, x + w - 4, y - 46], '#6e2c28');
+  const tipx = x + w * 0.5, tip = y - 78;
+  s += poly([x + 22, y - 40, tipx, tip, x + w - 18, y - 42], '#6e2c28');
+  const ccx = x + w * 0.48, ccy = y + 48;
+  s += '<circle cx="' + ccx + '" cy="' + ccy + '" r="18" fill="#f3ead8" stroke="' + INK + '" stroke-width="1.2"/>';
+  s += '<circle cx="' + ccx + '" cy="' + ccy + '" r="15" fill="none" stroke="#C6A13A" stroke-width="1.5"/>';
+  s += '<circle cx="' + ccx + '" cy="' + ccy + '" r="2" fill="' + INK + '" stroke="none"/>';
+  s += '<line x1="' + ccx + '" y1="' + ccy + '" x2="' + ccx + '" y2="' + (ccy - 9) + '" stroke="' + INK + '" stroke-width="1.4"/>';
+  s += '<line x1="' + ccx + '" y1="' + ccy + '" x2="' + (ccx + 7) + '" y2="' + (ccy + 3) + '" stroke="' + INK + '" stroke-width="1.4"/>';
+  s += '<path d="M' + (x + 18) + ',' + base + ' V' + (base - 28) + ' Q' + (x + 32) + ',' + (base - 52) + ' ' + (x + 46) + ',' + (base - 28) + ' V' + base + ' Z" fill="#3a2e26"/>';
+  return s;
+}
+
+function river(kind) {
+  let s = '';
+  if (kind === 'short') {
+    s += poly([390, 598, 760, 588, 1120, 594, 1168, 648, 1040, 674, 620, 682, 360, 662], '#7d948c', ' stroke="#5e7872" stroke-width="0.8"');
+    s += poly([400, 598, 760, 590, 1100, 596, 1088, 614, 760, 610, 412, 616], '#d5e0da', ' stroke="none"');
+  } else {
+    s += poly([20, 606, 520, 588, 980, 594, 1320, 578, 1420, 640, 1360, 710, 40, 722], '#6f8a84', ' stroke="#5e7872" stroke-width="0.8"');
+    s += poly([1240, 582, 1410, 500, 1440, 500, 1440, 680, 1320, 708, 1200, 650], '#5e7872', ' stroke="#4e6864" stroke-width="0.8"');
+    s += poly([0, 570, 210, 542, 250, 608, 0, 640], '#6f8a84', ' stroke="#5e7872" stroke-width="0.8"');
+    s += poly([30, 606, 520, 592, 980, 596, 1280, 584, 1260, 612, 40, 624], '#d5e0da', ' stroke="none"');
+  }
+  return s;
+}
+
+function bridge(b, deckY) {
+  const x = b.x, w = b.w, n = b.n;
+  const deck = 16;
+  let s = '';
+  s += poly([x, deckY, x + w, deckY - 4, x + w, deckY + deck, x, deckY + deck + 2], '#d2bc96');
+  s += poly([x, deckY - 5, x + w, deckY - 9, x + w, deckY, x, deckY], '#e4d4b6');
+  const pad = w * 0.08;
+  const aw = (w - pad * (n + 1)) / n;
+  const ah = 28;
+  for (let i = 0; i < n; i++) {
+    const ax = x + pad + i * (aw + pad);
+    const spring = deckY + deck * 0.2;
+    s += '<path d="M' + ax.toFixed(1) + ',' + (deckY + deck) +
+      ' V' + spring.toFixed(1) +
+      ' Q' + (ax + aw / 2).toFixed(1) + ',' + (deckY + deck + ah).toFixed(1) +
+      ' ' + (ax + aw).toFixed(1) + ',' + spring.toFixed(1) +
+      ' V' + (deckY + deck) + ' Z" fill="#3e4a48"/>';
+  }
+  return s;
+}
+
+function row(list, far) {
+  return list.map(h => house(h, far)).join('');
+}
+
+const base = 586;
+let svg = '';
+if (variant === 'a') {
+  const front = [
+    {x:400, w:100, wall:92, base, gable:true, lauben:true, tone:0},
+    {x:506, w:86, wall:74, base, gable:false, lauben:true, tone:2},
+    {x:690, w:92, wall:108, base, gable:true, lauben:true, tone:1},
+    {x:786, w:112, wall:72, base, gable:false, lauben:true, tone:3},
+    {x:1010, w:78, wall:96, base, gable:true, lauben:true, tone:0},
+    {x:1092, w:104, wall:66, base, gable:false, lauben:true, tone:2}
+  ];
+  svg += row(front, false);
+  svg += muenster(640, base, 0);
+  svg += zytglogge(900, base);
+  svg += river('short');
+  svg += bridge({x:470, w:200, n:2}, 600);
+  svg += bridge({x:990, w:170, n:2}, 604);
+} else {
+  const backBase = 568;
+  const back = [];
+  let x = 40;
+  const backW = [78, 56, 96, 64, 84, 52, 100, 60, 88, 54, 92, 70, 80, 58, 96, 62];
+  backW.forEach((w, i) => {
+    back.push({
+      x, w, wall: 42 + (i % 5) * 12, base: backBase - (i % 3) * 8,
+      gable: i % 2 === 0, lauben: false, tone: i % 4
+    });
+    x += w + 6;
+  });
+  const front = [];
+  const specs = [
+    [86, true, 96], [118, false, 78], [70, true, 110], [104, false, 84],
+    [76, true, 102], [124, false, 74], [90, true, 118], [108, false, 80],
+    [72, true, 94], [116, false, 70], [84, true, 108], [98, false, 76]
+  ];
+  x = 24;
+  specs.forEach((spec, i) => {
+    const w = spec[0];
+    if (x > 580 && x < 710) x = 710;
+    if (x > 960 && x < 1090) x = 1090;
+    front.push({
+      x, w, wall: spec[2], base: base + (i % 2) * 6,
+      gable: spec[1], lauben: true, tone: (i + 1) % 4
+    });
+    x += w + 4;
+  });
+  svg += row(back, true);
+  svg += row(front, false);
+  svg += muenster(642, base, 10);
+  svg += zytglogge(972, base);
+  svg += river('long');
+  svg += bridge({x:160, w:280, n:3}, 604);
+  svg += bridge({x:1160, w:180, n:2}, 592);
+}
+
+if (document.documentElement.classList.contains('mobile')) {
+  document.querySelectorAll('svg.berge, svg.stadt').forEach(function (svg) {
+    svg.setAttribute('viewBox', '150 160 1120 740');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMax meet');
+  });
+}
+
+document.getElementById('stadt').innerHTML = svg;
+</script>
 </body>
 </html>
