@@ -273,8 +273,16 @@ def konten(q):
   for r in c.execute('select customer_id,email,company_name,created_at,last_login_at,status from dealer_accounts').fetchall():
     rows.append(('B2B', r['email'], r['company_name'] or '', r['created_at'], r['last_login_at'], r['customer_id'], r['status']))
   rows.sort(key=lambda x: x[3] or '', reverse=True)
+  def _who(cid, who):
+    if not cid:
+      return e(who)
+    return '<a href="/kontakt/%s">%s</a>' % (cid, e(who))
+  def _when(value):
+    shown = e((value or '')[:16])
+    return shown or '<span class="mu">–</span>'
   tr=''.join(
-    f'<tr><td>{chip(kind,"ok" if kind=="B2C" else "neu")}</td><td>{f"<a href=\"/kontakt/{cid}\">{e(who)}</a>" if cid else e(who)}</td><td>{e(email)}</td><td>{chip(status)}</td><td>{e((created or "")[:16])}</td><td>{e((last or "")[:16]) or "<span class=mu>–</span>"}</td></tr>'
+    '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (
+      chip(kind, 'ok' if kind=='B2C' else 'neu'), _who(cid, who), e(email), chip(status), _when(created), _when(last))
     for kind,email,who,created,last,cid,status in rows)
   return page('Konten', '<section><h2>Kundenkonten</h2><p class="mu">B2C ist nach der Registrierung sofort aktiv (Altersbestätigung nur Checkbox, keine e-ID). B2B bleibt bis zur Freigabe gesperrt. Letzter Login und Registrierung kommen aus dem Konto, nicht aus bexio.</p>'
     f'<table><tr><th>Typ</th><th>Name</th><th>E-Mail</th><th>Status</th><th>Registriert</th><th>Letzter Login</th></tr>{tr or empty("Noch keine Konten.",6)}</table></section>', '/konten')
