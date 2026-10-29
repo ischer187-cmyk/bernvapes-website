@@ -99,13 +99,13 @@
   }
 
   function scan(){
-    /* #flaschen: nur Vorbestellen. Kein Warenkorb-Knopf, und der Vorbestell-Klick legt nichts in den Korb. */
-    document.querySelectorAll('#hero .beast, #quartiere .beast, #bergtiere .beast, .werkstatt .beast, .studies figure').forEach(function(fig){
+    /* #flaschen: nur Vorbestellen. #hero stellt die Tiere vor, dort wird nichts verkauft. */
+    document.querySelectorAll('#quartiere .beast, #bergtiere .beast, .werkstatt .beast, .studies figure').forEach(function(fig){
       var name=nameOf(fig);
       var id=fig.dataset.key||slug(name);
       place(fig, id, name);
     });
-    ['#lb .tocart','#tiermodal .tocart'].forEach(function(sel){
+    ['#lb .tocart'].forEach(function(sel){
       var b=document.querySelector(sel); if(!b||b._cart) return; b._cart=1;
       b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); add(b.dataset.cart, b.dataset.name); });
     });

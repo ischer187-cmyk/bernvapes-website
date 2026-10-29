@@ -210,7 +210,7 @@
 <script>/* --mask-Pfade absolut machen: url() in Custom Properties wird sonst relativ zur CSS-Datei aufgelöst (404 unter assets/css/) */
 document.querySelectorAll('[data-mask]').forEach(function(e){e.style.setProperty('--mask','url("'+new URL(e.getAttribute('data-mask'),document.baseURI).href+'")');});</script>
 <script src="assets/js/site.js?v=20261029k"></script>
-<script src="assets/js/cart.js?v=20261029k"></script>
+<script src="assets/js/cart.js?v=20261029m"></script>
 <script src="assets/js/foxes.js?v=20261029l"></script>
 <script src="assets/js/i18n.js?v=20261029i"></script>
 <script src="assets/js/login.js?v=20261029i"></script>
@@ -219,7 +219,7 @@ document.querySelectorAll('[data-mask]').forEach(function(e){e.style.setProperty
   <div class="tm-card">
     <button class="tm-x" type="button" aria-label="Schliesse">✕</button>
     <div class="tm-animal"><img alt=""></div>
-    <div class="tm-info"><h3 id="tm-title"></h3><p class="tm-who"></p><p class="tm-text"></p><button type="button" class="tocart" id="tm-cart">I Warechorb</button><img class="tm-logo" alt=""></div>
+    <div class="tm-info"><h3 id="tm-title"></h3><p class="tm-who"></p><p class="tm-text"></p><img class="tm-logo" alt=""></div>
   </div>
 </div>
 <script>
@@ -230,7 +230,6 @@ document.querySelectorAll('[data-mask]').forEach(function(e){e.style.setProperty
   function open(b){var who=(b.querySelector('.plaque .who')||{}).textContent||'',p=who.split('·');
     var st=b.querySelector('img.still'),k=(st.getAttribute('src').match(/loops\/(\w+?)_still/)||[])[1];bi.src='assets/web/animals/'+k+'.webp';bi.alt=st.alt;m.querySelector('.tm-text').textContent=T[k]||'';lo.src=b.dataset.label;lo.alt='Flaschenlogo '+who;
     m.querySelector('h3').textContent=(p[0]||'').trim();m.querySelector('.tm-who').textContent=(p[1]||'').trim();
-    var cart=m.querySelector('.tocart');if(cart){var nm=(m.querySelector('h3').textContent||'').trim();cart.dataset.name=nm;cart.dataset.cart=nm.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
     last=b;m.hidden=false;requestAnimationFrame(function(){m.classList.add('open')});m.querySelector('.tm-x').focus();}
   function close(){if(m.hidden)return;m.classList.remove('open');m.hidden=true;if(last)last.focus();}
   hero.addEventListener('click',function(e){if(e.target.closest('.tocart'))return;var b=e.target.closest('.beast');if(!b||!b.dataset.bottle)return;e.stopPropagation();open(b);},true);
