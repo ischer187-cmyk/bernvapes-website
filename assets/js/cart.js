@@ -99,9 +99,7 @@
   }
 
   function scan(){
-    document.querySelectorAll('#flaschen .pcol').forEach(function(col){
-      var name=nameOf(col); place(col, slug(name), name);
-    });
+    /* #flaschen: nur Vorbestellen. Kein Warenkorb-Knopf, und der Vorbestell-Klick legt nichts in den Korb. */
     document.querySelectorAll('#hero .beast, #quartiere .beast, #bergtiere .beast, .werkstatt .beast, .studies figure').forEach(function(fig){
       var name=nameOf(fig);
       var id=fig.dataset.key||slug(name);

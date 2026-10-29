@@ -209,8 +209,8 @@
 <script src="assets/js/worlds_data.js"></script>
 <script>/* --mask-Pfade absolut machen: url() in Custom Properties wird sonst relativ zur CSS-Datei aufgelöst (404 unter assets/css/) */
 document.querySelectorAll('[data-mask]').forEach(function(e){e.style.setProperty('--mask','url("'+new URL(e.getAttribute('data-mask'),document.baseURI).href+'")');});</script>
-<script src="assets/js/site.js?v=20261029f"></script>
-<script src="assets/js/cart.js?v=20261029f"></script>
+<script src="assets/js/site.js?v=20261029k"></script>
+<script src="assets/js/cart.js?v=20261029k"></script>
 <script src="assets/js/foxes.js?v=20261029g"></script>
 <script src="assets/js/i18n.js?v=20261029i"></script>
 <script src="assets/js/login.js?v=20261029i"></script>
@@ -248,7 +248,7 @@ document.querySelectorAll('[data-mask]').forEach(function(e){e.style.setProperty
  requestAnimationFrame(f);})();
 </script>
 
-<script>/* Platzhalter: Vorbestellen-Knopf ohne Funktion, öffnet nicht die Flaschen-Ansicht */document.querySelectorAll('.preorder').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();});});</script>
+<script>/* Vorbestellen bleibt Vorbestellen: keine Flaschen-Ansicht, nichts in den Warenkorb. */document.querySelectorAll('.preorder').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();});});</script>
 <script>
 /* Intro-Bremse: Aus dem Fuchskopf-Intro (Hero-Pin) landet jeder Scroll – auch schnelles Wheel/Trackpad-Flicken oder Touch-Swipe – höchstens am Ende des Hero-Pins
    (Explosion fertig, Welt + Tiere sichtbar). Momentum danach wird ~0.8 s geschluckt. Nav-Links & Tastatur bleiben frei. */

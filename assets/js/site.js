@@ -281,7 +281,7 @@
   function openLB(label,bottle,meta){ if(!lb) return; lb.querySelector('.poster').src=label; const bo=lb.querySelector('.bot'); if(bottle){bo.src=bottle;bo.style.display='';} else bo.style.display='none'; const cb=lb.querySelector('.tocart'); if(cb){ if(meta&&meta.id){cb.hidden=false;cb.dataset.cart=meta.id;cb.dataset.name=meta.name||'';}else cb.hidden=true; } lb.classList.add('open'); document.body.style.overflow='hidden'; }
   function closeLB(){ if(!lb) return; lb.classList.remove('open'); document.body.style.overflow=''; }
   if(lb){ lb.querySelector('.close').addEventListener('click',closeLB); lb.addEventListener('click',e=>{if(e.target===lb)closeLB();}); addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();}); }
-  document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',e=>{ if(e.target.closest('.tocart')) return; const host=b.closest('.pcol,.beast'); const btn=host&&host.querySelector('.tocart'); openLB(b.dataset.label,b.dataset.bottle,btn?{id:btn.dataset.cart,name:btn.dataset.name}:null); }));
+  document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',e=>{ if(e.target.closest('.tocart,.preorder')) return; const host=b.closest('.pcol,.beast'); const fromLine=!!b.closest('#flaschen'); const btn=!fromLine&&host&&host.querySelector('.tocart'); openLB(b.dataset.label,b.dataset.bottle,btn?{id:btn.dataset.cart,name:btn.dataset.name}:null); }));
 
   /* ---------- Szenen aufsetzen ---------- */
   const worlds={}; const parallaxFns=[];
