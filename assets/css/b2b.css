@@ -1,0 +1,40 @@
+/* Händlerportal — gleiche Tokens wie die Papercraft-Seite, eigene Fläche. */
+body.b2b{min-height:100vh;background:
+  radial-gradient(1200px 500px at 10% -10%, rgba(198,161,58,.16), transparent 55%),
+  radial-gradient(900px 420px at 110% 0%, rgba(158,42,43,.22), transparent 50%),
+  var(--bv-ink)}
+.b2b-nav{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:18px clamp(18px,4vw,44px);background:linear-gradient(rgba(23,19,15,.92),rgba(23,19,15,.72));backdrop-filter:blur(8px)}
+.b2b-nav .wordmark{font-size:1.2rem}
+.b2b-nav .wordmark b{color:var(--bv-gold);font-weight:400}
+.b2b-nav a.back{font-family:var(--font-head);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bv-gold)}
+.b2b main{width:min(1100px,92vw);margin:0 auto;padding:28px 0 80px}
+.b2b h1{font-family:var(--font-display);font-weight:400;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(1.8rem,4vw,3rem)}
+.b2b .lead{max-width:62ch;opacity:.9}
+.b2b .panel{margin-top:28px;padding:22px;border:1px solid var(--bv-gold);outline:1px solid rgba(198,161,58,.45);outline-offset:5px;background:rgba(23,19,15,.55)}
+.b2b h2{font-size:1.15rem;margin-bottom:8px}
+.b2b .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.b2b .tabs button,.b2b button.btn{font:inherit}
+.b2b label{display:block;margin:0 0 4px;font-family:var(--font-head);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bv-gold)}
+.b2b input,.b2b select{width:100%;background:rgba(242,232,207,.06);color:var(--bv-cream);border:1px solid rgba(198,161,58,.55);padding:10px 12px;font:inherit}
+.b2b .fld{min-width:0;margin-top:12px}
+.b2b .row2{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}
+.b2b .row2 .fld{margin-top:8px}
+.b2b form > .fld{max-width:420px}
+@media(max-width:700px){.b2b .row2{grid-template-columns:1fr}}
+.b2b .err{color:#f0c7b0;border:1px solid var(--bv-rust);padding:10px 12px;margin:12px 0}
+.b2b .ok{color:#d8be73;border:1px solid var(--bv-gold);padding:10px 12px;margin:12px 0}
+.b2b .muted{opacity:.75;font-size:.92rem}
+.b2b code{color:var(--bv-gold-soft);word-break:break-all}
+.b2b table{width:100%;border-collapse:collapse;margin-top:12px}
+.b2b th,.b2b td{text-align:left;padding:10px 8px;border-bottom:1px solid rgba(198,161,58,.28);vertical-align:middle}
+.b2b th{font-family:var(--font-head);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--bv-gold);font-weight:500}
+.b2b td.num, .b2b th.num{text-align:right}
+.b2b input.qty{width:72px}
+.b2b .tot{margin-top:16px;display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+.b2b .hidden{display:none}
+.b2b .agebox{display:flex;gap:10px;align-items:flex-start;margin-top:16px;max-width:62ch}
+.b2b .agebox input{width:auto;margin-top:4px}
+.b2b .nav.show{opacity:1;transform:none;pointer-events:auto;position:sticky}
+.b2b footer{opacity:.7;font-size:.78rem;margin-top:28px}
+.b2b .age{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--bv-cream);border-radius:50%;margin-right:8px;font-size:.68rem}
