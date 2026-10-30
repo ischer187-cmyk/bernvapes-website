@@ -166,7 +166,9 @@ class OrderFlowTests(unittest.TestCase):
         self.port = harness.ensure_server()
         postfinance.set_transport(None)
         bexio_sync.set_transport(None)
+        bexio_sync.set_mail_transport(None)
         os.environ['BEXIO_SYNC_ENABLED'] = '0'
+        os.environ['BEXIO_DELIVERY_ENABLED'] = '0'
         os.environ['BEXIO_API_TOKEN'] = 'bexio-token-do-not-log'
         os.environ.pop('POSTFINANCE_SPACE_ID', None)
         os.environ.pop('POSTFINANCE_USER_ID', None)
@@ -175,6 +177,7 @@ class OrderFlowTests(unittest.TestCase):
     def tearDown(self):
         postfinance.set_transport(None)
         bexio_sync.set_transport(None)
+        bexio_sync.set_mail_transport(None)
         self.tmp.cleanup()
 
     def _customer(self):
@@ -340,12 +343,21 @@ class OrderFlowTests(unittest.TestCase):
             path = urlsplit(req.full_url).path
             auth = dict((k.lower(), v) for k, v in req.header_items()).get('authorization')
             self.assertEqual(auth, 'Bearer bexio-token-do-not-log')
+            if path.endswith('/2.0/contact/search'):
+                return _Fake(b'[]')
             if path.endswith('/2.0/contact'):
+                payload = json.loads(req.data.decode('utf-8'))
+                self.assertEqual(payload['street_name'], 'Fährstrasse')
+                self.assertEqual(payload['house_number'], '1')
+                self.assertEqual(payload['postcode'], '3004')
+                self.assertEqual(payload['city'], 'Bern')
                 return _Fake(b'{"id": 77}')
-            if path.endswith('/2.0/kb_invoice'):
+            if path.endswith('/2.0/kb_order'):
                 payload = json.loads(req.data.decode('utf-8'))
                 self.assertIn('Vorbestellung', payload['positions'][0]['text'])
                 self.assertEqual(payload['api_reference'], placed['ref'])
+                return _Fake(b'{"id": 44, "document_nr": "AU-00044"}')
+            if path.endswith('/invoice'):
                 return _Fake(b'{"id": 88}')
             raise AssertionError(path)
 
@@ -357,7 +369,7 @@ class OrderFlowTests(unittest.TestCase):
         self.assertEqual(paid['bexio']['status'], 'created')
         self.assertTrue(paid['bexio']['created'])
         self.assertNotIn('bexio-token-do-not-log', text)
-        self.assertEqual(len(bexio_calls), 2)
+        self.assertEqual(len(bexio_calls), 4)
         db = connect()
         cid = db.execute("select id from customers where email='anna-kasse@example.com'").fetchone()[0]
         self.assertEqual(db.execute('select bexio_contact_id from customers where id=?', (cid,)).fetchone()[0], 77)
@@ -368,7 +380,7 @@ class OrderFlowTests(unittest.TestCase):
         st, dup, _ = client.request('POST', '/webhook/postfinance', json_body={
             'eventId': 'pf-bexio', 'entityId': 4242, 'spaceId': 102832})
         self.assertEqual(dup['status'], 'duplicate')
-        self.assertEqual(len(bexio_calls), 2)
+        self.assertEqual(len(bexio_calls), 4)
 
     def _configured(self):
         os.environ['POSTFINANCE_SPACE_ID'] = '102832'
@@ -433,15 +445,19 @@ class OrderFlowTests(unittest.TestCase):
         os.environ['BEXIO_API_TOKEN'] = 'bexio-token-do-not-log'
         os.environ['BEXIO_USER_ID'] = '7'
         os.environ['BEXIO_TAX_ID'] = '19'
-        invoices = []
+        orders_body = []
 
         def bexio(req, timeout=30):
             path = urlsplit(req.full_url).path
+            if path.endswith('/2.0/contact/search'):
+                return _Fake(b'[]')
             if path.endswith('/2.0/contact'):
                 return _Fake(b'{"id": 77}')
-            if path.endswith('/2.0/kb_invoice'):
-                invoices.append(json.loads(req.data.decode('utf-8')))
-                return _Fake(json.dumps({'id': 90 + len(invoices)}).encode('utf-8'))
+            if path.endswith('/2.0/kb_order'):
+                orders_body.append(json.loads(req.data.decode('utf-8')))
+                return _Fake(json.dumps({'id': 40 + len(orders_body), 'document_nr': 'AU-00040'}).encode('utf-8'))
+            if path.endswith('/invoice'):
+                return _Fake(json.dumps({'id': 90 + len(orders_body)}).encode('utf-8'))
             raise AssertionError(path)
 
         bexio_sync.set_transport(bexio)
@@ -449,11 +465,11 @@ class OrderFlowTests(unittest.TestCase):
         synced = bexio_sync.sync_paid_order(conn, low['order_id'])
         conn.close()
         self.assertEqual(synced['status'], 'created')
-        positions = invoices[-1]['positions']
+        positions = orders_body[-1]['positions']
         self.assertEqual(positions[-1]['text'], 'Versand')
         self.assertEqual(positions[-1]['unit_price'], '9.00')
         self.assertEqual(positions[-1]['tax_id'], positions[0]['tax_id'])
-        self.assertFalse(invoices[-1]['mwst_is_net'])
+        self.assertFalse(orders_body[-1]['mwst_is_net'])
         billed = round(sum(float(p['amount']) * float(p['unit_price']) for p in positions), 2)
         self.assertAlmostEqual(billed, low['total_chf'], places=2)
 
@@ -470,11 +486,11 @@ class OrderFlowTests(unittest.TestCase):
         conn = connect()
         bexio_sync.sync_paid_order(conn, exact['order_id'])
         conn.close()
-        free_ship = invoices[-1]['positions'][-1]
+        free_ship = orders_body[-1]['positions'][-1]
         self.assertEqual(free_ship['text'], 'Versand')
         self.assertEqual(free_ship['unit_price'], '0.00')
         self.assertAlmostEqual(
-            round(sum(float(p['amount']) * float(p['unit_price']) for p in invoices[-1]['positions']), 2),
+            round(sum(float(p['amount']) * float(p['unit_price']) for p in orders_body[-1]['positions']), 2),
             exact['total_chf'], places=2)
 
         above = place([{'sku': 'lemon-pie', 'qty': 2}])

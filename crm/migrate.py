@@ -25,7 +25,9 @@ ADD = {
         'payment_status': 'TEXT', 'currency': "TEXT DEFAULT 'CHF'", 'is_test': 'INTEGER DEFAULT 0',
         'payment_method': 'TEXT', 'dealer_account_id': 'INTEGER',
         'customer_account_id': 'INTEGER', 'postfinance_state': 'TEXT',
-        'shipping_chf': 'REAL DEFAULT 0', 'birthdate': 'TEXT', 'age_check_status': 'TEXT'},
+        'shipping_chf': 'REAL DEFAULT 0', 'birthdate': 'TEXT', 'age_check_status': 'TEXT',
+        'bexio_kb_order_id': 'INTEGER', 'bexio_delivery_id': 'INTEGER', 'bexio_delivery_nr': 'TEXT',
+        'delivery_mail_status': 'TEXT', 'delivery_error': 'TEXT'},
     'order_items': {'preorder': 'INTEGER DEFAULT 0'},
 }
 
