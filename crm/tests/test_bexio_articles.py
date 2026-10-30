@@ -1,5 +1,5 @@
 """Shop-SKU → bexio-Artikel. Kein SMTP, kein echtes bexio."""
-import json, os, unittest
+import json, os, re, unittest
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -7,7 +7,10 @@ import harness
 import bexio_sync
 from db import connect
 
-ALLOWED_IDS = {227, 213, 218, 216, 219, 232, 209, 238, 239, 240, 241}
+ALLOWED_IDS = {
+    227, 213, 218, 216, 219, 232, 209, 242, 243, 244, 245,
+    226, 210, 220, 231, 222, 211, 235, 223, 214,
+}
 
 
 class _Fake:
@@ -100,7 +103,7 @@ class ArticleMapTests(unittest.TestCase):
         finally:
             conn.close()
 
-    def test_mapping_contains_exactly_the_eleven_ids(self):
+    def test_mapping_contains_exactly_the_allowed_ids(self):
         raw = Path(bexio_sync.ARTICLES_PATH).read_text(encoding='utf-8')
         data = json.loads(raw)
         ids = {int(value) for key, value in data.items() if not str(key).startswith('_')}
@@ -112,6 +115,20 @@ class ArticleMapTests(unittest.TestCase):
         self.assertEqual(bexio_sync.article_id_for({'sku': 'laenggass-dachs', 'article': 'x'})[0], 227)
         self.assertEqual(bexio_sync.article_id_for({'article': 'Länggass Dachs'})[0], 227)
 
+    def test_every_bergtiere_data_key_is_mapped(self):
+        html = Path(__file__).resolve().parents[2].joinpath('index.html').read_text(encoding='utf-8')
+        start = html.find('id="bergtiere"')
+        self.assertGreater(start, 0)
+        nxt = html.find('<section', start + 1)
+        chunk = html[start:nxt if nxt > start else None]
+        pairs = re.findall(r'<figure[^>]*data-key="([^"]+)"[\s\S]*?class="flavor">([^<]+)', chunk)
+        self.assertGreaterEqual(len(pairs), 12)
+        for data_key, flavor in pairs:
+            sku = bexio_sync._catalog_sku(flavor)
+            self.assertIn(data_key, bexio_sync.ARTICLES, data_key)
+            self.assertIn(sku, bexio_sync.ARTICLES, sku)
+            self.assertEqual(bexio_sync.ARTICLES[data_key], bexio_sync.ARTICLES[sku], data_key)
+
     def test_mapped_line_is_article_position(self):
         oid = self._order('bv-map-lemon', 'lemon-pie', 'Lemon Pie', 12.90, 1)
         result = self._sync(oid)
@@ -119,7 +136,7 @@ class ArticleMapTests(unittest.TestCase):
         positions = self.api.order['positions']
         lemon = positions[0]
         self.assertEqual(lemon['type'], 'KbPositionArticle')
-        self.assertEqual(lemon['article_id'], 238)
+        self.assertEqual(lemon['article_id'], 242)
         self.assertEqual(lemon['amount'], '1')
         self.assertEqual(lemon['unit_price'], '12.90')
         self.assertEqual(lemon['text'], 'Lemon Pie (Vorbestellung)')
