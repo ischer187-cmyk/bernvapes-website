@@ -120,22 +120,29 @@ def _create_contact(token, cust, acc, user_id, owner_id, country_id):
     return int(_request(token, '/2.0/contact', body)['id'])
 
 
+def _position(text, qty, unit):
+    """Gleiche MwSt-Behandlung wie die Artikel: Bruttopreis, tax_id nur wenn gesetzt."""
+    row = {
+        'type': 'KbPositionCustom',
+        'amount': str(int(qty or 1)),
+        'unit_price': '%.2f' % float(unit or 0),
+        'text': text,
+    }
+    tax = (os.environ.get('BEXIO_TAX_ID') or '').strip()
+    if tax.isdigit():
+        row['tax_id'] = int(tax)
+    return row
+
+
 def _create_invoice(token, order, items, contact_id, user_id, currency_id):
     positions = []
     for item in items:
         text = item['article'] or 'Artikel'
         if item['preorder']:
             text = '%s (Vorbestellung)' % text
-        row = {
-            'type': 'KbPositionCustom',
-            'amount': str(int(item['qty'] or 1)),
-            'unit_price': '%.2f' % float(item['unit_chf'] or 0),
-            'text': text,
-        }
-        tax = (os.environ.get('BEXIO_TAX_ID') or '').strip()
-        if tax.isdigit():
-            row['tax_id'] = int(tax)
-        positions.append(row)
+        positions.append(_position(text, item['qty'] or 1, item['unit_chf']))
+    if 'shipping_chf' in order.keys() and order['shipping_chf'] is not None:
+        positions.append(_position('Versand', 1, order['shipping_chf']))
     body = {
         'title': 'Bernvapes Bestellung #%s' % order['id'],
         'contact_id': int(contact_id),

@@ -1,5 +1,8 @@
 """Apply schema.sql + schema_v2.sql + schema_v3.sql + schema_v4.sql and missing columns.
 
+orders.shipping_chf, orders.birthdate, orders.age_check_status and customers.birthdate
+are added here for databases created before the shop shipping / age check.
+
 SQLite is the default. If DATABASE_URL is a Postgres URL, the same schema is
 applied there (with a few compatibility functions) and no SQLite file is touched.
 """
@@ -12,7 +15,7 @@ from pricing import seed_products
 FILES = ('schema.sql', 'schema_v2.sql', 'schema_v3.sql', 'schema_v4.sql')
 ADD = {
     'customers': {
-        'age_verify_ref': 'TEXT', 'age_verified': 'INTEGER DEFAULT 0',
+        'age_verify_ref': 'TEXT', 'age_verified': 'INTEGER DEFAULT 0', 'birthdate': 'TEXT',
         'customer_type': "TEXT DEFAULT 'Endkunde'", 'company_id': 'INTEGER', 'city': 'TEXT', 'tags': 'TEXT',
         'company_name': 'TEXT', 'contact_person': 'TEXT', 'canton': 'TEXT', 'website': 'TEXT', 'address': 'TEXT',
         'source': 'TEXT', 'priority': 'TEXT', 'extra': 'TEXT', 'brand': 'TEXT', 'bexio_groups': 'TEXT',
@@ -21,7 +24,8 @@ ADD = {
         'payment_provider': 'TEXT', 'payment_tx_id': 'TEXT', 'external_ref': 'TEXT', 'updated_at': 'TEXT',
         'payment_status': 'TEXT', 'currency': "TEXT DEFAULT 'CHF'", 'is_test': 'INTEGER DEFAULT 0',
         'payment_method': 'TEXT', 'dealer_account_id': 'INTEGER',
-        'customer_account_id': 'INTEGER', 'postfinance_state': 'TEXT'},
+        'customer_account_id': 'INTEGER', 'postfinance_state': 'TEXT',
+        'shipping_chf': 'REAL DEFAULT 0', 'birthdate': 'TEXT', 'age_check_status': 'TEXT'},
     'order_items': {'preorder': 'INTEGER DEFAULT 0'},
 }
 

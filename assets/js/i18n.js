@@ -101,7 +101,17 @@ var D={
 'Total':['Total','Total'],
 'Zurück zum Shop':['Zurück zum Shop','Back to the shop'],
 'Bezahlt. Die Bestellung ist deinem Konto zugeordnet.':['Bezahlt. Die Bestellung ist deinem Konto zugeordnet.','Paid. The order is stored on your account.'],
-'Warten auf die Bestätigung von PostFinance.':['Warten auf die Bestätigung von PostFinance.','Waiting for PostFinance to confirm.']
+'Warten auf die Bestätigung von PostFinance.':['Warten auf die Bestätigung von PostFinance.','Waiting for PostFinance to confirm.'],
+'Zwischensumme':['Zwischensumme','Subtotal'],'Versand':['Versand','Shipping'],'Gratis':['Gratis','Free'],
+'Du hast Gratisversand':['Du hast Gratisversand','You have free shipping'],
+'Geburtsdatum':['Geburtsdatum','Date of birth'],
+'Ich bestätige, dass ich 18 Jahre oder älter bin':['Ich bestätige, dass ich 18 Jahre oder älter bin','I confirm that I am 18 or older'],
+'Vor dem Versand wird die Altersverifikation durchgeführt.':['Vor dem Versand wird die Altersverifikation durchgeführt.','Age verification is carried out before shipping.'],
+'Bei Neukunden melden wir uns persönlich, um die Altersverifizierung durchzuführen. Du schickst uns dazu ein Selfie mit deinem Ausweis.':['Bei Neukunden melden wir uns persönlich, um die Altersverifizierung durchzuführen. Du schickst uns dazu ein Selfie mit deinem Ausweis.','For new customers we get in touch personally to verify your age. You send us a selfie with your ID.'],
+'Du musst mindestens 18 Jahre alt sein.':['Du musst mindestens 18 Jahre alt sein.','You must be at least 18.'],
+'Bitte Geburtsdatum als TT.MM.JJJJ angeben.':['Bitte Geburtsdatum als TT.MM.JJJJ angeben.','Enter your date of birth as DD.MM.YYYY.'],
+'Bitte bestätige, dass du 18 Jahre oder älter bist.':['Bitte bestätige, dass du 18 Jahre oder älter bist.','Please confirm that you are 18 or older.'],
+'Weniger':['Weniger','Less'],'Mehr':['Mehr','More']
 };
 /* FR: Schweizer Französisch, vous, Berne, 1er décembre. Schlüssel = BE-Original. */
 var FR={
@@ -200,7 +210,17 @@ var FR={
 'Total':'Total',
 'Zurück zum Shop':'Retour à la boutique',
 'Bezahlt. Die Bestellung ist deinem Konto zugeordnet.':'Payé. La commande est enregistrée sur votre compte.',
-'Warten auf die Bestätigung von PostFinance.':'En attente de la confirmation PostFinance.'
+'Warten auf die Bestätigung von PostFinance.':'En attente de la confirmation PostFinance.',
+'Zwischensumme':'Sous-total','Versand':'Livraison','Gratis':'Gratuite',
+'Du hast Gratisversand':'Tu as la livraison gratuite',
+'Geburtsdatum':'Date de naissance',
+'Ich bestätige, dass ich 18 Jahre oder älter bin':'Je confirme avoir 18 ans ou plus',
+'Vor dem Versand wird die Altersverifikation durchgeführt.':'La vérification de l’âge a lieu avant l’envoi.',
+'Bei Neukunden melden wir uns persönlich, um die Altersverifizierung durchzuführen. Du schickst uns dazu ein Selfie mit deinem Ausweis.':'Pour les nouveaux clients, nous prenons contact personnellement pour vérifier l’âge. Tu nous envoies un selfie avec ta pièce d’identité.',
+'Du musst mindestens 18 Jahre alt sein.':'Tu dois avoir au moins 18 ans.',
+'Bitte Geburtsdatum als TT.MM.JJJJ angeben.':'Indique la date de naissance au format JJ.MM.AAAA.',
+'Bitte bestätige, dass du 18 Jahre oder älter bist.':'Confirme avoir 18 ans ou plus.',
+'Weniger':'Moins','Mehr':'Plus'
 };
 var LS='bv-lang',ATTR=['alt','aria-label','title','content'],ORIG=new WeakMap(),lang='be';
 try{lang=localStorage.getItem(LS)||'be';}catch(e){}
