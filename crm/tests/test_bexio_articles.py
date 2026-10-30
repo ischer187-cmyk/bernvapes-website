@@ -9,7 +9,8 @@ from db import connect
 
 ALLOWED_IDS = {
     227, 213, 218, 216, 219, 232, 209, 242, 243, 244, 245,
-    226, 210, 220, 231, 222, 211, 235, 223, 214,
+    226, 210, 220, 231, 222, 211, 235, 214,
+    217, 212, 229, 233, 215, 230,
 }
 
 
@@ -114,6 +115,12 @@ class ArticleMapTests(unittest.TestCase):
         self.assertEqual(bexio_sync.article_id_for({'sku': 'steinschlag_bock_otr_100ml', 'article': 'x'})[0], 209)
         self.assertEqual(bexio_sync.article_id_for({'sku': 'laenggass-dachs', 'article': 'x'})[0], 227)
         self.assertEqual(bexio_sync.article_id_for({'article': 'Länggass Dachs'})[0], 227)
+        self.assertEqual(bexio_sync.ARTICLES['bollwerk-koeter'], 215)
+        self.assertEqual(bexio_sync.ARTICLES['bollwerk-koter'], 215)
+        self.assertNotIn('breitsch-hirsch-uf-ys', bexio_sync.ARTICLES)
+        self.assertNotIn('abgrund-gemse', bexio_sync.ARTICLES)
+        self.assertNotIn('abgrund_gemse_100ml', bexio_sync.ARTICLES)
+        self.assertNotIn(223, ids)
 
     def test_every_bergtiere_data_key_is_mapped(self):
         html = Path(__file__).resolve().parents[2].joinpath('index.html').read_text(encoding='utf-8')
@@ -122,7 +129,7 @@ class ArticleMapTests(unittest.TestCase):
         nxt = html.find('<section', start + 1)
         chunk = html[start:nxt if nxt > start else None]
         pairs = re.findall(r'<figure[^>]*data-key="([^"]+)"[\s\S]*?class="flavor">([^<]+)', chunk)
-        self.assertGreaterEqual(len(pairs), 12)
+        self.assertGreaterEqual(len(pairs), 11)
         for data_key, flavor in pairs:
             sku = bexio_sync._catalog_sku(flavor)
             self.assertIn(data_key, bexio_sync.ARTICLES, data_key)

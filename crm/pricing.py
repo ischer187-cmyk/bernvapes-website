@@ -32,7 +32,7 @@ SAMPLE_PRODUCTS = [
     _p('Breitsch Hirsch uf Ys', 60), _p('Matte Eule uf Ys', 60), _p('Länggass Dachs uf Ys', 60), _p('Wyler Falke uf Ys', 60),
     _p('Gipfel Adler', 100), _p('Nebel Wolf', 100), _p('Steinschlag Bock', 100),
     _p('Waldwiesen Biene', 100), _p('Wildwasser Biber', 100), _p('Absturz Milan', 100),
-    _p('Waldbrand Salamander', 100), _p('Abgrund Gemse', 100), _p('Erdbeben Elch', 100),
+    _p('Waldbrand Salamander', 100), _p('Erdbeben Elch', 100),
     _p('Gipfel Adler uf Ys', 100), _p('Nebel Wolf uf Ys', 100), _p('Steinschlag Bock uf Ys', 100),
 ]
 
