@@ -254,8 +254,8 @@ def place(conn, account, items, data=None):
         (birth, cid))
     for row in lines:
         conn.execute(
-            'insert into order_items(order_id,article,qty,unit_chf,bottle_ml,preorder) values(?,?,?,?,?,?)',
-            (oid, row['name'], row['qty'], row['unit_chf'], row['bottle_ml'], 1 if row['preorder'] else 0))
+            'insert into order_items(order_id,article,qty,unit_chf,bottle_ml,preorder,sku) values(?,?,?,?,?,?,?)',
+            (oid, row['name'], row['qty'], row['unit_chf'], row['bottle_ml'], 1 if row['preorder'] else 0, row['sku']))
     names = ', '.join('%s%s' % (row['name'], ' (Vorbestellung)' if row['preorder'] else '') for row in lines)
     ship_note = 'Versand gratis' if shipping == 0 else 'Versand CHF %.2f' % shipping
     conn.execute(

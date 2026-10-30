@@ -27,8 +27,8 @@ ADD = {
         'customer_account_id': 'INTEGER', 'postfinance_state': 'TEXT',
         'shipping_chf': 'REAL DEFAULT 0', 'birthdate': 'TEXT', 'age_check_status': 'TEXT',
         'bexio_kb_order_id': 'INTEGER', 'bexio_delivery_id': 'INTEGER', 'bexio_delivery_nr': 'TEXT',
-        'delivery_mail_status': 'TEXT', 'delivery_error': 'TEXT'},
-    'order_items': {'preorder': 'INTEGER DEFAULT 0'},
+        'delivery_mail_status': 'TEXT', 'delivery_error': 'TEXT', 'bexio_unmapped_mail_status': 'TEXT'},
+    'order_items': {'preorder': 'INTEGER DEFAULT 0', 'sku': 'TEXT'},
 }
 
 def _columns(conn, table):

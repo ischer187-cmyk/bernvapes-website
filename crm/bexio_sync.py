@@ -13,6 +13,7 @@ in that same shape. bexio documents no kb_order webhook.
 """
 import base64, json, os, re, smtplib
 from email.message import EmailMessage
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -20,9 +21,65 @@ API = 'https://api.bexio.com'
 STOCK_HINT = 'Lieferschein fehlgeschlagen – Bestand pruefen'
 DEFAULT_DELIVERY_RECIPIENTS = 'mail@vapelounge.ch,daniela@bernvapes.ch'
 DEFAULT_STOCK_RECIPIENT = 'daniela@bernvapes.ch'
+ARTICLES_PATH = Path(__file__).with_name('bexio_articles.json')
+UNMAPPED_SUBJECT = 'Shop-Artikel ohne bexio-Zuordnung'
 _HOUSE = re.compile(r'^(?P<street>.*\D)\s+(?P<house>\d[\w/-]*)$')
 _transport = None
 _mail_transport = None
+
+
+def load_articles(path=None):
+    """Shop-Key → bexio article_id. Schlüssel mit Unterstrich-Prefix sind Kommentare."""
+    raw = json.loads((path or ARTICLES_PATH).read_text(encoding='utf-8'))
+    out = {}
+    for key, value in raw.items():
+        if str(key).startswith('_'):
+            continue
+        out[str(key)] = int(value)
+    return out
+
+
+ARTICLES = load_articles()
+
+
+def _catalog_sku(name):
+    sku = (name or '').lower().replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
+    return re.sub(r'[^a-z0-9]+', '-', sku).strip('-')
+
+
+def _cart_key(value):
+    key = (value or '').lower().strip()
+    key = re.sub(r'_(100|60)ml$', '', key)
+    key = key.replace('_otr', '-uf-ys')
+    key = key.replace('_', '-')
+    return _catalog_sku(key)
+
+
+def _item_field(item, name):
+    try:
+        if name in item.keys():
+            return item[name]
+    except AttributeError:
+        return item.get(name)
+    return None
+
+
+def article_id_for(item):
+    """Liefert (bexio-ID, benutzter Key) oder (None, angezeigter Key)."""
+    sku = str(_item_field(item, 'sku') or '').strip()
+    name = str(_item_field(item, 'article') or '').strip()
+    candidates = []
+    if sku:
+        candidates.extend((sku, _cart_key(sku)))
+    if name:
+        candidates.extend((_catalog_sku(name), _cart_key(name)))
+    seen = []
+    for key in candidates:
+        if key and key not in seen:
+            seen.append(key)
+        if key in ARTICLES:
+            return ARTICLES[key], key
+    return None, (sku or _catalog_sku(name) or name or 'Artikel')
 
 
 class BexioError(RuntimeError):
@@ -150,6 +207,12 @@ def sync_paid_order(conn, order_id):
     order = conn.execute('select * from orders where id=?', (order_id,)).fetchone()
     if not order:
         return _off('missing_order', 'Order missing. No bexio request was made.')
+    cust = conn.execute('select * from customers where id=?', (order['customer_id'],)).fetchone()
+    acc = conn.execute(
+        'select address,zip,city from customer_accounts where customer_id=? order by id limit 1',
+        (order['customer_id'],)).fetchone()
+    items = conn.execute('select * from order_items where order_id=?', (order_id,)).fetchall()
+    order = _warn_unmapped(conn, order, items)
     if order['bexio_order_id'] and not order['bexio_kb_order_id']:
         return {'created': False, 'status': 'exists', 'invoice_id': order['bexio_order_id'],
                 'detail': 'Invoice already stored.'}
@@ -158,11 +221,6 @@ def sync_paid_order(conn, order_id):
                 'kb_order_id': order['bexio_kb_order_id'], 'delivery_id': order['bexio_delivery_id'],
                 'delivery_mail_status': order['delivery_mail_status'],
                 'detail': 'Invoice already stored.'}
-    cust = conn.execute('select * from customers where id=?', (order['customer_id'],)).fetchone()
-    acc = conn.execute(
-        'select address,zip,city from customer_accounts where customer_id=? order by id limit 1',
-        (order['customer_id'],)).fetchone()
-    items = conn.execute('select * from order_items where order_id=?', (order_id,)).fetchall()
     user_id = int(user_raw)
     owner_id = int((os.environ.get('BEXIO_OWNER_ID') or user_raw).strip())
     country_id = int((os.environ.get('BEXIO_COUNTRY_ID') or '1').strip() or '1')
@@ -264,18 +322,34 @@ def _create_contact(token, cust, acc, user_id, owner_id, country_id):
     return int(created['id'])
 
 
+def _apply_tax(row):
+    tax = (os.environ.get('BEXIO_TAX_ID') or '').strip()
+    if tax.isdigit():
+        row['tax_id'] = int(tax)
+    return row
+
+
 def _position(text, qty, unit):
-    """Gleiche MwSt-Behandlung wie die Artikel: Bruttopreis, tax_id nur wenn gesetzt."""
+    """Textposition. Bruttopreis, tax_id nur wenn gesetzt. Versand bleibt hier."""
     row = {
         'type': 'KbPositionCustom',
         'amount': str(int(qty or 1)),
         'unit_price': '%.2f' % float(unit or 0),
         'text': text,
     }
-    tax = (os.environ.get('BEXIO_TAX_ID') or '').strip()
-    if tax.isdigit():
-        row['tax_id'] = int(tax)
-    return row
+    return _apply_tax(row)
+
+
+def _article_position(item, text, article_id):
+    """docs.bexio.com KbPositionArticle: article_id, amount, unit_price, text, tax_id."""
+    row = {
+        'type': 'KbPositionArticle',
+        'article_id': int(article_id),
+        'amount': str(int(item['qty'] or 1)),
+        'unit_price': '%.2f' % float(item['unit_chf'] or 0),
+        'text': text,
+    }
+    return _apply_tax(row)
 
 
 def _positions(order, items):
@@ -284,10 +358,45 @@ def _positions(order, items):
         text = item['article'] or 'Artikel'
         if item['preorder']:
             text = '%s (Vorbestellung)' % text
-        rows.append(_position(text, item['qty'] or 1, item['unit_chf']))
+        article_id, _key = article_id_for(item)
+        if article_id:
+            rows.append(_article_position(item, text, article_id))
+        else:
+            rows.append(_position(text, item['qty'] or 1, item['unit_chf']))
     if 'shipping_chf' in order.keys() and order['shipping_chf'] is not None:
         rows.append(_position('Versand', 1, order['shipping_chf']))
     return rows
+
+
+def _unmapped_labels(items):
+    labels = []
+    for item in items:
+        article_id, key = article_id_for(item)
+        if article_id:
+            continue
+        name = str(_item_field(item, 'article') or '').strip()
+        if name and name != key:
+            labels.append('%s (%s)' % (name, key))
+        else:
+            labels.append(key or name or 'Artikel')
+    return labels
+
+
+def _warn_unmapped(conn, order, items):
+    if (order['bexio_unmapped_mail_status'] or '') == 'sent':
+        return order
+    missing = _unmapped_labels(items)
+    if not missing:
+        return order
+    ref = order['external_ref'] or ('#%s' % order['id'])
+    body = 'Bestellung %s\nNicht zugeordnete Artikel:\n%s' % (ref, '\n'.join(missing))
+    try:
+        _send_mail(
+            _recipients('STOCK_ALERT_RECIPIENT', DEFAULT_STOCK_RECIPIENT),
+            UNMAPPED_SUBJECT, body, None)
+    except (OSError, RuntimeError):
+        return order
+    return _save(conn, order['id'], bexio_unmapped_mail_status='sent')
 
 
 def _sales_body(order, items, contact_id, user_id, currency_id):
