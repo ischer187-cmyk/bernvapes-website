@@ -109,7 +109,7 @@ Web/
 
 ## Runde 6 (26.10.) — echte Produktfotos
 - Quartiere und Bergtiere nutzen jetzt die **echten Produktfotos** aus `bernvapes-neu/app/static/produkte` (600×600 JPG, Kopie in `assets/produkte_src/`), per Code freigestellt und je Linie auf 1200 px Höhe normiert → `assets/web/produkte/*.webp`. 60 ml = schlank (`--bar:0.331`), 100 ml Bergtiere = dick (`--bar:0.342`).
-- Quartiere: 8 Sorten + 4 OTR (Hirsch, Eule, Dachs, Falke) inkl. **Felsenau Fuchs**. Bergtiere: 10 Sorten + 3 OTR inkl. **Schnee Hase**. Sortenangaben für Felsenau Fuchs und Schnee Hase sind Platzhalter („Quartier-Sorte"/„Berg-Sorte") — bitte ergänzen (`index.html`, Plakette + `.ings`).
+- Quartiere: 7 Sorten + 3 OTR (Eule, Dachs, Falke). Bergtiere ohne die eingestellte Gemse: 8 Sorten + 3 OTR.
 - Die generierten Flaschen in `bottles3/q_*`/`b_*` werden nicht mehr genutzt (neue Linie weiterhin `bottles3/lemon_pie` usw.).
 
 ---
@@ -149,12 +149,12 @@ Web/
 
 ## Runde 10 (27.10.) — OTR-Schalter = Winterwelt, Bern am Horizont
 - **Quartiere-Welt neu** (`worlds/wald2.png` → `web/worlds/wald.webp`): gleiche Komposition, am Horizont Eiger-Mönch-Jungfrau, rechts der Münsterturm als Silhouette. **Winter-Version** `worlds/wald_w.png` → `web/worlds/wald_w.webp` (image2image, identische Komposition). **Bergtiere-Winter** `worlds/berg_w.png` → `web/worlds/berg_w.webp`. Alle vier in `js/worlds_data.js` (Keys `wald`, `wald_w`, `berg`, `berg_w`).
-- **Schalter** (`button.toggle`, unten rechts): togglet `.cool` auf der Szene. Pro Szene liegt ein zweiter `canvas.world.winter` (eigene `World`-Instanz, Key `<id>_w`) über dem Sommer-Canvas und blendet per Opacity (1.4 s) ein. Flaschen tragen `data-season="s"|"w"`; `.scene.cool` zeigt nur `w`. Quartiere: Sommer 8 (5 vorne 12/30/48/66/84 %, 3 hinten 21/62/75 %), Winter 4 OTR (20/40/60/80 %, 7 %). Bergtiere: Sommer 10 (Positionen wie bisher), Winter 3 OTR auf halber Höhe (ix/iy 33/57, 50/53, 67/57; 6.4 %).
+- **Schalter** (`button.toggle`, unten rechts): togglet `.cool` auf der Szene. Pro Szene liegt ein zweiter `canvas.world.winter` (eigene `World`-Instanz, Key `<id>_w`) über dem Sommer-Canvas und blendet per Opacity (1.4 s) ein. Flaschen tragen `data-season="s"|"w"`; `.scene.cool` zeigt nur `w`. Quartiere: Sommer 8 (5 vorne 12/30/48/66/84 %, 3 hinten 21/62/75 %), Winter 3 OTR (40/60/80 %, 7 %). Bergtiere: Sommer 10 (Positionen wie bisher), Winter 3 OTR auf halber Höhe (ix/iy 33/57, 50/53, 67/57; 6.4 %).
 - **Schnee:** `canvas.snow` (z5) mit `Snow`-Klasse in site.js — 70 Flocken, Tiefe über Grösse/Tempo/Alpha, sanftes Pendeln, blendet mit dem Schalter ein/aus. Mobile: Winter-Canvas aus, stattdessen CSS-Filter auf der Sommerwelt.
 - Fuchs: Bruchstücke grösser (Voronoi 2.1), Radius-Keys linear (26→0, 60→.22, 100→.55, 135→.95, 158→1.5, 170→2.4), Flugkurve `t^1.3`. **Scroll-Tempo:** `hero._ps` folgt dem echten Scroll zeitbasiert mit max. 18 %/s (Auflöse-Phase dauert min. ~2.2 s), Hero 280 vh.
 - Hero-Text: "Wild. Fruchtig. Us Bärn." mit Kontur/Schatten; Plaketten: Lemmy (Lemon Pie · Lemur), Fabantu (Mango Lassi · Elefant), Chippy (Mandarine Nuss · Chipmunk), Pandu (Öpfuchueche · Roter Panda); Plakette unter dem Tier zentriert (`left:34%`).
 
-- **Runde 10b:** Felsenau Fuchs und Schnee Hase sind bis auf Weiteres eingestellt → aus `index.html` entfernt (Fotos bleiben in `web/produkte/`). Quartiere: 7 Sorten (hinten jetzt Kater 24 %, Köter 70 %), Bergtiere: 9 Sorten.
+- **Runde 10b:** Zwei eingestellte Sorten sind nicht im Shop (Fotos bleiben liegen). Quartiere: 7 Sorten (hinten jetzt Kater 24 %, Köter 70 %), Bergtiere: 8 Sorten.
 - **Runde 10c:** Freistellen: Kappen oberhalb des Körpers behalten ihre eigene Kontur (100-ml-Kappe ist breiter als der Körper, wurde vorher abgeschnitten). 100 ml jetzt 393×1210 → `--bar:0.325`, `--w` 9 % kleiner. Fuchs-Übergang: `fox.black` wird ab a≈0.74 bis 0.55 durchlässig und mit der Kamerafahrt (f) ganz; Feuer halbtransparent (Welt scheint warm durch), Spitze a≈0.85, verglüht weich über f; Aussen-Bloom skaliert mit der Durchlässigkeit (`fox.spill`).
 
 ---

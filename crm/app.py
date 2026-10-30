@@ -328,12 +328,31 @@ class H(BaseHTTPRequestHandler):
                 if r and r[1] == 'Interessent':
                     set_member_status(c, int(m[1]), f.get('status'), f.get('note') or None); c.commit()
                 return self.redirect(f'/kontakt/{r[0]}' if r else '/kampagnen')
+            if m := re.fullmatch(r'/kontakt/(\d+)/alter', path):
+                if f.get('a') == 'verifiziert':
+                    c.execute(
+                        """update customers set age_verified=1, age_verified_at=?, age_verify_method='manuell',
+                           updated_at=datetime('now') where id=?""",
+                        (utcnow(), m[1]))
+                    c.execute(
+                        """update orders set age_check_status='verifiziert', updated_at=datetime('now')
+                           where customer_id=? and age_check_status='Altersprüfung offen'""",
+                        (m[1],))
+                    c.execute(
+                        'insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
+                        (m[1], 'notiz',
+                         'Altersverifikation manuell bestätigt. Versand nicht mehr gesperrt. Keine Ausweisbilder gespeichert.',
+                         'CRM'))
+                    c.commit()
+                return self.redirect(f'/kontakt/{m[1]}')
             if m := re.fullmatch(r'/bestellung/(\d+)/aktion', path):
                 a = f.get('a')
                 if a == 'bezahlt':
                     c.execute("update orders set payment_status='bezahlt',updated_at=datetime('now') where id=?", (m[1],))
                 if a == 'versendet':
-                    c.execute("update orders set status='versendet',updated_at=datetime('now') where id=?", (m[1],))
+                    row = c.execute('select age_check_status from orders where id=?', (m[1],)).fetchone()
+                    if not row or (row['age_check_status'] or '') != 'Altersprüfung offen':
+                        c.execute("update orders set status='versendet',updated_at=datetime('now') where id=?", (m[1],))
                 c.commit(); return self.redirect(self.headers.get('Referer') or '/bestellungen')
             if path == '/kunden/neu':
                 email = str(f.get('email') or '').strip().lower()
