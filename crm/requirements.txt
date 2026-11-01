@@ -1,0 +1,3 @@
+# Only needed when DATABASE_URL points at Postgres (later Hetzner move).
+# The Mac SQLite test does not need a pip install.
+psycopg[binary]>=3.2

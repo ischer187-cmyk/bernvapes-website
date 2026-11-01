@@ -1,0 +1,53 @@
+# Later step: Hetzner (or any Linux host) with Docker.
+# Not used for the current Mac test. Do not point this at the live shop servers.
+# From this folder, after crm/.env exists:
+#   docker compose up -d --build
+# Postgres is optional: docker compose --profile postgres up -d --build
+# and set DATABASE_URL in .env to postgresql://bernvapes:...@postgres:5432/bernvapes
+
+services:
+  crm:
+    build: .
+    env_file: .env
+    environment:
+      CRM_BIND: 0.0.0.0
+      CRM_ALLOW_PUBLIC_BIND: "1"
+      CRM_PORT: "18734"
+      CRM_SQLITE_PATH: /data/crm.db
+    ports:
+      - "127.0.0.1:18734:18734"
+    volumes:
+      - crmdata:/data
+    restart: unless-stopped
+
+  web:
+    image: python:3.12-slim
+    working_dir: /site
+    volumes:
+      - ..:/site:ro
+    command: python3 serve_local.py
+    environment:
+      WEB_BIND: 0.0.0.0
+      WEB_ALLOW_PUBLIC_BIND: "1"
+      WEB_PORT: "8080"
+      CRM_UPSTREAM: http://crm:18734
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - crm
+    restart: unless-stopped
+
+  postgres:
+    profiles: ["postgres"]
+    image: postgres:16
+    environment:
+      POSTGRES_USER: bernvapes
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: bernvapes
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  crmdata:
+  pgdata:

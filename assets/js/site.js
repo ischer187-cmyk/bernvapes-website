@@ -8,6 +8,8 @@
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const lerp=(a,b,t)=>a+(b-a)*t;
   const ss01=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
+  /* Ease-out-Quart: kleine Inputs stark, grosse flachen ab (Scroll→Scrub) */
+  const easeOutQuart=t=>{t=clamp(t,0,1);return 1-Math.pow(1-t,4);};
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const mobile=()=>innerWidth<(window.BV_MOBILE_BP||900);
 
@@ -18,16 +20,21 @@
 
   /* ---------- World (WebGL) ---------- */
   const VS=`attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}`;
-  const FS=`precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 res,img,m,sun;uniform float time,zoom,cool,dark,glow;
+  const FS=`precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 res,img,m,sun;uniform float time,zoom,cool,dark,glow;uniform vec4 rig;
   void main(){
     float ra=res.x/res.y, ri=img.x/img.y;
     vec2 s=(ra>ri)?vec2(1.0,ri/ra):vec2(ra/ri,1.0);
-    float depth=smoothstep(0.10,0.95,v.y);                 /* 0 = fern (oben) … 1 = nah (unten) */
+    float z=1.08*zoom;
+    /* Starre Zone (data-rigid, Bild-Koordinaten x0,y0,x1,y1, z.B. Münster): dort wird der Versatz an der Unterkante der Zone
+       ausgewertet → das Objekt verschiebt sich nur als Ganzes (keine Scherung/Neigung durch Tiefe, Wolkendrift oder Wind) */
+    vec2 u0=vec2(0.5,0.52)+(v-0.5)*s/z;
+    float rg=(rig.z>rig.x)?smoothstep(rig.x-0.015,rig.x,u0.x)*smoothstep(rig.z+0.015,rig.z,u0.x)*smoothstep(rig.y-0.03,rig.y,u0.y)*smoothstep(rig.w+0.02,rig.w,u0.y):0.0;
+    vec2 vv=vec2(v.x,mix(v.y,0.5+(rig.w-0.52)*z/s.y,rg));
+    float depth=smoothstep(0.10,0.95,vv.y);                /* 0 = fern (oben) … 1 = nah (unten) */
     vec2 par=m*(depth-0.38)*0.018;                          /* Parallaxe: vorne mehr, hinten weniger */
     float sway=sin(time*0.9+v.x*7.0)*0.0024*depth*depth;    /* Wind im Vordergrund */
-    float drift=sin(time*0.06)*0.013*(1.0-depth)*smoothstep(0.36,0.0,v.y); /* Wolken driften sichtbar hin und her (begrenzt) */
+    float drift=sin(time*0.06)*0.013*(1.0-depth)*smoothstep(0.36,0.0,vv.y); /* Wolken driften sichtbar hin und her (begrenzt) */
     vec2 off=vec2(par.x+sway+drift,par.y*0.55);
-    float z=1.08*zoom;
     vec2 uv=vec2(0.5,0.52)+(v-0.5)*s/z+off;
     vec3 c=texture2D(t,uv).rgb;
     /* Sonne als hinterleuchtete Papierlaterne: pulsierender Kern + warmer Halo, Wolken leicht angestrahlt */
@@ -64,7 +71,7 @@
       const pr=gl.createProgram(); gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)); gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)); gl.linkProgram(pr); gl.useProgram(pr);
       const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
       const loc=gl.getAttribLocation(pr,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-      this.u={res:gl.getUniformLocation(pr,'res'),img:gl.getUniformLocation(pr,'img'),m:gl.getUniformLocation(pr,'m'),time:gl.getUniformLocation(pr,'time'),zoom:gl.getUniformLocation(pr,'zoom'),cool:gl.getUniformLocation(pr,'cool'),dark:gl.getUniformLocation(pr,'dark'),sun:gl.getUniformLocation(pr,'sun'),glow:gl.getUniformLocation(pr,'glow')};
+      this.u={res:gl.getUniformLocation(pr,'res'),img:gl.getUniformLocation(pr,'img'),m:gl.getUniformLocation(pr,'m'),time:gl.getUniformLocation(pr,'time'),zoom:gl.getUniformLocation(pr,'zoom'),cool:gl.getUniformLocation(pr,'cool'),dark:gl.getUniformLocation(pr,'dark'),sun:gl.getUniformLocation(pr,'sun'),glow:gl.getUniformLocation(pr,'glow'),rig:gl.getUniformLocation(pr,'rig')};
       const sunA=(canvas.dataset.sun||'').split(',').map(parseFloat); this.sun=(sunA.length===2&&!sunA.some(isNaN))?sunA:null;
       const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,tex);
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
@@ -109,7 +116,7 @@
       gl.uniform2f(this.u.res,this.c.width,this.c.height); gl.uniform2f(this.u.img,this.img[0],this.img[1]);
       gl.uniform2f(this.u.m,this.mx,this.my); gl.uniform1f(this.u.time,reduce?0:(now-this.t0)/1000);
       gl.uniform1f(this.u.zoom,this.zoom); gl.uniform1f(this.u.cool,this.cool); gl.uniform1f(this.u.dark,this.dark);
-      gl.uniform2f(this.u.sun,this.sun?this.sun[0]:0,this.sun?this.sun[1]:0); gl.uniform1f(this.u.glow,this.sun?1:0);
+      gl.uniform2f(this.u.sun,this.sun?this.sun[0]:0,this.sun?this.sun[1]:0); gl.uniform1f(this.u.glow,this.sun?1:0); const rr=this.rig||(this.rig=(this.c.dataset.rigid||'0,0,0,0').split(',').map(Number)); gl.uniform4f(this.u.rig,rr[0],rr[1],rr[2],rr[3]);
       gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
     }
   }
@@ -133,7 +140,7 @@
       let im=this.frames[i]; let k=i; while((!im||!im.complete||!im.naturalWidth)&&k>0){ k--; im=this.frames[k]; }   /* Fallback: nächster geladener Frame */
       if(!im||!im.complete||!im.naturalWidth) return; i=k;
       this.idx=i; this.lastScale=this.scale; this.lastBlack=this.black; const W=this.c.width,H=this.c.height; const ctx=this.ctx;
-      const s=Math.min(W/im.naturalWidth,H/im.naturalHeight)*(this.scale||1); const w=im.naturalWidth*s,h=im.naturalHeight*s, x=(W-w)/2, y=(H-h)/2;   /* contain: ganzer Kopf immer sichtbar */
+      const s=Math.min(W/im.naturalWidth,H/im.naturalHeight)*(this.scale||1); const w=im.naturalWidth*s,h=im.naturalHeight*s, x=(W-w)/2, y=(H-h)/2-H*0.15*Math.max(0,Math.min(1,this.black==null?1:this.black));   /* Intro: Kopf ~15 % höher (Platz für Wortmarke darunter), gleitet beim Aufbrechen zurück in die Mitte; contain: ganzer Kopf immer sichtbar */
       ctx.clearRect(0,0,W,H);
       /* 1) Schwarz über alles, 2) Fenster in Fuchs-Silhouette ausstanzen, 3) Fuchs obendrauf → Welt nur dort sichtbar, wo die Maske aufbricht */
       if(this.black>0.001){
@@ -271,10 +278,10 @@
 
   /* ---------- Lightbox ---------- */
   const lb=document.getElementById('lb');
-  function openLB(label,bottle){ if(!lb) return; lb.querySelector('.poster').src=label; const bo=lb.querySelector('.bot'); if(bottle){bo.src=bottle;bo.style.display='';} else bo.style.display='none'; lb.classList.add('open'); document.body.style.overflow='hidden'; }
+  function openLB(label,bottle,meta){ if(!lb) return; lb.querySelector('.poster').src=label; const bo=lb.querySelector('.bot'); if(bottle){bo.src=bottle;bo.style.display='';} else bo.style.display='none'; const cb=lb.querySelector('.tocart'); if(cb){ if(meta&&meta.id){cb.hidden=false;cb.dataset.cart=meta.id;cb.dataset.name=meta.name||'';}else cb.hidden=true; } lb.classList.add('open'); document.body.style.overflow='hidden'; }
   function closeLB(){ if(!lb) return; lb.classList.remove('open'); document.body.style.overflow=''; }
   if(lb){ lb.querySelector('.close').addEventListener('click',closeLB); lb.addEventListener('click',e=>{if(e.target===lb)closeLB();}); addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();}); }
-  document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',()=>openLB(b.dataset.label,b.dataset.bottle)));
+  document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',e=>{ if(e.target.closest('.tocart,.preorder')) return; const host=b.closest('.pcol,.beast'); const fromLine=!!b.closest('#flaschen'); const btn=!fromLine&&host&&host.querySelector('.tocart'); openLB(b.dataset.label,b.dataset.bottle,btn?{id:btn.dataset.cart,name:btn.dataset.name}:null); }));
 
   /* ---------- Szenen aufsetzen ---------- */
   const worlds={}; const parallaxFns=[];
@@ -328,20 +335,33 @@
       if(mobile()){ if(autoStart===null) autoStart=now; p=clamp((now-autoStart)/4200,0,1); }   // Mobile: Entrance läuft automatisch ab
       else p=sceneProgress(hero);
       if(window.BV_FORCE_P!=null) p=window.BV_FORCE_P;          /* Debug/Test */
-      /* Tempo-Regler: der sichtbare Fortschritt folgt dem Scroll zeitbasiert und mit Höchstgeschwindigkeit —
-         ein schneller Flick zieht die Explosion nicht in einem Ruck durch (min. ~2.2 s für die Auflöse-Phase), langsames Drehen bleibt direkt. */
+      /* Scroll→Scrub mit Ease-out-Quart + Tempo-Deckel:
+         Delta d = Lücke zwischen echtem Scroll und sichtbarem Fortschritt.
+         x=min(|d|/MAX,1), Schritt=sign(d)*MAX*(1-(1-x)^4)*k — langsame Bewegungen
+         wirken fast voll, schnelle Flicks flachen ab; maxv begrenzt weiter die Geschwindigkeit.
+         FoxScrub.tick() glättet zusätzlich per Lerp. */
       const dt=Math.min(0.05,(now-(hero._t||now))/1000); hero._t=now;
       if(hero._ps==null||window.BV_FORCE_P!=null||reduce) hero._ps=p;
-      else{ const d=p-hero._ps, maxv=0.18*dt;            /* max 18 % des Hero-Scrollwegs pro Sekunde */
-        const step=Math.sign(d)*Math.min(Math.abs(d)*Math.min(1,dt*7), maxv); hero._ps+=step;
-        if(Math.abs(p-hero._ps)<0.0005) hero._ps=p; }
+      else{
+        const d=p-hero._ps;
+        const MAX=0.05;           /* Bezugs-Delta pro Frame */
+        const k=1.1;              /* leichte Verstärkung für kleine Deltas */
+        const x=Math.min(Math.abs(d)/MAX,1);
+        const eased=MAX*easeOutQuart(x)*k;
+        const maxv=0.18*dt;       /* max 18 % des Hero-Scrollwegs pro Sekunde */
+        const step=Math.sign(d)*Math.min(eased, Math.abs(d), maxv);
+        hero._ps+=step;
+        if(Math.abs(p-hero._ps)<0.0005) hero._ps=p;
+      }
       p=hero._ps;
       const ss=t=>t*t*(3-2*t);                        // smoothstep
       const a=clamp(p/0.40,0,1);                      // Phase A: Maske löst sich auf (Kamera steht) — kürzerer Scrollweg
       const f=clamp((p-0.40)/0.22,0,1);               // Phase B: erst wenn der Kopf ganz verflogen ist: Kamera fährt in die Welt, Schwarz blendet aus
+      /* Weiches Einblenden der Papierwelt: Crossfade über den Anfang von Phase B (kein harter Cut / Schwarzblitz) */
+      const worldIn=ss(clamp(f/0.34,0,1));
       if(fox){ fox.target=a; fox.scale=1.0;
         /* Maske wird durchlässig, sobald die meisten Stücke fliegen (a≈0.75): erst halb, mit der Kamerafahrt ganz */
-        fox.black=1-ss(clamp((a-0.74)/0.26,0,1))*0.55-ss(clamp(f/0.6,0,1))*0.45;
+        fox.black=1-ss(clamp((a-0.74)/0.26,0,1))*0.55-worldIn*0.45;
         fox.vignette=1-ss(clamp((a-0.45)/0.5,0,1));
         fox.soft=ss(clamp((a-0.35)/0.4,0,1));            /* Maskenkontur: im Stand hart, wird mit der Bewegung weich */
         fox.frameAlpha=1-ss(clamp((a-0.90)/0.10,0,1));   /* letzte Reste (Ohrspitzen) ausblenden */
@@ -353,11 +373,19 @@
         fox.fire=ss(clamp((a-0.62)/0.2,0,1))*(1-ss(clamp((f-0.05)/0.7,0,1)))*(0.92+0.08*Math.sin(now*0.021));
         fox.spill=1-fox.black;                            /* Licht nach aussen, sobald die Maske durchlässig wird */
         fox.now=now; }
-      if(heroWorld){ heroWorld.zoom=1.0+ ss(f)*0.34; heroWorld.dark=0; }
-      black.style.opacity=(fox&&fox.idx>=0)?0:1;   /* bis der erste Frame gezeichnet ist, bleibt der Div-Schwarz */
+      if(heroWorld){
+        heroWorld.zoom=1.0+ ss(f)*0.34; window.heroZoom=heroWorld.zoom;
+        /* leichte Abdunkelung nur am Beginn der Kamerafahrt, weich hochgefahren mit worldIn */
+        heroWorld.dark=f>0?(1-worldIn)*0.28:0;
+      }
+      /* Div-Schwarz weich ausfaden sobald der erste Fuchs-Frame da ist (statt hartem Cut) */
+      const wantBlk=(fox&&fox.idx>=0)?0:1;
+      hero._blk=(hero._blk==null)?wantBlk:lerp(hero._blk,wantBlk,reduce?1:0.08);
+      black.style.opacity=hero._blk;
       brand.style.opacity=clamp(1-a*3.5,0,1); brand.style.transform=`translateY(${a*70}px)`;
       const b=clamp((p-0.60)/0.2,0,1);                // Phase C: Welt steht, Tiere kommen
       hero.classList.toggle('phase-b',b>0.05); beasts.classList.toggle('in',b>0.1);
+      hero.classList.toggle('world-in', worldIn>0.82);
       if(b>0.5&&!hero._flashed){ hero._flashed=true; beasts.classList.add('labels'); setTimeout(()=>beasts.classList.remove('labels'),3200); }
       if(hint) hint.style.opacity=p>0.9?0:1;
       if(nav){ nav.classList.toggle('show',p>0.12); nav.classList.toggle('solid',p>0.5); }
@@ -372,11 +400,60 @@
     if(hero) hero._update(now);
     if(fox) fox.tick();
     World.all.forEach(w=>w.render(now));
-    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',p>0.08||mobile()); const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
+    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',(sc.id==='quartiere'?((sc.getBoundingClientRect().top<innerHeight*0.4&&sc.getBoundingClientRect().bottom>innerHeight*0.3)?(sc._inAt=sc._inAt||now,now-sc._inAt>450):(sc._inAt=0,false)):p>0.08)||mobile());   /* Quartier: Flaschen erscheinen ~0.45 s nach Einstieg (Scroll oder #quartiere-Anker) von selbst (auch via #quartiere-Anker), nicht erst nach 8 % Pin-Scroll */ const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; sc._bvZoom=w.zoom; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
     parallaxFns.forEach(f=>f());
     if(hero&&!mobile()){ hero.querySelectorAll('.clouds img').forEach(c=>{ const d=parseFloat(c.style.getPropertyValue('--d')||1); c.style.transform=`translate(${-mouse.x*14*d}px,${-mouse.y*6*d}px)`; }); }   /* Wolken: ferne Ebene, bewegt sich wenig */
     requestAnimationFrame(frame);
   }
   window.BV_FRAME=frame;   /* Debug/Test */
   requestAnimationFrame(frame);
+})();
+
+/* ===== BV Bärgtier-Tafel: Infotafel in die Richtung mit dem meisten Platz klappen (oben/rechts/links/unten) ===== */
+(function(){
+  const sec=document.getElementById('bergtiere'); if(!sec) return;
+  const nav=document.querySelector('.nav');
+  const vis=f=>{const s=getComputedStyle(f);return s.opacity!=='0'&&s.display!=='none'&&s.visibility!=='hidden'};
+  const ov=(a,b)=>Math.max(0,Math.min(a.r,b.r)-Math.max(a.l,b.l))*Math.max(0,Math.min(a.b,b.b)-Math.max(a.t,b.t));
+  function place(f){
+    const pl=f.querySelector('.plaque'); if(!pl) return;
+    const pin=f.closest('.pin')||sec, P=pin.getBoundingClientRect();
+    const top=Math.max(P.top,nav?nav.getBoundingClientRect().bottom:0)+6, R={l:P.left+6,r:P.right-6,t:top,b:P.bottom-6};
+    const F=f.getBoundingClientRect(), w=pl.offsetWidth, h=pl.offsetHeight, cx=F.left+F.width/2;
+    const g=F.height*.32, sx=F.width*.26;   /* Platz für die beim Hover um 1.32 wachsende Flasche */
+    const C={up:{l:cx-w/2,r:cx+w/2,b:F.top-g,t:F.top-g-h},down:{l:cx-w/2,r:cx+w/2,t:F.bottom+10,b:F.bottom+10+h},
+      right:{l:F.right+sx,r:F.right+sx+w,t:F.top+F.height*.18,b:F.top+F.height*.18+h},left:{r:F.left-sx,l:F.left-sx-w,t:F.top+F.height*.18,b:F.top+F.height*.18+h}};
+    const nb=[...sec.querySelectorAll('.beast,.title,.legend')].filter(n=>n!==f&&vis(n)).map(n=>{const r=n.getBoundingClientRect();return {l:r.left,r:r.right,t:r.top,b:r.bottom}});
+    let best='up',bs=Infinity;
+    ['up','right','left','down'].forEach((d,i)=>{const c=C[d];
+      const out=Math.max(0,R.t-c.t)+Math.max(0,c.b-R.b)+Math.max(0,R.l-c.l)+Math.max(0,c.r-R.r);
+      const s=out*w*10+nb.reduce((a,n)=>a+ov(c,n),0)+i;   /* raus aus dem Bild = schlimmer als Überdecken; Reihenfolge = Vorliebe */
+      if(s<bs){bs=s;best=d}});
+    f.dataset.dir=best;
+  }
+  sec.querySelectorAll('.beast').forEach(f=>{
+    f.addEventListener('mouseenter',()=>place(f)); f.addEventListener('focusin',()=>place(f));
+    new MutationObserver(()=>{if(f.classList.contains('hi')) place(f)}).observe(f,{attributes:true,attributeFilter:['class']});
+  });
+})();
+
+/* ===== BV Quartier-Schalter: neben der Münsterspitze im freien Himmel, folgt der Hintergrund-Skalierung =====
+   Bild-Koordinaten (wald.webp): freier Himmel rechts der Spitze x 0.45–0.565, vertikale Mitte y 0.215.
+   Abbildung wie im Welt-Shader: v = 0.5 + (uv-(0.5,0.52))*z/s, z = 1.08*zoom, s = Cover-Verhältnis. */
+(function(){
+  const sec=document.getElementById('quartiere'), tg=sec&&sec.querySelector('.toggle'), cv=sec&&sec.querySelector('canvas.world'); if(!tg||!cv) return;
+  const IMG=[2400,1028], X0=0.45, X1=0.565, YC=0.215;
+  tg.classList.add('at-muenster');
+  function place(){
+    const pin=tg.offsetParent||sec.querySelector('.pin'), W=pin.clientWidth, H=pin.clientHeight;
+    if(W<=900){tg.classList.remove('at-muenster');tg.style.left=tg.style.top=tg.style.transform='';return}
+    tg.classList.add('at-muenster');
+    const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv||o.css&&sec.contains(o.css));
+    const z=1.08*((w&&w.zoom)||1), ra=W/H, ri=IMG[0]/IMG[1], s=ra>ri?[1,ri/ra]:[ra/ri,1];
+    const sx=u=>(0.5+(u-0.5)*z/s[0])*W, sy=u=>(0.5+(u-0.52)*z/s[1])*H;
+    const x0=sx(X0), avail=sx(X1)-x0, k=Math.min(1,avail/tg.offsetWidth);
+    tg.style.left=x0+'px'; tg.style.top=(sy(YC)-tg.offsetHeight/2)+'px'; tg.style.transform=`scale(${k.toFixed(3)})`;
+  }
+  let last='';(function loop(){const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv);const key=innerWidth+'x'+innerHeight+':'+(w&&w.zoom);if(key!==last){last=key;place()}requestAnimationFrame(loop)})();
+  addEventListener('resize',place);
 })();
