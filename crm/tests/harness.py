@@ -18,7 +18,9 @@ def configure(db_path):
     os.environ['BEXIO_SYNC_ENABLED'] = '0'
     for key in (
         'POSTFINANCE_SPACE_ID', 'POSTFINANCE_USER_ID', 'POSTFINANCE_SPACE_KEY', 'POSTFINANCE_API_BASE',
-        'BEXIO_API_TOKEN', 'BEXIO_USER_ID', 'BEXIO_OWNER_ID', 'BEXIO_TAX_ID',
+        'BEXIO_API_TOKEN', 'BEXIO_USER_ID', 'BEXIO_OWNER_ID', 'BEXIO_TAX_ID', 'BEXIO_DELIVERY_ENABLED',
+        'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'SMTP_FROM',
+        'DELIVERY_NOTE_RECIPIENTS', 'STOCK_ALERT_RECIPIENT',
     ):
         os.environ.pop(key, None)
     os.environ['EMAIL_DRIVER'] = 'log'

@@ -33,6 +33,8 @@ body.b2b{min-height:100vh;background:
 .b2b input.qty{width:72px}
 .b2b .tot{margin-top:16px;display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
 .b2b .hidden{display:none}
+.b2b #birthdate{max-width:220px;margin-top:4px}
+.b2b .kasse-sum{margin-top:14px}
 .b2b .agebox{display:flex;gap:10px;align-items:flex-start;margin-top:16px;max-width:62ch}
 .b2b .agebox input{width:auto;margin-top:4px}
 .b2b .nav.show{opacity:1;transform:none;pointer-events:auto;position:sticky}

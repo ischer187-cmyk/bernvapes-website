@@ -4,16 +4,29 @@ Pre-order bottles (Lemon Pie, Mango Lassi, Mandarine Nuss, Apple Pie) use the
 same payment. The line is stored with preorder=1. Prices come from the product
 table (price_einstieg), never from the browser.
 """
-import os, re
+import datetime, os, re
 from bexio_sync import sync_paid_order
 from db import IntegrityError
 import postfinance
+from shipping import FREE_SHIPPING_THRESHOLD_CHF, SHIPPING_FEE_CHF, VAT_RATE, shipping_for
 
 PREORDER_SKUS = ('lemon-pie', 'mango-lassi', 'mandarine-nuss', 'apple-pie')
 PAID_STATES = ('FULFILL', 'COMPLETED')
 FAIL_STATES = ('FAILED', 'DECLINE', 'VOIDED')
 WEBHOOK_PATH = '/webhook/postfinance'
 _TX = re.compile(r'^\d{1,18}$')
+_BIRTH = re.compile(r'^(\d{2})\.(\d{2})\.(\d{4})$')
+NOTICE_ALL = 'Vor dem Versand wird die Altersverifikation durchgeführt.'
+NOTICE_NEW = (
+    'Bei Neukunden melden wir uns persönlich, um die Altersverifizierung durchzuführen. '
+    'Du schickst uns dazu ein Selfie mit deinem Ausweis.'
+)
+AGE_OPEN = 'Altersprüfung offen'
+AGE_MESSAGES = {
+    'underage': 'Du musst mindestens 18 Jahre alt sein.',
+    'birthdate_invalid': 'Bitte Geburtsdatum als TT.MM.JJJJ angeben.',
+    'age_confirm_required': 'Bitte bestätige, dass du 18 Jahre oder älter bist.',
+}
 
 
 class CheckoutError(Exception):
@@ -58,6 +71,96 @@ def _resolve(by, item):
         if hit:
             return hit
     return None
+
+
+def _truthy(value):
+    return value in (True, 1, '1', 'true', 'True', 'on', 'ja', 'yes', 'oui')
+
+
+def parse_birthdate(value):
+    match = _BIRTH.match((value or '').strip())
+    if not match:
+        raise CheckoutError(422, 'birthdate_invalid')
+    day, month, year = int(match.group(1)), int(match.group(2)), int(match.group(3))
+    try:
+        born = datetime.date(year, month, day)
+    except ValueError:
+        raise CheckoutError(422, 'birthdate_invalid')
+    if born > datetime.date.today():
+        raise CheckoutError(422, 'birthdate_invalid')
+    return born.strftime('%d.%m.%Y'), born
+
+
+def assert_adult(data):
+    """Pflicht: Geburtsdatum TT.MM.JJJJ und Checkbox. Alter mindestens 18."""
+    if not isinstance(data, dict) or not _truthy(data.get('age_confirmed')):
+        raise CheckoutError(422, 'age_confirm_required')
+    text, born = parse_birthdate(data.get('birthdate'))
+    today = datetime.date.today()
+    age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+    if age < 18:
+        raise CheckoutError(422, 'underage')
+    return text
+
+
+def _customer(conn, account):
+    return conn.execute('select * from customers where id=?', (account['customer_id'],)).fetchone()
+
+
+def _verified(cust):
+    return bool(cust and cust['age_verified'])
+
+
+def notices_for(conn, account):
+    notes = [NOTICE_ALL]
+    if not _verified(_customer(conn, account)):
+        notes.append(NOTICE_NEW)
+    return notes
+
+
+def order_notices(order):
+    notes = [NOTICE_ALL]
+    if (order['age_check_status'] or '') == AGE_OPEN:
+        notes.append(NOTICE_NEW)
+    return notes
+
+
+def public_catalog(conn):
+    rows = conn.execute(
+        'select sku,name,price_einstieg from products where coalesce(active,1)=1 order by name'
+    ).fetchall()
+    return {
+        'ok': True,
+        'currency': 'CHF',
+        'shipping_fee_chf': SHIPPING_FEE_CHF,
+        'free_shipping_threshold_chf': FREE_SHIPPING_THRESHOLD_CHF,
+        'vat_rate': VAT_RATE,
+        'products': [{
+            'sku': r['sku'], 'name': r['name'], 'price_chf': round(float(r['price_einstieg']), 2),
+        } for r in rows],
+    }
+
+
+def _totals(lines):
+    subtotal = round(sum(row['line_chf'] for row in lines), 2)
+    shipping = shipping_for(subtotal)
+    total = round(subtotal + shipping, 2)
+    remaining = 0.0 if shipping == 0 else round(FREE_SHIPPING_THRESHOLD_CHF - subtotal, 2)
+    return subtotal, shipping, total, remaining
+
+
+def _money_fields(subtotal, shipping, total, remaining):
+    return {
+        'subtotal_chf': subtotal,
+        'shipping_chf': shipping,
+        'total_chf': total,
+        'free_shipping': shipping == 0,
+        'remaining_to_free_chf': remaining,
+        'shipping_fee_chf': SHIPPING_FEE_CHF,
+        'free_shipping_threshold_chf': FREE_SHIPPING_THRESHOLD_CHF,
+        'vat_rate': VAT_RATE,
+        'currency': 'CHF',
+    }
 
 
 def price_items(conn, items):
@@ -106,11 +209,16 @@ def _public_lines(lines):
 
 
 def quote(conn, account, items):
-    lines, total = price_items(conn, items)
-    return {
-        'ok': True, 'preview': True, 'total_chf': total, 'currency': 'CHF',
+    lines, _goods = price_items(conn, items)
+    subtotal, shipping, total, remaining = _totals(lines)
+    body = {
+        'ok': True, 'preview': True,
         'items': _public_lines(lines), 'customer_id': account['customer_id'],
+        'needs_age_check': not _verified(_customer(conn, account)),
+        'notices': notices_for(conn, account),
     }
+    body.update(_money_fields(subtotal, shipping, total, remaining))
+    return body
 
 
 def _split_name(name):
@@ -122,27 +230,43 @@ def _split_name(name):
     return 'Kunde', 'Kunde'
 
 
-def place(conn, account, items):
+def place(conn, account, items, data=None):
     if not postfinance.configured():
         raise CheckoutError(503, 'postfinance_not_configured')
-    lines, total = price_items(conn, items)
+    lines, _goods = price_items(conn, items)
+    birth = assert_adult(data or {})
+    subtotal, shipping, total, remaining = _totals(lines)
     cid = account['customer_id']
     aid = account['id']
     email = (account['email'] or '').strip().lower()
+    cust = _customer(conn, account)
+    age_status = None if _verified(cust) else AGE_OPEN
     oid = conn.execute(
-        """insert into orders(customer_id,customer_account_id,channel,status,total_chf,payment_status,payment_provider,
-           currency,is_test,payment_method,updated_at) values(?,?,?,?,?,?,?,?,?,?,datetime('now'))""",
-        (cid, aid, 'website', 'offen', total, 'offen', 'postfinance', 'CHF', 1, 'postfinance')).lastrowid
+        """insert into orders(customer_id,customer_account_id,channel,status,total_chf,shipping_chf,birthdate,
+           age_check_status,payment_status,payment_provider,currency,is_test,payment_method,updated_at)
+           values(?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))""",
+        (cid, aid, 'website', 'offen', total, shipping, birth, age_status,
+         'offen', 'postfinance', 'CHF', 1, 'postfinance')).lastrowid
     ref = 'bv-%s' % oid
     conn.execute('update orders set external_ref=? where id=?', (ref, oid))
+    conn.execute(
+        "update customers set birthdate=?, updated_at=datetime('now') where id=?",
+        (birth, cid))
     for row in lines:
         conn.execute(
-            'insert into order_items(order_id,article,qty,unit_chf,bottle_ml,preorder) values(?,?,?,?,?,?)',
-            (oid, row['name'], row['qty'], row['unit_chf'], row['bottle_ml'], 1 if row['preorder'] else 0))
+            'insert into order_items(order_id,article,qty,unit_chf,bottle_ml,preorder,sku) values(?,?,?,?,?,?,?)',
+            (oid, row['name'], row['qty'], row['unit_chf'], row['bottle_ml'], 1 if row['preorder'] else 0, row['sku']))
     names = ', '.join('%s%s' % (row['name'], ' (Vorbestellung)' if row['preorder'] else '') for row in lines)
+    ship_note = 'Versand gratis' if shipping == 0 else 'Versand CHF %.2f' % shipping
     conn.execute(
         'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
-        (cid, 'website', 'in', 'Shop-Kasse #%s %s · CHF %.2f [TEST]. %s' % (oid, ref, total, names), 'Shop'))
+        (cid, 'website', 'in', 'Shop-Kasse #%s %s · CHF %.2f (%s) [TEST]. %s' % (oid, ref, total, ship_note, names), 'Shop'))
+    if age_status == AGE_OPEN:
+        conn.execute(
+            'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
+            (cid, 'notiz', 'in',
+             'Altersprüfung offen. Versand gesperrt. Persönlich melden für die Altersverifizierung. Keine Ausweisbilder speichern.',
+             'Shop'))
     conn.commit()
     given, family = _split_name(account['name'])
     payload = {
@@ -163,7 +287,7 @@ def place(conn, account, items):
             'emailAddress': email,
         },
         'metaData': {'orderId': str(oid), 'integrationMode': 'PaymentPage'},
-        'lineItems': [_wallee_line(row) for row in lines],
+        'lineItems': _wallee_lines(lines, shipping),
     }
     try:
         tx = postfinance.create_transaction(payload)
@@ -179,10 +303,15 @@ def place(conn, account, items):
         "update orders set postfinance_tx_id=?, payment_tx_id=?, postfinance_state=?, updated_at=datetime('now') where id=?",
         (tx_id, tx_id, tx.get('state') or 'PENDING', oid))
     conn.commit()
-    return {
+    body = {
         'ok': True, 'order_id': oid, 'ref': ref, 'paymentUrl': url, 'integrationMode': 'PaymentPage',
-        'total_chf': total, 'currency': 'CHF', 'test': True, 'items': _public_lines(lines),
+        'test': True, 'items': _public_lines(lines),
+        'needs_age_check': age_status == AGE_OPEN,
+        'age_check_status': age_status,
+        'notices': order_notices({'age_check_status': age_status}),
     }
+    body.update(_money_fields(subtotal, shipping, total, remaining))
+    return body
 
 
 def _wallee_line(row):
@@ -196,16 +325,35 @@ def _wallee_line(row):
         'quantity': row['qty'],
         'amountIncludingTax': row['line_chf'],
         'type': 'PRODUCT',
+        'aggregatedTaxRate': VAT_RATE,
     }
+
+
+def _wallee_lines(lines, shipping):
+    out = [_wallee_line(row) for row in lines]
+    if shipping > 0:
+        out.append({
+            'uniqueId': 'versand',
+            'sku': 'versand',
+            'name': 'Versand',
+            'quantity': 1,
+            'amountIncludingTax': round(float(shipping), 2),
+            'type': 'SHIPPING',
+            'aggregatedTaxRate': VAT_RATE,
+        })
+    return out
 
 
 def customer_checkout(handler, conn, account, data):
     try:
         if data.get('preview'):
             return handler.json(200, quote(conn, account, data.get('items')))
-        return handler.json(200, place(conn, account, data.get('items')))
+        return handler.json(200, place(conn, account, data.get('items'), data))
     except CheckoutError as ex:
-        return handler.json(ex.status, {'ok': False, 'error': ex.code})
+        body = {'ok': False, 'error': ex.code}
+        if ex.code in AGE_MESSAGES:
+            body['message'] = AGE_MESSAGES[ex.code]
+        return handler.json(ex.status, body)
     except postfinance.PostFinanceError:
         return handler.json(502, {'ok': False, 'error': 'postfinance_failed'})
 
@@ -221,6 +369,8 @@ def customer_order(handler, conn, account):
     if not order:
         return handler.json(404, {'ok': False, 'error': 'not_found'})
     items = conn.execute('select article,qty,unit_chf,preorder from order_items where order_id=?', (order['id'],)).fetchall()
+    shipping = round(float(order['shipping_chf'] or 0), 2)
+    total = round(float(order['total_chf'] or 0), 2)
     return handler.json(200, {
         'ok': True,
         'ref': ref,
@@ -228,9 +378,15 @@ def customer_order(handler, conn, account):
         'status': order['status'],
         'payment_status': order['payment_status'],
         'postfinance_state': order['postfinance_state'],
-        'total_chf': order['total_chf'],
+        'subtotal_chf': round(total - shipping, 2),
+        'shipping_chf': shipping,
+        'total_chf': total,
         'currency': order['currency'] or 'CHF',
         'test': bool(order['is_test']),
+        'birthdate': order['birthdate'],
+        'age_check_status': order['age_check_status'],
+        'needs_age_check': (order['age_check_status'] or '') == AGE_OPEN,
+        'notices': order_notices(order),
         'items': [{
             'name': i['article'], 'qty': i['qty'], 'unit_chf': i['unit_chf'], 'preorder': bool(i['preorder']),
         } for i in items],

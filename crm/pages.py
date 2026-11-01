@@ -62,7 +62,7 @@ def uebersicht(q, csrf=''):
   o=lambda w:one(f"select count(*) {R} and {w}"); u=lambda w:one(f"select coalesce(sum(total_chf),0) {R} and {w}")
   T="date(created_at,'localtime')=date('now','localtime')"; W="date(created_at,'localtime')>=date('now','localtime','weekday 1','-7 days')"; M="strftime('%Y-%m',created_at,'localtime')=strftime('%Y-%m','now','localtime')"
   open_pay=one(f"select count(*) {R} and coalesce(payment_status,'offen') not in ('bezahlt','paid')")
-  noage=one("select count(distinct cu.id) from customers cu join orders o on o.customer_id=cu.id where coalesce(o.is_test,0)=0 and cu.customer_type='Endkunde' and cu.age_verified_at is null")
+  noage=one("select count(*) from orders where age_check_status='Altersprüfung offen'")
   k1=kpis([('Bestellungen heute',o(T),0),('Bestellungen Woche',o(W),0),('Bestellungen Monat',o(M),0),('Umsatz heute',chf(u(T)),0),('Umsatz Woche',chf(u(W)),0),('Umsatz Monat',chf(u(M)),0),
     ('Offene Zahlungen',open_pay,open_pay>0),('Fehlende Alterschecks',noage,noage>0)])
   days=[(datetime.date.today()-datetime.timedelta(days=13-i)).isoformat() for i in range(14)]
@@ -78,27 +78,51 @@ def uebersicht(q, csrf=''):
   <section><h2>Eingehende Bestellungen</h2><table>{OH.format("<th>Kunde</th>")}{order_rows(rec) or empty("Noch keine Bestellungen.",8)}</table><p><a href="/bestellungen">Alle Bestellungen →</a></p></section>''','/')
 # ---------- Bestellungen ----------
 OH='<tr><th>Nr.</th>{}<th>Ext. Ref</th><th>Status</th><th>Zahlung</th><th>Total</th><th>Datum</th><th>Aktionen</th></tr>'
+def _age_blocked(o):
+  return (o['age_check_status'] or '')=='Altersprüfung offen'
 def order_rows(rows,cust=True):
   out=''
   for o in rows:
-    act=('' if (o['payment_status'] or '') in PAID else f'<form class="i" method="post" action="/bestellung/{o["id"]}/aktion"><input type=hidden name=a value=bezahlt><button>Als bezahlt</button></form>')+\
-        ('' if o['status']=='versendet' else f'<form class="i" method="post" action="/bestellung/{o["id"]}/aktion"><input type=hidden name=a value=versendet><button>Versendet</button></form>')
+    blocked=_age_blocked(o)
+    act=('' if (o['payment_status'] or '') in PAID else f'<form class="i" method="post" action="/bestellung/{o["id"]}/aktion"><input type=hidden name=a value=bezahlt><button>Als bezahlt</button></form>')
+    if o['status']!='versendet' and not blocked:
+      act+=f'<form class="i" method="post" action="/bestellung/{o["id"]}/aktion"><input type=hidden name=a value=versendet><button>Versendet</button></form>'
+    if blocked:
+      act+=chip('Altersprüfung offen','no')+' '+chip('Versand gesperrt','no')
+    status=chip(o['status'])+((' '+chip('Altersprüfung offen','no')) if blocked else '')
     out+=(f'<tr><td><a href="/bestellung/{o["id"]}">#{o["id"]}</a></td>'+(f'<td><a href="/kontakt/{o["customer_id"]}">{e(o["cn"])}</a></td>' if cust else '')+
-      f'<td>{e(o["external_ref"])}</td><td>{chip(o["status"])}</td><td>{chip(o["payment_status"] or "offen","bezahlt" if (o["payment_status"] or "") in PAID else "neu")}</td><td>{chf(o["total_chf"]) if (o["currency"] or "CHF")=="CHF" else e(o["currency"])+" "+e(o["total_chf"])}</td>'
+      f'<td>{e(o["external_ref"])}</td><td>{status}</td><td>{chip(o["payment_status"] or "offen","bezahlt" if (o["payment_status"] or "") in PAID else "neu")}</td><td>{chf(o["total_chf"]) if (o["currency"] or "CHF")=="CHF" else e(o["currency"])+" "+e(o["total_chf"])}</td>'
       f'<td>{e((o["created_at"] or "")[:16])} {chip("TEST","no") if o["is_test"] else ""}</td><td>{act}</td></tr>')
   return out
 def bestellungen(q):
   rows=db().execute('select o.*,cu.name cn from orders o left join customers cu on cu.id=o.customer_id order by o.id desc limit 500').fetchall()
   return page('Bestellungen',f'<section><h2>Bestellungen ({len(rows)})</h2><table>{OH.format("<th>Kunde</th>")}{order_rows(rows) or empty("Noch keine Bestellungen.",8)}</table></section>','/bestellungen')
 def bestellung(oid):
-  c=db(); o=c.execute('select o.*,cu.name cn,cu.email ce from orders o left join customers cu on cu.id=o.customer_id where o.id=?',(oid,)).fetchone()
+  c=db(); o=c.execute('select o.*,cu.name cn,cu.email ce,cu.age_verified cu_age from orders o left join customers cu on cu.id=o.customer_id where o.id=?',(oid,)).fetchone()
   if not o: return None
   it=c.execute('select * from order_items where order_id=?',(oid,)).fetchall()
   ih=''.join('<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>' % (e(i['article']), ' · Vorbestellung' if i['preorder'] else '', e(i['qty']), e(i['unit_chf'])) for i in it) or empty('Keine Positionen.',3)
+  ship=float(o['shipping_chf'] or 0)
+  sub=float(o['total_chf'] or 0)-ship
+  money_rows=''
+  if o['birthdate'] or ship>0 or o['age_check_status']:
+    ship_label='Gratis' if ship<=0 else f'{ship:.2f}'
+    money_rows=(f'<tr><td>Zwischensumme</td><td>CHF {sub:.2f}</td></tr>'
+      f'<tr><td>Versand</td><td>{ship_label}</td></tr>')
+    ih+=f'<tr><td>Versand</td><td>1</td><td>{ship_label}</td></tr>'
+  blocked=_age_blocked(o)
+  banner=''
+  if blocked:
+    banner='<p class="no">Altersprüfung offen. Versand gesperrt. Daniela kann den Kunden kontaktieren. Keine Ausweisbilder speichern.</p>'
+  verify=''
+  if o['customer_id'] and not o['cu_age']:
+    verify=(f'<form method="post" action="/kontakt/{o["customer_id"]}/alter"><input type=hidden name=a value=verifiziert>'
+      '<button class="pri">als verifiziert markieren</button></form>')
   info=(f'<table><tr><td>Kunde</td><td><a href="/kontakt/{o["customer_id"]}">{e(o["cn"])}</a> · {e(o["ce"])}</td></tr><tr><td>Externe Ref.</td><td>{e(o["external_ref"])}</td></tr>'
-   f'<tr><td>Kanal</td><td>{e(o["channel"])}</td></tr><tr><td>Status</td><td>{chip(o["status"])}</td></tr><tr><td>Zahlungsart</td><td>{e(o["payment_method"] or "–")}</td></tr><tr><td>Zahlung</td><td>{e(o["payment_status"])} {e(o["payment_provider"] or "")}</td></tr><tr><td>PostFinance</td><td>{e(o["postfinance_tx_id"])} {e(o["postfinance_state"] or "")}</td></tr>'
-   f'<tr><td>Total</td><td><b>{e(o["currency"] or "CHF")} {(o["total_chf"] or 0):.2f}</b></td></tr><tr><td>Erstellt</td><td>{e(o["created_at"])}</td></tr><tr><td>Test</td><td>{chip("TEST","no") if o["is_test"] else "nein"}</td></tr></table>')
-  return page(f'Bestellung #{oid}',f'<section><p><a href="/bestellungen">← Bestellungen</a></p><h2>Bestellung #{oid}</h2><div class="grid2"><div class="card"><h3>Details</h3>{info}</div><div class="card"><h3>Positionen</h3><table><tr><th>Artikel</th><th>Menge</th><th>CHF/Stk</th></tr>{ih}</table></div></div></section>','/bestellungen')
+   f'<tr><td>Kanal</td><td>{e(o["channel"])}</td></tr><tr><td>Status</td><td>{chip(o["status"])}{(" "+chip("Altersprüfung offen","no")+" "+chip("Versand gesperrt","no")) if blocked else ""}</td></tr><tr><td>Zahlungsart</td><td>{e(o["payment_method"] or "–")}</td></tr><tr><td>Zahlung</td><td>{e(o["payment_status"])} {e(o["payment_provider"] or "")}</td></tr><tr><td>PostFinance</td><td>{e(o["postfinance_tx_id"])} {e(o["postfinance_state"] or "")}</td></tr>'
+   f'{money_rows}<tr><td>Geburtsdatum</td><td>{e(o["birthdate"]) or "–"}</td></tr>'
+   f'<tr><td>Total</td><td><b>{e(o["currency"] or "CHF")} {(o["total_chf"] or 0):.2f}</b></td></tr><tr><td>Erstellt</td><td>{e(o["created_at"])}</td></tr><tr><td>Test</td><td>{chip("TEST","no") if o["is_test"] else "nein"}</td></tr></table>{verify}')
+  return page(f'Bestellung #{oid}',f'<section><p><a href="/bestellungen">← Bestellungen</a></p><h2>Bestellung #{oid}</h2>{banner}<div class="grid2"><div class="card"><h3>Details</h3>{info}</div><div class="card"><h3>Positionen</h3><table><tr><th>Artikel</th><th>Menge</th><th>CHF/Stk</th></tr>{ih}</table></div></div></section>','/bestellungen')
 # ---------- Kunden ----------
 TABS=[('end','Endkunden',"customer_type='Endkunde'"),('biz','Businesskunden',"customer_type='Businesskunde'"),('neu','Potenzielle Neukunden',"customer_type='Interessent'"),
       ('weitere','Weitere (Lieferanten/Sonstige)',"customer_type not in ('Endkunde','Businesskunde','Interessent') or customer_type is null")]
@@ -148,13 +172,20 @@ def kontakt(cid):
   tk=''.join(f'<tr><td>{"✅" if t["done"] else "⬜"} {e(t["title"])}</td><td>{e(t["due_date"])}</td></tr>' for t in tasks) or empty('Keine Aufgaben.')
   oh=(OH.format('')+order_rows(ords,False)) if ords else empty('Noch keine Bestellungen.')
   yn=lambda v:chip('ja','ok') if v else chip('nein')
-  age=f'{chip("geprüft","ok")} {e(r["age_verified_at"])} · {e(r["age_verify_method"])}' if r['age_verified_at'] else chip('nicht geprüft','no')
+  if r['age_verified']:
+    age=f'{chip("verifiziert","ok")} {e(r["age_verified_at"])} · {e(r["age_verify_method"])}'
+  else:
+    age=chip('Altersprüfung offen','no')
+    if r['age_verified_at']:
+      age+=f' <span class="mu">Selbstbestätigung {e(r["age_verified_at"])} · {e(r["age_verify_method"])}</span>'
+    age+=f'<form method="post" action="/kontakt/{cid}/alter"><input type=hidden name=a value=verifiziert><button class="pri">als verifiziert markieren</button></form>'
+  age+='<br><span class="mu">Keine Ausweisbilder im System. Nur Datum und Methode.</span>'
   try: ex=json.loads(r['extra'] or '{}')
   except ValueError: ex={}
   F=[('Typ',chip(r['customer_type'])+(f' <span class="mu">umgewandelt {e(r["converted_at"])}</span>' if r['converted_at'] else '')),('Firma/Shop',e(r['company_name'])),('Ansprechperson',e(r['contact_person'])),
      ('E-Mail',e(r['email'])),('Telefon',e(r['phone'])),('Adresse',e(r['address'])),('Ort',e(r['city'])),('Kanton',e(r['canton'])),
      ('Website',f'<a href="{e(r["website"])}" target="_blank" rel="noopener">{e(r["website"])}</a>' if r['website'] else ''),('Priorität',e(r['priority'])),('Sprache',e(r['language'])),('Quelle',e(r['source'])),
-     ('Tags',e(r['tags'])),('bexio-ID',e(r['bexio_contact_id'])),('Nikotin (mg)',e(r['nicotine_mg'])),('Alter 18+',age+'<br><span class="mu">Nur Datum + Methode, keine Ausweisdaten</span>'),
+     ('Tags',e(r['tags'])),('bexio-ID',e(r['bexio_contact_id'])),('Nikotin (mg)',e(r['nicotine_mg'])),('Geburtsdatum',e(r['birthdate'])),('Alter 18+',age),
      ('Newsletter',yn(r['consent_newsletter'])),('WhatsApp',yn(r['consent_whatsapp']))]+[(k.replace('_',' ').capitalize(),e(v)) for k,v in ex.items()]
   info='<table>'+''.join(f'<tr><td class="mu" style="width:150px">{k}</td><td>{v}</td></tr>' for k,v in F if v)+'</table>'
   isp=r['customer_type']=='Interessent'
