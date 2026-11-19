@@ -111,7 +111,66 @@ var D={
 'Du musst mindestens 18 Jahre alt sein.':['Du musst mindestens 18 Jahre alt sein.','You must be at least 18.'],
 'Bitte Geburtsdatum als TT.MM.JJJJ angeben.':['Bitte Geburtsdatum als TT.MM.JJJJ angeben.','Enter your date of birth as DD.MM.YYYY.'],
 'Bitte bestätige, dass du 18 Jahre oder älter bist.':['Bitte bestätige, dass du 18 Jahre oder älter bist.','Please confirm that you are 18 or older.'],
-'Weniger':['Weniger','Less'],'Mehr':['Mehr','More']
+'Weniger':['Weniger','Less'],'Mehr':['Mehr','More'],
+'Wir verkaufen nur an Personen ab 18 Jahren. Deine Bestellung wird erst versendet, nachdem wir dich kontaktiert und dein Alter bestätigt haben.':['Wir verkaufen nur an Personen ab 18 Jahren. Deine Bestellung wird erst versendet, nachdem wir dich kontaktiert und dein Alter bestätigt haben.','We only sell to people aged 18 and over. Your order is shipped only after we have contacted you and confirmed your age.'],
+'Mit der Bestellung akzeptierst du die {agb} und die {privacy}.':['Mit der Bestellung akzeptierst du die {agb} und die {privacy}.','By placing this order you accept the {agb} and the {privacy}.'],
+'AGB':['AGB','terms'],
+'Datenschutzerklärung':['Datenschutzerklärung','privacy policy'],
+'Impressum':['Impressum','Legal notice'],
+'Rechtliches':['Rechtliches','Legal'],
+'Allgemeine Geschäftsbedingungen':['Allgemeine Geschäftsbedingungen','Terms and conditions'],
+'Text folgt.':['Text folgt.','Text to follow.'],
+'Angaben zum Shop in Bern. Der endgültige Wortlaut folgt.':['Angaben zum Shop in Bern. Der endgültige Wortlaut folgt.','Shop details in Bern. The final wording will follow.'],
+'Firmenname':['Firmenname','Company'],
+'Inhaber':['Inhaber','Owner'],
+'UID / MWST-Nr':['UID / MWST-Nr','UID / VAT no.'],
+'Entwurf nach dem revidierten Datenschutzgesetz (revDSG). Der endgültige Wortlaut folgt.':['Entwurf nach dem revidierten Datenschutzgesetz (revDSG). Der endgültige Wortlaut folgt.','Draft under the revised Data Protection Act (revFADP). The final wording will follow.'],
+'Verantwortliche Stelle':['Verantwortliche Stelle','Controller'],
+'Welche Daten':['Welche Daten','Which data'],
+'Name, Adresse, E-Mail, Geburtsdatum und die Bestellung, soweit du sie beim Konto oder an der Kasse angibst.':['Name, Adresse, E-Mail, Geburtsdatum und die Bestellung, soweit du sie beim Konto oder an der Kasse angibst.','Name, address, email, date of birth and the order, as far as you enter them on the account or at checkout.'],
+'PostFinance Checkout':['PostFinance Checkout','PostFinance Checkout'],
+'PostFinance Checkout verarbeitet die Zahlung. Dabei können Zahlungsdaten an PostFinance gehen.':['PostFinance Checkout verarbeitet die Zahlung. Dabei können Zahlungsdaten an PostFinance gehen.','PostFinance Checkout processes the payment. Payment data may be passed to PostFinance.'],
+'bexio':['bexio','bexio'],
+'bexio führt Auftrag und Rechnung. Dabei können Name und Adresse an bexio gehen.':['bexio führt Auftrag und Rechnung. Dabei können Name und Adresse an bexio gehen.','bexio keeps the order and the invoice. Name and address may be passed to bexio.'],
+'Hosting':['Hosting','Hosting'],
+'Das Hosting sieht die technischen Verbindungsdaten.':['Das Hosting sieht die technischen Verbindungsdaten.','The host sees the technical connection data.'],
+'Cookies':['Cookies','Cookies'],
+'Der Shop setzt ein Sitzungs-Cookie für das Kundenkonto.':['Der Shop setzt ein Sitzungs-Cookie für das Kundenkonto.','The shop sets a session cookie for the customer account.'],
+'Schriften':['Schriften','Fonts'],
+'Die Schriften liegen auf diesem Server. Es geht keine Anfrage an Google.':['Die Schriften liegen auf diesem Server. Es geht keine Anfrage an Google.','The fonts are served from this server. No request goes to Google.'],
+'Deine Rechte':['Deine Rechte','Your rights'],
+'Auskunft, Berichtigung und Löschung nach dem revDSG richtest du an die oben genannte Stelle.':['Auskunft, Berichtigung und Löschung nach dem revDSG richtest du an die oben genannte Stelle.','Requests for access, correction and deletion under the revFADP go to the controller named above.'],
+'Entwurf für den Verkauf an Endkunden in der Schweiz. Der endgültige Wortlaut folgt.':['Entwurf für den Verkauf an Endkunden in der Schweiz. Der endgültige Wortlaut folgt.','Draft for sales to consumers in Switzerland. The final wording will follow.'],
+'Geltungsbereich':['Geltungsbereich','Scope'],
+'Diese Bedingungen gelten für Bestellungen von Endkunden im Onlineshop.':['Diese Bedingungen gelten für Bestellungen von Endkunden im Onlineshop.','These terms apply to orders by consumers in the online shop.'],
+'Altersbeschränkung':['Altersbeschränkung','Age limit'],
+'Wir verkaufen nur an Personen ab 18 Jahren. Das folgt aus dem Tabakproduktegesetz.':['Wir verkaufen nur an Personen ab 18 Jahren. Das folgt aus dem Tabakproduktegesetz.','We only sell to people aged 18 and over. That follows from the Tobacco Products Act.'],
+'Vertragsschluss':['Vertragsschluss','Formation of contract'],
+'Der Vertrag kommt zustande, wenn die Zahlung bei uns als bezahlt ankommt.':['Der Vertrag kommt zustande, wenn die Zahlung bei uns als bezahlt ankommt.','The contract is formed when the payment reaches us as paid.'],
+'Preise':['Preise','Prices'],
+'Die Preise sind in CHF und enthalten die MWST.':['Die Preise sind in CHF und enthalten die MWST.','Prices are in CHF and include VAT.'],
+'Zahlung':['Zahlung','Payment'],
+'Bezahlt wird über PostFinance Checkout.':['Bezahlt wird über PostFinance Checkout.','Payment is made via PostFinance Checkout.'],
+'Der Versand erfolgt erst, nachdem wir dich kontaktiert und dein Alter bestätigt haben.':['Der Versand erfolgt erst, nachdem wir dich kontaktiert und dein Alter bestätigt haben.','Shipping happens only after we have contacted you and confirmed your age.'],
+'Gewährleistung':['Gewährleistung','Warranty'],
+'Es gilt die gesetzliche Gewährleistung.':['Es gilt die gesetzliche Gewährleistung.','The statutory warranty applies.'],
+'Rückgabe':['Rückgabe','Returns'],
+'Gerichtsstand':['Gerichtsstand','Jurisdiction'],
+'Es gilt das Schweizer Recht. Gerichtsstand ist Bern.':['Es gilt das Schweizer Recht. Gerichtsstand ist Bern.','Swiss law applies. The place of jurisdiction is Bern.'],
+'Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.':['Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.','If an account exists for this email, we send a link to reset the password.'],
+'Zahlungspflichtig bstelle':['Zahlungspflichtig bestellen','Order with obligation to pay'],
+'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.':['Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.','Shipping only after an age check. We only sell to people aged 18 and over. After your order we contact you within [2] working days by email or phone and check your age with an official ID. Only then does your parcel leave. If we cannot reach you or the check fails, we cancel the order and refund you in full.'],
+'Ich bin mindestens 18 Jahre alt und bestelle für mich selbst. Mir ist klar, dass Bernvapes mich vor dem Versand kontaktiert und mein Alter mit einem amtlichen Ausweis prüft.':['Ich bin mindestens 18 Jahre alt und bestelle für mich selbst. Mir ist klar, dass Bernvapes mich vor dem Versand kontaktiert und mein Alter mit einem amtlichen Ausweis prüft.','I am at least 18 and I am ordering for myself. I understand that Bernvapes will contact me before shipping and check my age with an official ID.'],
+'Ich habe die {agb} und die {privacy} gelesen und akzeptiere die AGB.':['Ich habe die {agb} und die {privacy} gelesen und akzeptiere die AGB.','I have read the {agb} and the {privacy} and I accept the terms.'],
+'Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.':['Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.','After the order we check your age with an official ID, for example on a short video call. We do not store a picture of the ID.'],
+'Prüfe Produkte, Mengen und Angaben. Du kannst sie vor dem Absenden noch ändern.':['Prüfe Produkte, Mengen und Angaben. Du kannst sie vor dem Absenden noch ändern.','Check the products, quantities and details. You can still change them before you submit.'],
+'Bitte akzeptiere die AGB und die Datenschutzerklärung.':['Bitte akzeptiere die AGB und die Datenschutzerklärung.','Please accept the terms and the privacy policy.'],
+'Verkauf nur an Erwachsene. Abgabe an Minderjährige verboten (Art. 23 TabPG). Versand erst nach Alterskontrolle.':['Verkauf nur an Erwachsene. Abgabe an Minderjährige verboten (Art. 23 TabPG). Versand erst nach Alterskontrolle.','Sale to adults only. Supply to minors is prohibited (Art. 23 Tobacco Products Act). Shipping only after an age check.'],
+'Bist du 18 oder älter?':['Bist du 18 oder älter?','Are you 18 or older?'],
+'Auf dieser Seite gibt es E-Liquids und E-Zigaretten. Sie sind nur für Erwachsene.':['Auf dieser Seite gibt es E-Liquids und E-Zigaretten. Sie sind nur für Erwachsene.','This site has e-liquids and e-cigarettes. They are for adults only.'],
+'Ja, ich bin 18+':['Ja, ich bin 18+','Yes, I am 18+'],
+'Nein':['Nein','No'],
+'Schade, dann kommst du später wieder. Unsere Produkte sind erst ab 18.':['Schade, dann kommst du später wieder. Unsere Produkte sind erst ab 18.','Come back later. Our products are for people aged 18 and over.']
 };
 /* FR: Schweizer Französisch, vous, Berne, 1er décembre. Schlüssel = BE-Original. */
 var FR={
@@ -220,7 +279,66 @@ var FR={
 'Du musst mindestens 18 Jahre alt sein.':'Tu dois avoir au moins 18 ans.',
 'Bitte Geburtsdatum als TT.MM.JJJJ angeben.':'Indique la date de naissance au format JJ.MM.AAAA.',
 'Bitte bestätige, dass du 18 Jahre oder älter bist.':'Confirme avoir 18 ans ou plus.',
-'Weniger':'Moins','Mehr':'Plus'
+'Weniger':'Moins','Mehr':'Plus',
+'Wir verkaufen nur an Personen ab 18 Jahren. Deine Bestellung wird erst versendet, nachdem wir dich kontaktiert und dein Alter bestätigt haben.':'Nous ne vendons qu’aux personnes de 18 ans et plus. Ta commande n’est expédiée qu’après que nous t’avons contacté et confirmé ton âge.',
+'Mit der Bestellung akzeptierst du die {agb} und die {privacy}.':'En passant commande, tu acceptes les {agb} et la {privacy}.',
+'AGB':'conditions générales',
+'Datenschutzerklärung':'déclaration de confidentialité',
+'Impressum':'Mentions légales',
+'Rechtliches':'Informations légales',
+'Allgemeine Geschäftsbedingungen':'Conditions générales',
+'Text folgt.':'Le texte suivra.',
+'Angaben zum Shop in Bern. Der endgültige Wortlaut folgt.':'Indications sur la boutique à Berne. Le texte définitif suivra.',
+'Firmenname':'Raison sociale',
+'Inhaber':'Titulaire',
+'UID / MWST-Nr':'IDE / n° TVA',
+'Entwurf nach dem revidierten Datenschutzgesetz (revDSG). Der endgültige Wortlaut folgt.':'Projet selon la loi révisée sur la protection des données (nLPD). Le texte définitif suivra.',
+'Verantwortliche Stelle':'Responsable',
+'Welche Daten':'Quelles données',
+'Name, Adresse, E-Mail, Geburtsdatum und die Bestellung, soweit du sie beim Konto oder an der Kasse angibst.':'Nom, adresse, e-mail, date de naissance et commande, dans la mesure où tu les indiques sur le compte ou à la caisse.',
+'PostFinance Checkout':'PostFinance Checkout',
+'PostFinance Checkout verarbeitet die Zahlung. Dabei können Zahlungsdaten an PostFinance gehen.':'PostFinance Checkout traite le paiement. Des données de paiement peuvent être transmises à PostFinance.',
+'bexio':'bexio',
+'bexio führt Auftrag und Rechnung. Dabei können Name und Adresse an bexio gehen.':'bexio tient la commande et la facture. Le nom et l’adresse peuvent être transmis à bexio.',
+'Hosting':'Hébergement',
+'Das Hosting sieht die technischen Verbindungsdaten.':'L’hébergeur voit les données techniques de connexion.',
+'Cookies':'Cookies',
+'Der Shop setzt ein Sitzungs-Cookie für das Kundenkonto.':'La boutique dépose un cookie de session pour le compte client.',
+'Schriften':'Polices',
+'Die Schriften liegen auf diesem Server. Es geht keine Anfrage an Google.':'Les polices sont servies par ce serveur. Aucune requête ne part vers Google.',
+'Deine Rechte':'Tes droits',
+'Auskunft, Berichtigung und Löschung nach dem revDSG richtest du an die oben genannte Stelle.':'Les demandes d’accès, de rectification et d’effacement selon la nLPD s’adressent au responsable indiqué ci-dessus.',
+'Entwurf für den Verkauf an Endkunden in der Schweiz. Der endgültige Wortlaut folgt.':'Projet pour la vente aux clients finaux en Suisse. Le texte définitif suivra.',
+'Geltungsbereich':'Champ d’application',
+'Diese Bedingungen gelten für Bestellungen von Endkunden im Onlineshop.':'Ces conditions s’appliquent aux commandes de clients finaux dans la boutique en ligne.',
+'Altersbeschränkung':'Limite d’âge',
+'Wir verkaufen nur an Personen ab 18 Jahren. Das folgt aus dem Tabakproduktegesetz.':'Nous ne vendons qu’aux personnes de 18 ans et plus. Cela découle de la loi sur les produits du tabac.',
+'Vertragsschluss':'Conclusion du contrat',
+'Der Vertrag kommt zustande, wenn die Zahlung bei uns als bezahlt ankommt.':'Le contrat est conclu lorsque le paiement nous parvient comme payé.',
+'Preise':'Prix',
+'Die Preise sind in CHF und enthalten die MWST.':'Les prix sont en CHF et incluent la TVA.',
+'Zahlung':'Paiement',
+'Bezahlt wird über PostFinance Checkout.':'Le paiement se fait via PostFinance Checkout.',
+'Der Versand erfolgt erst, nachdem wir dich kontaktiert und dein Alter bestätigt haben.':'L’envoi n’a lieu qu’après que nous t’avons contacté et confirmé ton âge.',
+'Gewährleistung':'Garantie',
+'Es gilt die gesetzliche Gewährleistung.':'La garantie légale s’applique.',
+'Rückgabe':'Retour',
+'Gerichtsstand':'For',
+'Es gilt das Schweizer Recht. Gerichtsstand ist Bern.':'Le droit suisse s’applique. Le for est à Berne.',
+'Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.':'Si un compte existe pour cet e-mail, nous envoyons un lien pour réinitialiser le mot de passe.',
+'Zahlungspflichtig bstelle':'Commander avec obligation de payer',
+'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.':'Envoi seulement après le contrôle de l’âge. Nous ne vendons qu’aux personnes de 18 ans et plus. Après ta commande, nous te contactons dans les [2] jours ouvrables par e-mail ou téléphone et vérifions ton âge avec une pièce d’identité officielle. Ensuite seulement, ton colis part. Si nous ne te joignons pas ou si le contrôle échoue, nous annulons la commande et tu es remboursé intégralement.',
+'Ich bin mindestens 18 Jahre alt und bestelle für mich selbst. Mir ist klar, dass Bernvapes mich vor dem Versand kontaktiert und mein Alter mit einem amtlichen Ausweis prüft.':'J’ai au moins 18 ans et je commande pour moi-même. Je sais que Bernvapes me contacte avant l’envoi et vérifie mon âge avec une pièce d’identité officielle.',
+'Ich habe die {agb} und die {privacy} gelesen und akzeptiere die AGB.':'J’ai lu les {agb} et la {privacy} et j’accepte les conditions.',
+'Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.':'Après la commande, nous vérifions ton âge avec une pièce d’identité officielle, par exemple lors d’un court appel vidéo. Nous ne gardons pas d’image de la pièce.',
+'Prüfe Produkte, Mengen und Angaben. Du kannst sie vor dem Absenden noch ändern.':'Vérifie les produits, les quantités et les données. Tu peux encore les modifier avant d’envoyer.',
+'Bitte akzeptiere die AGB und die Datenschutzerklärung.':'Accepte les conditions et la déclaration de confidentialité.',
+'Verkauf nur an Erwachsene. Abgabe an Minderjährige verboten (Art. 23 TabPG). Versand erst nach Alterskontrolle.':'Vente aux adultes seulement. Remise aux mineurs interdite (art. 23 LPT). Envoi seulement après le contrôle de l’âge.',
+'Bist du 18 oder älter?':'As-tu 18 ans ou plus ?',
+'Auf dieser Seite gibt es E-Liquids und E-Zigaretten. Sie sind nur für Erwachsene.':'Ce site propose des e-liquides et des cigarettes électroniques. Ils sont réservés aux adultes.',
+'Ja, ich bin 18+':'Oui, j’ai 18 ans ou plus',
+'Nein':'Non',
+'Schade, dann kommst du später wieder. Unsere Produkte sind erst ab 18.':'Reviens plus tard. Nos produits sont réservés aux 18 ans et plus.'
 };
 var LS='bv-lang',ATTR=['alt','aria-label','title','content'],ORIG=new WeakMap(),lang='be';
 try{lang=localStorage.getItem(LS)||'be';}catch(e){}
@@ -245,4 +363,31 @@ function init(){pill();apply();new MutationObserver(function(ms){if(busy)return;
  .observe(document.body,{childList:true,subtree:true,characterData:true});}
 window.bvI18n={set:set,t:function(s){return tr(s);},get lang(){return lang;}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+(function ageGate(){
+  var KEY='bv-age-ok';
+  try{ if(localStorage.getItem(KEY)==='1') return; }catch(e){}
+  function T(s){ return window.bvI18n && window.bvI18n.t ? window.bvI18n.t(s) : s; }
+  var gate=document.createElement('div');
+  gate.className='agegate';
+  gate.setAttribute('role','dialog');
+  gate.setAttribute('aria-modal','true');
+  gate.innerHTML='<div class="card"><h2></h2><p class="lead"></p><p class="deny" hidden></p><div class="row"><button type="button" class="btn yes"></button><button type="button" class="btn ghost no"></button></div></div>';
+  function paint(){
+    gate.querySelector('h2').textContent=T('Bist du 18 oder älter?');
+    gate.querySelector('.lead').textContent=T('Auf dieser Seite gibt es E-Liquids und E-Zigaretten. Sie sind nur für Erwachsene.');
+    gate.querySelector('.yes').textContent=T('Ja, ich bin 18+');
+    gate.querySelector('.no').textContent=T('Nein');
+    gate.querySelector('.deny').textContent=T('Schade, dann kommst du später wieder. Unsere Produkte sind erst ab 18.');
+  }
+  paint();
+  document.body.appendChild(gate);
+  gate.querySelector('.yes').addEventListener('click',function(){
+    try{ localStorage.setItem(KEY,'1'); }catch(e){}
+    gate.remove();
+  });
+  gate.querySelector('.no').addEventListener('click',function(){
+    gate.querySelector('.deny').hidden=false;
+  });
+  document.addEventListener('bv-lang',paint);
+})();
 })();

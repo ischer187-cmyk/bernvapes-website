@@ -210,7 +210,8 @@ def kontakt(cid):
     if deal['status']!='rejected':
       actions+=f'<form class="i" method="post" action="/haendler/{deal["id"]}/aktion"><input type=hidden name=a value=reject><button>Ablehnen</button></form>'
     mail=c.execute('select body,created_at from mail_log where to_addr=? order by id desc limit 1',(deal['email'],)).fetchone()
-    mailb=f'<pre class="mu" style="white-space:pre-wrap">{e(mail["body"])}</pre><p class="mu">{e(mail["created_at"])} · nicht versendet (Log-Treiber)</p>' if mail else '<p class="mu">Noch keine Einladung im Log.</p>'
+    _mail_state='per SMTP gesendet (Kopie)' if (os.environ.get('EMAIL_DRIVER') or 'log').strip().lower()=='smtp' else 'nicht versendet (Log-Treiber)'
+    mailb=f'<pre class="mu" style="white-space:pre-wrap">{e(mail["body"])}</pre><p class="mu">{e(mail["created_at"])} · {_mail_state}</p>' if mail else '<p class="mu">Noch keine Einladung im Log.</p>'
     dealer_html=(f'<section><h2>Händlerkonto</h2><p>{chip(deal["status"])} {chip(TIER_LABEL.get(deal["price_tier"],deal["price_tier"]))} · {e(deal["email"])}<br>{verified}'
       f'<br><span class="mu">B2B: Firmenprüfung (UID/Einladung) statt Altersprüfung pro Person. Zahlungsart später Rechnung. bexio-Schreibweg ist aus.</span></p>{actions}'
       f'<form class="inline" method="post" action="/haendler/{deal["id"]}/stufe"><select name="tier">{tiers}</select><button class="pri">Stufe speichern</button></form>'
@@ -218,7 +219,9 @@ def kontakt(cid):
       f'<form class="inline" method="post" action="/haendler/{deal["id"]}/preis"><select name="sku">{popts}</select><input name="unit_chf" type="number" step="0.05" min="0" placeholder="CHF" required><button class="pri">Override</button></form>'
       f'<h3>Einladungslink</h3>{mailb}</section>')
   else:
-    dealer_html=(f'<section><h2>Händlerportal</h2><p class="mu">Einladung mit einmaligem Link. Es wird keine E-Mail verschickt; der Link steht danach hier und unter Steuerung.</p>'
+    _mail_driver=(os.environ.get('EMAIL_DRIVER') or 'log').strip().lower()
+    _mail_hint=('Der Link geht per E-Mail raus. Eine Kopie steht hier und unter Steuerung.' if _mail_driver=='smtp' else 'Treiber log: der Link steht hier und unter Steuerung. Es geht keine SMTP-Mail raus.')
+    dealer_html=(f'<section><h2>Händlerportal</h2><p class="mu">Einladung mit einmaligem Link. {e(_mail_hint)}</p>'
       f'<form class="inline" method="post" action="/kontakt/{cid}/einladung"><input name="email" type="email" value="{e(r["email"] or "")}" placeholder="E-Mail" required>'
       f'<select name="tier">{tiers or "".join(f"<option value={t}>{TIER_LABEL[t]}</option>" for t in TIERS)}</select><button class="pri">Einladung erzeugen</button></form></section>')
   tabk={'Endkunde':'end','Businesskunde':'biz','Interessent':'neu'}.get(r['customer_type'],'weitere')
@@ -275,7 +278,7 @@ def steuerung(q):
   <section><h2>Daten-Skripte</h2><p class="mu"><code>python3 migrate.py</code> (Schema) · <code>python3 classify_contacts.py [--refresh]</code> (Typen/Tags aus bexio-Gruppen, nur lesend) · <code>python3 import_prospects.py [datei.csv]</code> (Scout-Ergebnisse, wiederholbar mit Dedup) · Versand: nicht konfiguriert</p></section>
   <section><h2>Lieferanten ({len(sup)})</h2><form class="inline" method="post" action="/lieferanten/neu"><input name="name" placeholder="Name" required><input name="contact_person" placeholder="Kontaktperson"><input name="email" placeholder="E-Mail"><input name="assortment" placeholder="Sortiment"><input name="lead_time_days" type="number" placeholder="Lieferzeit Tage"><button class="pri">+</button></form>
   <table><tr><th>Name</th><th>Kontakt</th><th>E-Mail</th><th>Sortiment</th><th>Lieferzeit</th></tr>{sh}</table></section>
-  <section><h2>Mail-Log (nichts wird versendet)</h2><p class="mu">Treiber <code>{e(os.environ.get("EMAIL_DRIVER") or "log")}</code>. Einladungslinks für den lokalen Test stehen hier.</p><table><tr><th>Zeit</th><th>An</th><th>Betreff</th><th>Text</th></tr>{mh}</table></section>''','/steuerung')
+  <section><h2>Mail-Log</h2><p class="mu">Treiber <code>{e(os.environ.get("EMAIL_DRIVER") or "log")}</code>. Bei <code>log</code> geht keine SMTP-Mail raus, der Text steht hier. Bei <code>smtp</code> ist das die Kopie der gesendeten Mail.</p><table><tr><th>Zeit</th><th>An</th><th>Betreff</th><th>Text</th></tr>{mh}</table></section>''','/steuerung')
 def haendler(q):
   c=db(); rows=c.execute("select d.*,cu.name cn from dealer_accounts d left join customers cu on cu.id=d.customer_id order by case d.status when 'pending' then 0 when 'invited' then 1 else 2 end, d.id desc").fetchall()
   tr=''

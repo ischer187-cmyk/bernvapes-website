@@ -11,7 +11,7 @@ from auth import (
 )
 import checkout
 from db import IntegrityError
-from mailer import get_mailer
+from mailer import deliver, registration_mail, reset_mail
 
 COOKIE = 'bv_customer'
 
@@ -170,6 +170,8 @@ def _register(handler, conn, ip, data):
     row = conn.execute('select * from customer_accounts where id=?', (aid,)).fetchone()
     tok, csrf = create_session(conn, 'customer', aid, 'full')
     conn.commit()
+    subject, text = registration_mail(name)
+    deliver(conn, email, subject, text)
     body = _row_public(row)
     body['csrf_token'] = csrf
     body['scope'] = 'full'
@@ -189,15 +191,8 @@ def _forgot(handler, conn, ip, data):
             "update customer_accounts set reset_token_hash=?, reset_expires_at=? where id=?",
             (token_hash(raw), utc_plus(2 * 3600), row['id']))
         link = f'{_public()}/konto.html?token={raw}'
-        subject = 'Bernvapes – Passwort zurücksetzen'
-        body = (
-            'Guten Tag\n\n'
-            'dieser Link setzt das Passwort für das Kundenkonto. Er gilt zwei Stunden und ist einmalig.\n\n'
-            f'{link}\n\n'
-            'Es wird keine E-Mail verschickt. Der Link steht nur in diesem Log.\n'
-        )
-        get_mailer().send(email, subject, body)
-        conn.execute('insert into mail_log(to_addr,subject,body) values(?,?,?)', (email, subject, body))
+        subject, body = reset_mail(link)
+        deliver(conn, email, subject, body)
     conn.commit()
     return handler.json(200, {'ok': True, 'status': 'logged'})
 

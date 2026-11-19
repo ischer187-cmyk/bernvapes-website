@@ -127,7 +127,7 @@ class OrderTests(unittest.TestCase):
         self.assertNotIn('api.bexio.com', src)
         self.assertNotIn('requests', src)
         import mailer
-        self.assertNotIn('smtplib', inspect.getsource(mailer))
+        self.assertIsInstance(mailer.get_mailer(), mailer.LogMailer)
         result = bexio_billing.BexioBilling().create_invoice({'order_id': 1})
         self.assertEqual(result['status'], 'disabled')
         self.assertFalse(result['created'])

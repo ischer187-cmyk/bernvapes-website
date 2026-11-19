@@ -4,9 +4,10 @@ Pre-order bottles (Lemon Pie, Mango Lassi, Mandarine Nuss, Apple Pie) use the
 same payment. The line is stored with preorder=1. Prices come from the product
 table (price_einstieg), never from the browser.
 """
-import datetime, os, re
+import datetime, logging, os, re
 from bexio_sync import sync_paid_order
 from db import IntegrityError
+from mailer import SHIP_NOTICE, deliver, order_mail
 import postfinance
 from shipping import FREE_SHIPPING_THRESHOLD_CHF, SHIPPING_FEE_CHF, VAT_RATE, shipping_for
 
@@ -18,14 +19,15 @@ _TX = re.compile(r'^\d{1,18}$')
 _BIRTH = re.compile(r'^(\d{2})\.(\d{2})\.(\d{4})$')
 NOTICE_ALL = 'Vor dem Versand wird die Altersverifikation durchgeführt.'
 NOTICE_NEW = (
-    'Bei Neukunden melden wir uns persönlich, um die Altersverifizierung durchzuführen. '
-    'Du schickst uns dazu ein Selfie mit deinem Ausweis.'
+    'Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, '
+    'zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.'
 )
 AGE_OPEN = 'Altersprüfung offen'
 AGE_MESSAGES = {
     'underage': 'Du musst mindestens 18 Jahre alt sein.',
     'birthdate_invalid': 'Bitte Geburtsdatum als TT.MM.JJJJ angeben.',
     'age_confirm_required': 'Bitte bestätige, dass du 18 Jahre oder älter bist.',
+    'terms_required': 'Bitte akzeptiere die AGB und die Datenschutzerklärung.',
 }
 
 
@@ -92,7 +94,7 @@ def parse_birthdate(value):
 
 
 def assert_adult(data):
-    """Pflicht: Geburtsdatum TT.MM.JJJJ und Checkbox. Alter mindestens 18."""
+    """Pflicht: Geburtsdatum, Alters-Häkchen und AGB. Alter mindestens 18."""
     if not isinstance(data, dict) or not _truthy(data.get('age_confirmed')):
         raise CheckoutError(422, 'age_confirm_required')
     text, born = parse_birthdate(data.get('birthdate'))
@@ -100,6 +102,8 @@ def assert_adult(data):
     age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
     if age < 18:
         raise CheckoutError(422, 'underage')
+    if not _truthy(data.get('terms_accepted')):
+        raise CheckoutError(422, 'terms_required')
     return text
 
 
@@ -112,14 +116,14 @@ def _verified(cust):
 
 
 def notices_for(conn, account):
-    notes = [NOTICE_ALL]
+    notes = [SHIP_NOTICE, NOTICE_ALL]
     if not _verified(_customer(conn, account)):
         notes.append(NOTICE_NEW)
     return notes
 
 
 def order_notices(order):
-    notes = [NOTICE_ALL]
+    notes = [SHIP_NOTICE, NOTICE_ALL]
     if (order['age_check_status'] or '') == AGE_OPEN:
         notes.append(NOTICE_NEW)
     return notes
@@ -241,12 +245,13 @@ def place(conn, account, items, data=None):
     email = (account['email'] or '').strip().lower()
     cust = _customer(conn, account)
     age_status = None if _verified(cust) else AGE_OPEN
+    test_flag = 1 if postfinance.is_test_mode() else 0
     oid = conn.execute(
         """insert into orders(customer_id,customer_account_id,channel,status,total_chf,shipping_chf,birthdate,
            age_check_status,payment_status,payment_provider,currency,is_test,payment_method,updated_at)
            values(?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))""",
         (cid, aid, 'website', 'offen', total, shipping, birth, age_status,
-         'offen', 'postfinance', 'CHF', 1, 'postfinance')).lastrowid
+         'offen', 'postfinance', 'CHF', test_flag, 'postfinance')).lastrowid
     ref = 'bv-%s' % oid
     conn.execute('update orders set external_ref=? where id=?', (ref, oid))
     conn.execute(
@@ -258,9 +263,10 @@ def place(conn, account, items, data=None):
             (oid, row['name'], row['qty'], row['unit_chf'], row['bottle_ml'], 1 if row['preorder'] else 0, row['sku']))
     names = ', '.join('%s%s' % (row['name'], ' (Vorbestellung)' if row['preorder'] else '') for row in lines)
     ship_note = 'Versand gratis' if shipping == 0 else 'Versand CHF %.2f' % shipping
+    test_tag = ' [TEST]' if test_flag else ''
     conn.execute(
         'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
-        (cid, 'website', 'in', 'Shop-Kasse #%s %s · CHF %.2f (%s) [TEST]. %s' % (oid, ref, total, ship_note, names), 'Shop'))
+        (cid, 'website', 'in', 'Shop-Kasse #%s %s · CHF %.2f (%s)%s. %s' % (oid, ref, total, ship_note, test_tag, names), 'Shop'))
     if age_status == AGE_OPEN:
         conn.execute(
             'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
@@ -305,12 +311,13 @@ def place(conn, account, items, data=None):
     conn.commit()
     body = {
         'ok': True, 'order_id': oid, 'ref': ref, 'paymentUrl': url, 'integrationMode': 'PaymentPage',
-        'test': True, 'items': _public_lines(lines),
+        'test': bool(test_flag), 'items': _public_lines(lines),
         'needs_age_check': age_status == AGE_OPEN,
         'age_check_status': age_status,
         'notices': order_notices({'age_check_status': age_status}),
     }
     body.update(_money_fields(subtotal, shipping, total, remaining))
+    _mail_received(conn, oid, ref, lines, shipping, total, account)
     return body
 
 
@@ -452,6 +459,28 @@ def apply_webhook(conn, data):
     if bexio is not None:
         body['bexio'] = {'status': bexio.get('status'), 'created': bool(bexio.get('created'))}
     return 200, body
+
+
+def _mail_received(conn, oid, ref, lines, shipping, total, account):
+    """Eingangsbestätigung sofort nach der Bestellung (UWG). Ein Mailfehler macht die Bestellung nicht rückgängig."""
+    email = (account['email'] or '').strip()
+    name = account['name'] or ''
+    if not email:
+        logging.getLogger('bernvapes.mail').error('Eingangsbestätigung #%s ohne E-Mail', oid)
+        return
+    payload = [{
+        'name': row['name'], 'qty': row['qty'], 'preorder': bool(row['preorder']),
+    } for row in lines]
+    subject, body = order_mail(name, ref, payload, shipping, total)
+    order = conn.execute('select customer_id from orders where id=?', (oid,)).fetchone()
+    if deliver(conn, email, subject, body):
+        return
+    if order:
+        conn.execute(
+            'insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
+            (order['customer_id'], 'notiz',
+             'Eingangsbestätigung an %s nicht gesendet. Details im Server-Log.' % email, 'System'))
+        conn.commit()
 
 
 def _event_begin(conn, event_id):

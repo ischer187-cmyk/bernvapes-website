@@ -81,7 +81,8 @@ class CustomerAccountTests(unittest.TestCase):
         mail = db.execute('select body from mail_log order by id desc limit 1').fetchone()[0]
         db.close()
         self.assertIn('konto.html?token=', mail)
-        self.assertIn('verschickt', mail.lower())
+        self.assertIn('zwei Stunden', mail)
+        self.assertNotIn('keine E-Mail', mail)
         token = mail.split('token=', 1)[1].split()[0].strip()
         st, data, _ = anon.request('POST', '/api/b2b/customer/reset', json_body={
             'token': token, 'password': 'neues-passwort-2'})
@@ -96,8 +97,8 @@ class CustomerAccountTests(unittest.TestCase):
             'email': 'bestand@example.com', 'password': 'neues-passwort-2'})
         self.assertEqual(st, 200)
         self.assertEqual(me['name'], 'Bestand Kunde')
-        import inspect, mailer
-        self.assertNotIn('smtplib', inspect.getsource(mailer))
+        import mailer
+        self.assertIsInstance(mailer.get_mailer(), mailer.LogMailer)
 
     def test_crm_list_shows_b2c_and_b2b(self):
         reg = harness.Client(self.port)

@@ -42,6 +42,15 @@ def configured():
     return bool(space_id() and user_id() and space_key())
 
 
+def is_test_mode():
+    """Shop orders stay test unless POSTFINANCE_MODE is live or production.
+
+    Unset, empty, test, or any other value is the safe default: the order is marked test.
+    """
+    mode = (os.environ.get('POSTFINANCE_MODE') or 'test').strip().lower()
+    return mode not in ('live', 'production')
+
+
 def mac_value(method, path, user, secret_b64, unix_time, version='1'):
     """Base64 HMAC-SHA512. The secret is decoded before it is used as the key."""
     msg = '%s|%s|%s|%s|%s' % (version, user, int(unix_time), method.upper(), path)
