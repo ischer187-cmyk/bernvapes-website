@@ -157,7 +157,20 @@ var D={
 'Rückgabe':['Rückgabe','Returns'],
 'Gerichtsstand':['Gerichtsstand','Jurisdiction'],
 'Es gilt das Schweizer Recht. Gerichtsstand ist Bern.':['Es gilt das Schweizer Recht. Gerichtsstand ist Bern.','Swiss law applies. The place of jurisdiction is Bern.'],
-'Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.':['Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.','If an account exists for this email, we send a link to reset the password.']
+'Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.':['Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.','If an account exists for this email, we send a link to reset the password.'],
+'Zahlungspflichtig bstelle':['Zahlungspflichtig bestellen','Order with obligation to pay'],
+'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.':['Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.','Shipping only after an age check. We only sell to people aged 18 and over. After your order we contact you within [2] working days by email or phone and check your age with an official ID. Only then does your parcel leave. If we cannot reach you or the check fails, we cancel the order and refund you in full.'],
+'Ich bin mindestens 18 Jahre alt und bestelle für mich selbst. Mir ist klar, dass Bernvapes mich vor dem Versand kontaktiert und mein Alter mit einem amtlichen Ausweis prüft.':['Ich bin mindestens 18 Jahre alt und bestelle für mich selbst. Mir ist klar, dass Bernvapes mich vor dem Versand kontaktiert und mein Alter mit einem amtlichen Ausweis prüft.','I am at least 18 and I am ordering for myself. I understand that Bernvapes will contact me before shipping and check my age with an official ID.'],
+'Ich habe die {agb} und die {privacy} gelesen und akzeptiere die AGB.':['Ich habe die {agb} und die {privacy} gelesen und akzeptiere die AGB.','I have read the {agb} and the {privacy} and I accept the terms.'],
+'Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.':['Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.','After the order we check your age with an official ID, for example on a short video call. We do not store a picture of the ID.'],
+'Prüfe Produkte, Mengen und Angaben. Du kannst sie vor dem Absenden noch ändern.':['Prüfe Produkte, Mengen und Angaben. Du kannst sie vor dem Absenden noch ändern.','Check the products, quantities and details. You can still change them before you submit.'],
+'Bitte akzeptiere die AGB und die Datenschutzerklärung.':['Bitte akzeptiere die AGB und die Datenschutzerklärung.','Please accept the terms and the privacy policy.'],
+'Verkauf nur an Erwachsene. Abgabe an Minderjährige verboten (Art. 23 TabPG). Versand erst nach Alterskontrolle.':['Verkauf nur an Erwachsene. Abgabe an Minderjährige verboten (Art. 23 TabPG). Versand erst nach Alterskontrolle.','Sale to adults only. Supply to minors is prohibited (Art. 23 Tobacco Products Act). Shipping only after an age check.'],
+'Bist du 18 oder älter?':['Bist du 18 oder älter?','Are you 18 or older?'],
+'Auf dieser Seite gibt es E-Liquids und E-Zigaretten. Sie sind nur für Erwachsene.':['Auf dieser Seite gibt es E-Liquids und E-Zigaretten. Sie sind nur für Erwachsene.','This site has e-liquids and e-cigarettes. They are for adults only.'],
+'Ja, ich bin 18+':['Ja, ich bin 18+','Yes, I am 18+'],
+'Nein':['Nein','No'],
+'Schade, dann kommst du später wieder. Unsere Produkte sind erst ab 18.':['Schade, dann kommst du später wieder. Unsere Produkte sind erst ab 18.','Come back later. Our products are for people aged 18 and over.']
 };
 /* FR: Schweizer Französisch, vous, Berne, 1er décembre. Schlüssel = BE-Original. */
 var FR={
@@ -312,7 +325,20 @@ var FR={
 'Rückgabe':'Retour',
 'Gerichtsstand':'For',
 'Es gilt das Schweizer Recht. Gerichtsstand ist Bern.':'Le droit suisse s’applique. Le for est à Berne.',
-'Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.':'Si un compte existe pour cet e-mail, nous envoyons un lien pour réinitialiser le mot de passe.'
+'Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.':'Si un compte existe pour cet e-mail, nous envoyons un lien pour réinitialiser le mot de passe.',
+'Zahlungspflichtig bstelle':'Commander avec obligation de payer',
+'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.':'Envoi seulement après le contrôle de l’âge. Nous ne vendons qu’aux personnes de 18 ans et plus. Après ta commande, nous te contactons dans les [2] jours ouvrables par e-mail ou téléphone et vérifions ton âge avec une pièce d’identité officielle. Ensuite seulement, ton colis part. Si nous ne te joignons pas ou si le contrôle échoue, nous annulons la commande et tu es remboursé intégralement.',
+'Ich bin mindestens 18 Jahre alt und bestelle für mich selbst. Mir ist klar, dass Bernvapes mich vor dem Versand kontaktiert und mein Alter mit einem amtlichen Ausweis prüft.':'J’ai au moins 18 ans et je commande pour moi-même. Je sais que Bernvapes me contacte avant l’envoi et vérifie mon âge avec une pièce d’identité officielle.',
+'Ich habe die {agb} und die {privacy} gelesen und akzeptiere die AGB.':'J’ai lu les {agb} et la {privacy} et j’accepte les conditions.',
+'Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.':'Après la commande, nous vérifions ton âge avec une pièce d’identité officielle, par exemple lors d’un court appel vidéo. Nous ne gardons pas d’image de la pièce.',
+'Prüfe Produkte, Mengen und Angaben. Du kannst sie vor dem Absenden noch ändern.':'Vérifie les produits, les quantités et les données. Tu peux encore les modifier avant d’envoyer.',
+'Bitte akzeptiere die AGB und die Datenschutzerklärung.':'Accepte les conditions et la déclaration de confidentialité.',
+'Verkauf nur an Erwachsene. Abgabe an Minderjährige verboten (Art. 23 TabPG). Versand erst nach Alterskontrolle.':'Vente aux adultes seulement. Remise aux mineurs interdite (art. 23 LPT). Envoi seulement après le contrôle de l’âge.',
+'Bist du 18 oder älter?':'As-tu 18 ans ou plus ?',
+'Auf dieser Seite gibt es E-Liquids und E-Zigaretten. Sie sind nur für Erwachsene.':'Ce site propose des e-liquides et des cigarettes électroniques. Ils sont réservés aux adultes.',
+'Ja, ich bin 18+':'Oui, j’ai 18 ans ou plus',
+'Nein':'Non',
+'Schade, dann kommst du später wieder. Unsere Produkte sind erst ab 18.':'Reviens plus tard. Nos produits sont réservés aux 18 ans et plus.'
 };
 var LS='bv-lang',ATTR=['alt','aria-label','title','content'],ORIG=new WeakMap(),lang='be';
 try{lang=localStorage.getItem(LS)||'be';}catch(e){}
@@ -337,4 +363,31 @@ function init(){pill();apply();new MutationObserver(function(ms){if(busy)return;
  .observe(document.body,{childList:true,subtree:true,characterData:true});}
 window.bvI18n={set:set,t:function(s){return tr(s);},get lang(){return lang;}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+(function ageGate(){
+  var KEY='bv-age-ok';
+  try{ if(localStorage.getItem(KEY)==='1') return; }catch(e){}
+  function T(s){ return window.bvI18n && window.bvI18n.t ? window.bvI18n.t(s) : s; }
+  var gate=document.createElement('div');
+  gate.className='agegate';
+  gate.setAttribute('role','dialog');
+  gate.setAttribute('aria-modal','true');
+  gate.innerHTML='<div class="card"><h2></h2><p class="lead"></p><p class="deny" hidden></p><div class="row"><button type="button" class="btn yes"></button><button type="button" class="btn ghost no"></button></div></div>';
+  function paint(){
+    gate.querySelector('h2').textContent=T('Bist du 18 oder älter?');
+    gate.querySelector('.lead').textContent=T('Auf dieser Seite gibt es E-Liquids und E-Zigaretten. Sie sind nur für Erwachsene.');
+    gate.querySelector('.yes').textContent=T('Ja, ich bin 18+');
+    gate.querySelector('.no').textContent=T('Nein');
+    gate.querySelector('.deny').textContent=T('Schade, dann kommst du später wieder. Unsere Produkte sind erst ab 18.');
+  }
+  paint();
+  document.body.appendChild(gate);
+  gate.querySelector('.yes').addEventListener('click',function(){
+    try{ localStorage.setItem(KEY,'1'); }catch(e){}
+    gate.remove();
+  });
+  gate.querySelector('.no').addEventListener('click',function(){
+    gate.querySelector('.deny').hidden=false;
+  });
+  document.addEventListener('bv-lang',paint);
+})();
 })();

@@ -223,7 +223,7 @@
     });
   }
 
-  window.bvCart={add:add, slug:slug, setDetail:function(sel,id,name){
+  window.bvCart={add:add, setQty:setQty, slug:slug, setDetail:function(sel,id,name){
     var b=document.querySelector(sel); if(!b) return; b.dataset.cart=id; b.dataset.name=name;
   }};
 

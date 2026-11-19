@@ -32,6 +32,7 @@
       underage: 'Du musst mindestens 18 Jahre alt sein.',
       birthdate_invalid: 'Bitte Geburtsdatum als TT.MM.JJJJ angeben.',
       age_confirm_required: 'Bitte bestätige, dass du 18 Jahre oder älter bist.',
+      terms_required: 'Bitte akzeptiere die AGB und die Datenschutzerklärung.',
       csrf: 'Seite neu laden und noch einmal versuchen.',
       crm_unreachable: 'CRM nicht erreichbar.'
     };
@@ -59,13 +60,21 @@
     });
   }
   var NOTICE_ALL = 'Vor dem Versand wird die Altersverifikation durchgeführt.';
-  var NOTICE_NEW = 'Bei Neukunden melden wir uns persönlich, um die Altersverifizierung durchzuführen. Du schickst uns dazu ein Selfie mit deinem Ausweis.';
-  var NOTICE_HOLD = 'Wir verkaufen nur an Personen ab 18 Jahren. Deine Bestellung wird erst versendet, nachdem wir dich kontaktiert und dein Alter bestätigt haben.';
-  var ACCEPT = 'Mit der Bestellung akzeptierst du die {agb} und die {privacy}.';
+  var NOTICE_NEW = 'Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.';
+  var NOTICE_HOLD = 'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.';
+  var CHECK_AGE = 'Ich bin mindestens 18 Jahre alt und bestelle für mich selbst. Mir ist klar, dass Bernvapes mich vor dem Versand kontaktiert und mein Alter mit einem amtlichen Ausweis prüft.';
+  var CHECK_TERMS = 'Ich habe die {agb} und die {privacy} gelesen und akzeptiere die AGB.';
+  var PAY_LABEL = 'Zahlungspflichtig bstelle';
+  var CORRECT = 'Prüfe Produkte, Mengen und Angaben. Du kannst sie vor dem Absenden noch ändern.';
   function linesHtml(items) {
     return '<ul class="kasse-lines">' + items.map(function (it) {
       var mark = it.preorder ? ' <i class="premark">' + esc(t('Vorbestellung')) + '</i>' : '';
-      return '<li><span>' + esc(it.name) + ' ×' + esc(it.qty) + mark + '</span><span>' + esc(money(it.line_chf)) + '</span></li>';
+      var id = it.sku || it.id || '';
+      return '<li data-id="' + esc(id) + '"><span>' + esc(it.name) + mark
+        + ' <span class="kasse-qty"><button type="button" data-qty="-1" aria-label="' + esc(t('Weniger')) + '">−</button>'
+        + '<b>' + esc(it.qty) + '</b>'
+        + '<button type="button" data-qty="1" aria-label="' + esc(t('Mehr')) + '">+</button></span></span><span>'
+        + esc(money(it.line_chf)) + '</span></li>';
     }).join('') + '</ul>';
   }
   function hintText(data) {
@@ -85,12 +94,11 @@
   function holdHtml() {
     return '<p class="agehold" role="note">' + esc(t(NOTICE_HOLD)) + '</p>';
   }
-  function acceptHtml() {
-    var raw = t(ACCEPT);
+  function termsHtml() {
+    var raw = t(CHECK_TERMS);
     var agb = '<a href="agb.html">' + esc(t('AGB')) + '</a>';
     var priv = '<a href="datenschutz.html">' + esc(t('Datenschutzerklärung')) + '</a>';
-    var html = esc(raw).replace('{agb}', agb).replace('{privacy}', priv);
-    return '<p class="legal-accept">' + html + '</p>';
+    return esc(raw).replace('{agb}', agb).replace('{privacy}', priv);
   }
   function summaryHtml(data) {
     var ship = Number(data.shipping_chf) || 0;
@@ -103,18 +111,18 @@
       + '<p class="kasse-total"><b>' + esc(t('Total')) + '</b> <b>' + esc(money(data.total_chf)) + '</b></p>'
       + '</div>'
       + '<p class="shiphint" aria-live="polite">' + esc(hintText(data)) + '</p>'
-      + '<div class="shipbar" aria-hidden="true"><i style="width:' + pct.toFixed(1) + '%"></i></div>'
-      + noticesOf(data);
+      + '<div class="shipbar" aria-hidden="true"><i style="width:' + pct.toFixed(1) + '%"></i></div>';
   }
   function ageFields() {
-    return '<label class="fld" for="birthdate">' + esc(t('Geburtsdatum')) + '</label>'
+    return '<p class="correct">' + esc(t(CORRECT)) + '</p>'
+      + '<label class="fld" for="birthdate">' + esc(t('Geburtsdatum')) + '</label>'
       + '<input id="birthdate" name="birthdate" inputmode="numeric" autocomplete="bday" placeholder="TT.MM.JJJJ" required>'
-      + '<label class="agebox"><input id="age18" type="checkbox" required> <span>'
-      + esc(t('Ich bestätige, dass ich 18 Jahre oder älter bin')) + '</span></label>'
+      + '<label class="agebox"><input id="age18" type="checkbox"> <span>' + esc(t(CHECK_AGE)) + '</span></label>'
+      + '<label class="agebox"><input id="terms" type="checkbox"> <span>' + termsHtml() + '</span></label>'
       + holdHtml();
   }
 
-  function renderKasse(root, me) {
+  function renderKasse(root, me, keep) {
     var items = itemsPayload();
     if (!me) {
       root.innerHTML = '<p>' + esc(t('Bitte zuerst anmelden.')) + '</p><p><a class="btn" href="konto.html?next=kasse.html">' + esc(t('Anmelden')) + '</a></p>';
@@ -134,15 +142,41 @@
       root.innerHTML = linesHtml(r.data.items)
         + summaryHtml(r.data)
         + ageFields()
-        + acceptHtml()
+        + '<p class="tabwarn">' + esc('Dieses Produkt kann Ihre Gesundheit schädigen.') + '</p>'
         + '<p class="muted">' + esc(t('Testzahlung über PostFinance.')) + '</p>'
-        + '<p><button class="btn" type="button" id="pay">' + esc(t('Jetzt bezahlen')) + '</button></p>'
+        + '<p><button class="btn" type="button" id="pay">' + esc(t(PAY_LABEL)) + '</button></p>'
         + '<p id="kasse-err" class="err" hidden></p>';
+      if (keep) {
+        var birthEl = root.querySelector('#birthdate');
+        var ageEl = root.querySelector('#age18');
+        var termsEl = root.querySelector('#terms');
+        if (birthEl) birthEl.value = keep.birth || '';
+        if (ageEl) ageEl.checked = !!keep.age;
+        if (termsEl) termsEl.checked = !!keep.terms;
+      }
+      root.querySelectorAll('[data-qty]').forEach(function (btn) {
+        btn.onclick = function () {
+          var li = btn.closest('li');
+          var id = li && li.getAttribute('data-id');
+          var cur = cart().filter(function (it) { return it.id === id; })[0];
+          var next = (cur && cur.qty || 1) + Number(btn.getAttribute('data-qty'));
+          if (window.bvCart && window.bvCart.setQty) window.bvCart.setQty(id, next);
+          var birth = root.querySelector('#birthdate');
+          var age = root.querySelector('#age18');
+          var terms = root.querySelector('#terms');
+          renderKasse(root, me, {
+            birth: birth ? birth.value : '',
+            age: !!(age && age.checked),
+            terms: !!(terms && terms.checked)
+          });
+        };
+      });
       root.querySelector('#pay').onclick = function () {
         var btn = root.querySelector('#pay');
         var box = root.querySelector('#kasse-err');
         var birth = (root.querySelector('#birthdate').value || '').trim();
         var confirmed = !!root.querySelector('#age18').checked;
+        var terms = !!root.querySelector('#terms').checked;
         box.hidden = true;
         if (!/^\d{2}\.\d{2}\.\d{4}$/.test(birth)) {
           box.hidden = false;
@@ -154,9 +188,14 @@
           box.textContent = t('Bitte bestätige, dass du 18 Jahre oder älter bist.');
           return;
         }
+        if (!terms) {
+          box.hidden = false;
+          box.textContent = t('Bitte akzeptiere die AGB und die Datenschutzerklärung.');
+          return;
+        }
         btn.disabled = true;
         api('/checkout', { method: 'POST', csrf: me.csrf_token, body: {
-          items: itemsPayload(), preview: false, birthdate: birth, age_confirmed: true
+          items: itemsPayload(), preview: false, birthdate: birth, age_confirmed: true, terms_accepted: true
         } }).then(function (pay) {
           btn.disabled = false;
           if (pay.status === 200 && pay.data.integrationMode === 'PaymentPage' && pay.data.paymentUrl) {
@@ -178,9 +217,8 @@
     }
     function paint(data) {
       var status = data && data.payment_status;
-      var text = ok
-        ? (status === 'bezahlt' || status === 'paid' ? 'Bezahlt. Die Bestellung ist deinem Konto zugeordnet.' : 'Warten auf die Bestätigung von PostFinance.')
-        : 'Die Zahlung ist nicht durchgegangen.';
+      var ack = 'Danke für deine Bestellung ' + ref + '! Das ist eine Eingangsbestätigung, noch keine Versandbestätigung. Bevor wir versenden, melden wir uns bei dir für die Alterskontrolle (Ausweis bereithalten). Danach bekommst du die Versandbestätigung.';
+      var text = ok ? ack : 'Die Zahlung ist nicht durchgegangen.';
       var list = (data && data.items) ? data.items.map(function (it) {
         return '<li><span>' + esc(it.name) + (it.preorder ? ' · ' + esc(t('Vorbestellung')) : '') + ' ×' + esc(it.qty) + '</span></li>';
       }).join('') : '';
@@ -189,7 +227,6 @@
       root.innerHTML = '<p>' + esc(t(text)) + '</p>'
         + (list ? '<ul class="kasse-lines">' + list + '</ul>' : '')
         + '<p class="muted">' + esc(ref) + (data && data.total_chf != null ? ' · ' + esc(money(data.total_chf)) : '') + shipBit + '</p>'
-        + noticesOf(data)
         + '<p><a href="konto.html">' + esc(t('Mein Konto')) + '</a> · <a href="kasse.html">' + esc(t('Zur Kasse')) + '</a> · <a href="index.html">' + esc(t('Zurück zum Shop')) + '</a></p>';
     }
     api('/me').then(function (me) {

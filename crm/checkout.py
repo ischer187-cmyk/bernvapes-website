@@ -19,14 +19,15 @@ _TX = re.compile(r'^\d{1,18}$')
 _BIRTH = re.compile(r'^(\d{2})\.(\d{2})\.(\d{4})$')
 NOTICE_ALL = 'Vor dem Versand wird die Altersverifikation durchgeführt.'
 NOTICE_NEW = (
-    'Bei Neukunden melden wir uns persönlich, um die Altersverifizierung durchzuführen. '
-    'Du schickst uns dazu ein Selfie mit deinem Ausweis.'
+    'Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, '
+    'zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.'
 )
 AGE_OPEN = 'Altersprüfung offen'
 AGE_MESSAGES = {
     'underage': 'Du musst mindestens 18 Jahre alt sein.',
     'birthdate_invalid': 'Bitte Geburtsdatum als TT.MM.JJJJ angeben.',
     'age_confirm_required': 'Bitte bestätige, dass du 18 Jahre oder älter bist.',
+    'terms_required': 'Bitte akzeptiere die AGB und die Datenschutzerklärung.',
 }
 
 
@@ -93,7 +94,7 @@ def parse_birthdate(value):
 
 
 def assert_adult(data):
-    """Pflicht: Geburtsdatum TT.MM.JJJJ und Checkbox. Alter mindestens 18."""
+    """Pflicht: Geburtsdatum, Alters-Häkchen und AGB. Alter mindestens 18."""
     if not isinstance(data, dict) or not _truthy(data.get('age_confirmed')):
         raise CheckoutError(422, 'age_confirm_required')
     text, born = parse_birthdate(data.get('birthdate'))
@@ -101,6 +102,8 @@ def assert_adult(data):
     age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
     if age < 18:
         raise CheckoutError(422, 'underage')
+    if not _truthy(data.get('terms_accepted')):
+        raise CheckoutError(422, 'terms_required')
     return text
 
 
@@ -314,6 +317,7 @@ def place(conn, account, items, data=None):
         'notices': order_notices({'age_check_status': age_status}),
     }
     body.update(_money_fields(subtotal, shipping, total, remaining))
+    _mail_received(conn, oid, ref, lines, shipping, total, account)
     return body
 
 
@@ -442,8 +446,6 @@ def apply_webhook(conn, data):
         conn.execute(
             'insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
             (order['customer_id'], 'notiz', 'bexio Sync #%s: %s — %s' % (order['id'], bexio.get('status'), detail), 'System'))
-        fresh = conn.execute('select * from orders where id=?', (order['id'],)).fetchone()
-        _mail_paid(conn, fresh)
         paid = 'paid'
     elif state in FAIL_STATES:
         conn.execute(
@@ -459,35 +461,26 @@ def apply_webhook(conn, data):
     return 200, body
 
 
-def _mail_paid(conn, order):
-    """Order confirmation after a paid webhook. A mail failure stays in the log and does not undo the payment."""
-    cust = conn.execute('select name,email from customers where id=?', (order['customer_id'],)).fetchone()
-    email = (cust['email'] if cust and cust['email'] else '') or ''
-    name = (cust['name'] if cust and cust['name'] else '') or ''
+def _mail_received(conn, oid, ref, lines, shipping, total, account):
+    """Eingangsbestätigung sofort nach der Bestellung (UWG). Ein Mailfehler macht die Bestellung nicht rückgängig."""
+    email = (account['email'] or '').strip()
+    name = account['name'] or ''
     if not email:
-        acc = conn.execute(
-            'select name,email from customer_accounts where customer_id=? order by id limit 1',
-            (order['customer_id'],)).fetchone()
-        if acc:
-            email = acc['email'] or ''
-            name = name or (acc['name'] or '')
-    if not email:
-        logging.getLogger('bernvapes.mail').error('Bestellbestätigung #%s ohne E-Mail', order['id'])
+        logging.getLogger('bernvapes.mail').error('Eingangsbestätigung #%s ohne E-Mail', oid)
         return
-    items = conn.execute(
-        'select article,qty,preorder from order_items where order_id=?', (order['id'],)).fetchall()
-    lines = [{
-        'name': row['article'], 'qty': row['qty'], 'preorder': bool(row['preorder']),
-    } for row in items]
-    ref = order['external_ref'] or ('bv-%s' % order['id'])
-    subject, body = order_mail(name, ref, lines, float(order['shipping_chf'] or 0), float(order['total_chf'] or 0))
+    payload = [{
+        'name': row['name'], 'qty': row['qty'], 'preorder': bool(row['preorder']),
+    } for row in lines]
+    subject, body = order_mail(name, ref, payload, shipping, total)
+    order = conn.execute('select customer_id from orders where id=?', (oid,)).fetchone()
     if deliver(conn, email, subject, body):
         return
-    conn.execute(
-        'insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
-        (order['customer_id'], 'notiz',
-         'Bestellbestätigung an %s nicht gesendet. Details im Server-Log.' % email, 'System'))
-    conn.commit()
+    if order:
+        conn.execute(
+            'insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
+            (order['customer_id'], 'notiz',
+             'Eingangsbestätigung an %s nicht gesendet. Details im Server-Log.' % email, 'System'))
+        conn.commit()
 
 
 def _event_begin(conn, event_id):

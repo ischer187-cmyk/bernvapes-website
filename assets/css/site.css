@@ -751,6 +751,17 @@ html:not([data-b2b]) [data-b2b]{display:none !important}
 .shipbar i{display:block;height:100%;width:0;background:var(--bv-gold)}
 .agenote{margin:10px 0 0;font-size:.92rem;line-height:1.45}
 .agehold{margin:16px 0;padding:14px 16px;border:2px solid var(--bv-gold);background:rgba(158,42,43,.38);font-size:1.05rem;line-height:1.45;font-weight:500}
+.tabwarn{margin:18px 0;padding:12px 14px;border:2px solid var(--bv-crimson);font-weight:500;line-height:1.4}
+.gap{background:rgba(198,161,58,.28);color:var(--bv-gold-soft);padding:0 .2em}
+.legal-doc ul{margin:8px 0 16px;padding-left:1.2em}
+.legal-doc li{margin:4px 0}
+.kasse-qty{display:inline-flex;align-items:center;gap:6px;margin-left:8px}
+.kasse-qty button{width:28px;height:28px;border:1px solid var(--bv-gold);background:transparent;color:var(--bv-cream);cursor:pointer}
+.correct{margin:12px 0}
+.agegate{position:fixed;inset:0;z-index:200;background:rgba(10,8,6,.84);display:flex;align-items:center;justify-content:center;padding:24px}
+.agegate .card{max-width:34rem;background:#17130f;border:2px solid var(--bv-gold);padding:28px}
+.agegate h2{margin:0 0 10px}
+.agegate .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
 .legal-accept{margin:14px 0;font-size:.98rem}
 .legal-accept a,.legalnav a{color:var(--bv-gold);text-decoration:underline;text-underline-offset:3px}
 .legalnav{display:flex;flex-wrap:wrap;gap:8px 16px}

@@ -21,7 +21,7 @@ def _birth(years=-30, days=0):
 
 
 def _checkout_body(items, **extra):
-    body = {'items': items, 'birthdate': _birth(-30), 'age_confirmed': True}
+    body = {'items': items, 'birthdate': _birth(-30), 'age_confirmed': True, 'terms_accepted': True}
     body.update(extra)
     return body
 
@@ -546,7 +546,7 @@ class OrderFlowTests(unittest.TestCase):
 
         born = _birth(-18)
         st, placed, _ = client.request('POST', '/api/b2b/customer/checkout', json_body={
-            'items': [{'sku': 'lemon-pie', 'qty': 1}], 'birthdate': born, 'age_confirmed': True})
+            'items': [{'sku': 'lemon-pie', 'qty': 1}], 'birthdate': born, 'age_confirmed': True, 'terms_accepted': True})
         self.assertEqual(st, 200, placed)
         self.assertEqual(placed['age_check_status'], 'Altersprüfung offen')
         self.assertIn(checkout.NOTICE_NEW, placed['notices'])
@@ -567,7 +567,8 @@ class OrderFlowTests(unittest.TestCase):
         st, mine, _ = client.request('GET', '/api/b2b/customer/order?ref=%s' % placed['ref'])
         self.assertEqual(st, 200, mine)
         self.assertIn(checkout.NOTICE_NEW, mine['notices'])
-        self.assertIn('Selfie mit deinem Ausweis', ' '.join(mine['notices']))
+        self.assertIn('amtlichen Ausweises', ' '.join(mine['notices']))
+        self.assertNotIn('Selfie', ' '.join(mine['notices']))
 
         admin = harness.admin_login(self.port)
         st, _, html = admin.request('GET', '/bestellung/%s' % placed['order_id'])
@@ -598,7 +599,7 @@ class OrderFlowTests(unittest.TestCase):
         self.assertIn('Keine Ausweisbilder', note)
 
         st, again, _ = client.request('POST', '/api/b2b/customer/checkout', json_body={
-            'items': [{'sku': 'lemon-pie', 'qty': 1}], 'birthdate': born, 'age_confirmed': True})
+            'items': [{'sku': 'lemon-pie', 'qty': 1}], 'birthdate': born, 'age_confirmed': True, 'terms_accepted': True})
         self.assertEqual(st, 200, again)
         self.assertNotEqual(again['age_check_status'], 'Altersprüfung offen')
         self.assertNotIn(checkout.NOTICE_NEW, again['notices'])

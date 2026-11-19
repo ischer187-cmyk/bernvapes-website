@@ -14,8 +14,16 @@ ROOT = Path(__file__).resolve().parent
 log = logging.getLogger('bernvapes.mail')
 
 SHIP_NOTICE = (
-    'Wir verkaufen nur an Personen ab 18 Jahren. '
-    'Deine Bestellung wird erst versendet, nachdem wir dich kontaktiert und dein Alter bestätigt haben.'
+    'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. '
+    'Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir '
+    'und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. '
+    'Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung '
+    'und du bekommst dein Geld vollständig zurück.'
+)
+ORDER_ACK = (
+    'Danke für deine Bestellung %s! Das ist eine Eingangsbestätigung, noch keine Versandbestätigung. '
+    'Bevor wir versenden, melden wir uns bei dir für die Alterskontrolle (Ausweis bereithalten). '
+    'Danach bekommst du die Versandbestätigung.'
 )
 
 
@@ -154,11 +162,11 @@ def order_mail(name, ref, lines, shipping, total):
     ship = 'gratis' if not shipping else 'CHF %.2f' % float(shipping)
     body = (
         'Guten Tag %s\n\n'
-        'danke für deine Bestellung bei Bernvapes.\n\n'
+        '%s\n\n'
         'Bestellung %s\n%s\n\n'
         'Versand: %s\n'
         'Total: CHF %.2f\n\n'
         '%s\n\n'
         'Freundliche Grüsse\nBernvapes\nFährstrasse 29, 3004 Bern\n'
-    ) % (name or '', ref, '\n'.join(rows) or '-', ship, float(total), SHIP_NOTICE)
+    ) % (name or '', ORDER_ACK % ref, ref, '\n'.join(rows) or '-', ship, float(total), SHIP_NOTICE)
     return subject, body
