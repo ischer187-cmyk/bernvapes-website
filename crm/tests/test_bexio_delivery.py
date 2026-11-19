@@ -76,6 +76,7 @@ class DeliveryTests(unittest.TestCase):
         os.environ['BEXIO_DELIVERY_ENABLED'] = '1'
         os.environ['BEXIO_API_TOKEN'] = 'bexio-token-do-not-log'
         os.environ['BEXIO_USER_ID'] = '7'
+        os.environ['BEXIO_TAX_ID'] = '44'
         os.environ.pop('SMTP_HOST', None)
         self.mails = []
         bexio_sync.set_mail_transport(self._mail)

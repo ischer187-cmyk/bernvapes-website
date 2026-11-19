@@ -11,13 +11,14 @@ PDF for orders and invoices is GET .../pdf with JSON {name,mime,content}. The
 public docs page does not list a delivery PDF; we call GET /2.0/kb_delivery/{id}/pdf
 in that same shape. bexio documents no kb_order webhook.
 """
-import base64, json, os, re, smtplib
+import base64, json, logging, os, re, smtplib
 from email.message import EmailMessage
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 API = 'https://api.bexio.com'
+log = logging.getLogger('bernvapes.bexio')
 STOCK_HINT = 'Lieferschein fehlgeschlagen – Bestand pruefen'
 DEFAULT_DELIVERY_RECIPIENTS = 'mail@vapelounge.ch,daniela@bernvapes.ch'
 DEFAULT_STOCK_RECIPIENT = 'daniela@bernvapes.ch'
@@ -204,6 +205,10 @@ def sync_paid_order(conn, order_id):
     user_raw = (os.environ.get('BEXIO_USER_ID') or '').strip()
     if not user_raw.isdigit():
         return _off('incomplete_config', 'BEXIO_USER_ID is empty. No bexio request was made.')
+    if tax_id() is None:
+        msg = 'BEXIO_TAX_ID fehlt oder ist keine Zahl. Sync abgelehnt, keine Buchung ohne MwSt.'
+        log.error(msg)
+        return _off('missing_tax', msg + ' Kein bexio-Aufruf.')
     order = conn.execute('select * from orders where id=?', (order_id,)).fetchone()
     if not order:
         return _off('missing_order', 'Order missing. No bexio request was made.')
@@ -322,10 +327,18 @@ def _create_contact(token, cust, acc, user_id, owner_id, country_id):
     return int(created['id'])
 
 
+def tax_id():
+    raw = (os.environ.get('BEXIO_TAX_ID') or '').strip()
+    if not raw.isdigit():
+        return None
+    return int(raw)
+
+
 def _apply_tax(row):
-    tax = (os.environ.get('BEXIO_TAX_ID') or '').strip()
-    if tax.isdigit():
-        row['tax_id'] = int(tax)
+    tax = tax_id()
+    if tax is None:
+        raise BexioError('BEXIO_TAX_ID fehlt. Position ohne MwSt abgelehnt.')
+    row['tax_id'] = tax
     return row
 
 
@@ -405,7 +418,7 @@ def _sales_body(order, items, contact_id, user_id, currency_id):
         'contact_id': int(contact_id),
         'user_id': user_id,
         'currency_id': currency_id,
-        'mwst_type': 0 if (os.environ.get('BEXIO_TAX_ID') or '').strip().isdigit() else 2,
+        'mwst_type': 0,
         'mwst_is_net': False,
         'api_reference': order['external_ref'] or ('bv-%s' % order['id']),
         'positions': _positions(order, items),

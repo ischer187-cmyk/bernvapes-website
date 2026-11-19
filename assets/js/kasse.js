@@ -60,6 +60,8 @@
   }
   var NOTICE_ALL = 'Vor dem Versand wird die Altersverifikation durchgeführt.';
   var NOTICE_NEW = 'Bei Neukunden melden wir uns persönlich, um die Altersverifizierung durchzuführen. Du schickst uns dazu ein Selfie mit deinem Ausweis.';
+  var NOTICE_HOLD = 'Wir verkaufen nur an Personen ab 18 Jahren. Deine Bestellung wird erst versendet, nachdem wir dich kontaktiert und dein Alter bestätigt haben.';
+  var ACCEPT = 'Mit der Bestellung akzeptierst du die {agb} und die {privacy}.';
   function linesHtml(items) {
     return '<ul class="kasse-lines">' + items.map(function (it) {
       var mark = it.preorder ? ' <i class="premark">' + esc(t('Vorbestellung')) + '</i>' : '';
@@ -76,7 +78,19 @@
     var list = (data && data.notices && data.notices.length) ? data.notices.slice() : [NOTICE_ALL];
     if (data && data.age_check_status === 'Altersprüfung offen' && list.indexOf(NOTICE_NEW) < 0) list.push(NOTICE_NEW);
     if (data && data.needs_age_check && list.indexOf(NOTICE_NEW) < 0) list.push(NOTICE_NEW);
-    return list.map(function (n) { return '<p class="agenote">' + esc(t(n)) + '</p>'; }).join('');
+    return list.filter(function (n) { return n !== NOTICE_HOLD; }).map(function (n) {
+      return '<p class="agenote">' + esc(t(n)) + '</p>';
+    }).join('');
+  }
+  function holdHtml() {
+    return '<p class="agehold" role="note">' + esc(t(NOTICE_HOLD)) + '</p>';
+  }
+  function acceptHtml() {
+    var raw = t(ACCEPT);
+    var agb = '<a href="agb.html">' + esc(t('AGB')) + '</a>';
+    var priv = '<a href="datenschutz.html">' + esc(t('Datenschutzerklärung')) + '</a>';
+    var html = esc(raw).replace('{agb}', agb).replace('{privacy}', priv);
+    return '<p class="legal-accept">' + html + '</p>';
   }
   function summaryHtml(data) {
     var ship = Number(data.shipping_chf) || 0;
@@ -96,7 +110,8 @@
     return '<label class="fld" for="birthdate">' + esc(t('Geburtsdatum')) + '</label>'
       + '<input id="birthdate" name="birthdate" inputmode="numeric" autocomplete="bday" placeholder="TT.MM.JJJJ" required>'
       + '<label class="agebox"><input id="age18" type="checkbox" required> <span>'
-      + esc(t('Ich bestätige, dass ich 18 Jahre oder älter bin')) + '</span></label>';
+      + esc(t('Ich bestätige, dass ich 18 Jahre oder älter bin')) + '</span></label>'
+      + holdHtml();
   }
 
   function renderKasse(root, me) {
@@ -119,6 +134,7 @@
       root.innerHTML = linesHtml(r.data.items)
         + summaryHtml(r.data)
         + ageFields()
+        + acceptHtml()
         + '<p class="muted">' + esc(t('Testzahlung über PostFinance.')) + '</p>'
         + '<p><button class="btn" type="button" id="pay">' + esc(t('Jetzt bezahlen')) + '</button></p>'
         + '<p id="kasse-err" class="err" hidden></p>';

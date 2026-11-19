@@ -1,21 +1,4 @@
-/* Kunden-Login, vorerst nur Platzhalter.
-   Kein Passwort in localStorage, kein Fetch, kein Versand.
-
-   Später an das Händlerportal / CRM aus bony/b2b-portal (PR #3) hängen,
-   ohne dieses Formular umzubauen:
-
-     window.BV_AUTH = {
-       mode: 'b2b',
-       api: '/b2b-api',
-       // Retail-Session, sobald das CRM eine hat. Nicht /login der Händler:
-       // POST /b2b-api/login ist {email, password, totp} für dealer_accounts.
-       customerLogin: '/customer/login'
-     };
-
-   Händler bleiben auf haendler.html. Dort spricht assets/js/b2b.js mit
-   POST /b2b-api/login (crm/portal.py). Im Platzhalter führt der Hinweis
-   nicht weg und schickt nichts. Mit mode 'b2b' öffnet der Link haendler.html.
-*/
+/* Nicht eingebunden. Der Kunden-Login läuft über assets/js/account.js und konto.html. */
 (function () {
   var AUTH = window.BV_AUTH || (window.BV_AUTH = {
     mode: 'placeholder',
@@ -59,7 +42,6 @@
     noticeEl.hidden = false;
     noticeEl.textContent = be;
   }
-  /* Absenden gegen das CRM. Wird im Platzhalter nicht aufgerufen. */
   function postCustomer(email, password) {
     var root = String(AUTH.api || '/b2b-api').replace(/\/$/, '');
     var path = AUTH.customerLogin || '/customer/login';

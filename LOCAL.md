@@ -22,7 +22,9 @@ Im Terminal, bevor `app.py` startet. Keine Secrets in Dateien im Git.
 | `BEXIO_SYNC_ENABLED` | nein | **aus lassen.** Erst dann legt eine bezahlte Shop-Bestellung Kunde und Rechnung in bexio an |
 | `BEXIO_API_TOKEN` | nein | Nur zusammen mit `BEXIO_SYNC_ENABLED` |
 | `BEXIO_USER_ID` | nein | bexio-User für Kontakt und Rechnung |
-| `EMAIL_DRIVER` | nein | Default `log`. Es gibt keinen SMTP-Versand |
+| `EMAIL_DRIVER` | nein | `log` (Default) schreibt nur das Mail-Log. `smtp` verschickt über SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, SMTP_TLS |
+| `POSTFINANCE_MODE` | nein | `test` (Default, sicher) oder `live`. Solange nicht `live`, ist jede Shop-Bestellung ein Test |
+| `BEXIO_TAX_ID` | nein | Pflicht bei Sync. Erwartet `44`. Fehlt der Wert, wird die Buchung abgelehnt |
 
 Beispielpreise (Einstieg / Händler / Grosshändler) liegen nach dem ersten Start in der Datenbank. Das sind keine Ladenpreise. Echte Stufen setzt Dominic später in der Steuerzentrale unter **Preise**.
 
@@ -86,7 +88,7 @@ Ein Sonderpreis pro Sorte steht am Händlerkonto (Override) und schlägt die Stu
 
 ## 5. Was absichtlich nicht live ist
 
-- E-Mail: Schnittstelle `Mailer`, Default loggt nach `crm/mail.log` und ins Mail-Log. Kein SMTP.
+- E-Mail: `EMAIL_DRIVER=log` schreibt nach `crm/mail.log` und ins Mail-Log. `EMAIL_DRIVER=smtp` verschickt über SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM und SMTP_TLS.
 - bexio Rechnungen und Kunden anlegen: Stub, Flag `BEXIO_WRITE_ENABLED` aus, kein HTTP-Call. Lesen für `classify_contacts.py --refresh` bleibt der alte GET-Weg und braucht `BEXIO_API_TOKEN` nur wenn Dominic das ausdrücklich will.
 - Webhooks `payment`, `oneguard`, `newsletter-doi`, `contact`: angenommen und gespeichert, ändern keine Kundendaten. `POST /webhook/order` ist der echte Bestellweg (Shop und Händlerportal).
 - Keine Railway-Konfiguration, kein Deploy, kein DNS.

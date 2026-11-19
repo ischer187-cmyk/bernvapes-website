@@ -42,9 +42,19 @@ Für die Test-Kasse (PostFinance), nur die Namen:
 - POSTFINANCE_SPACE_ID
 - POSTFINANCE_USER_ID
 - POSTFINANCE_SPACE_KEY
+- POSTFINANCE_MODE (leer oder `test`. Erst `live`, wenn der Space wirklich live ist. Bis dahin bleibt jede Bestellung ein Test.)
 
 Webhook im CRM: POST /webhook/postfinance
 
-bexio nach der Zahlung bleibt aus. Namen, nur wenn du es einschaltest: BEXIO_SYNC_ENABLED, BEXIO_API_TOKEN, BEXIO_USER_ID
+bexio nach der Zahlung bleibt aus. Namen, nur wenn du es einschaltest: BEXIO_SYNC_ENABLED, BEXIO_API_TOKEN, BEXIO_USER_ID, BEXIO_TAX_ID
 
-Passwort-vergessen-Links stehen im CRM unter **Steuerung → Mail-Log**. Es geht keine echte Mail raus.
+`BEXIO_TAX_ID` ist Pflicht, sobald der Sync an ist. Der erwartete Wert ist `44`. Fehlt er, wird nichts gebucht und der Fehler steht im Log und in der Notiz zur Bestellung.
+
+Mail: `EMAIL_DRIVER=log` ist der lokale Standard. Der Text steht unter **Steuerung → Mail-Log** und in `crm/mail.log`. Echte Mail erst mit `EMAIL_DRIVER=smtp` und diesen Namen, Werte nur bei dir, nicht in Git:
+
+- SMTP_HOST
+- SMTP_PORT (meist 587)
+- SMTP_USER
+- SMTP_PASS
+- SMTP_FROM
+- SMTP_TLS (1 schaltet STARTTLS ein, 0 lässt es aus. Port 465 nimmt SSL.)

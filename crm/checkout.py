@@ -4,9 +4,10 @@ Pre-order bottles (Lemon Pie, Mango Lassi, Mandarine Nuss, Apple Pie) use the
 same payment. The line is stored with preorder=1. Prices come from the product
 table (price_einstieg), never from the browser.
 """
-import datetime, os, re
+import datetime, logging, os, re
 from bexio_sync import sync_paid_order
 from db import IntegrityError
+from mailer import SHIP_NOTICE, deliver, order_mail
 import postfinance
 from shipping import FREE_SHIPPING_THRESHOLD_CHF, SHIPPING_FEE_CHF, VAT_RATE, shipping_for
 
@@ -112,14 +113,14 @@ def _verified(cust):
 
 
 def notices_for(conn, account):
-    notes = [NOTICE_ALL]
+    notes = [SHIP_NOTICE, NOTICE_ALL]
     if not _verified(_customer(conn, account)):
         notes.append(NOTICE_NEW)
     return notes
 
 
 def order_notices(order):
-    notes = [NOTICE_ALL]
+    notes = [SHIP_NOTICE, NOTICE_ALL]
     if (order['age_check_status'] or '') == AGE_OPEN:
         notes.append(NOTICE_NEW)
     return notes
@@ -241,12 +242,13 @@ def place(conn, account, items, data=None):
     email = (account['email'] or '').strip().lower()
     cust = _customer(conn, account)
     age_status = None if _verified(cust) else AGE_OPEN
+    test_flag = 1 if postfinance.is_test_mode() else 0
     oid = conn.execute(
         """insert into orders(customer_id,customer_account_id,channel,status,total_chf,shipping_chf,birthdate,
            age_check_status,payment_status,payment_provider,currency,is_test,payment_method,updated_at)
            values(?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))""",
         (cid, aid, 'website', 'offen', total, shipping, birth, age_status,
-         'offen', 'postfinance', 'CHF', 1, 'postfinance')).lastrowid
+         'offen', 'postfinance', 'CHF', test_flag, 'postfinance')).lastrowid
     ref = 'bv-%s' % oid
     conn.execute('update orders set external_ref=? where id=?', (ref, oid))
     conn.execute(
@@ -258,9 +260,10 @@ def place(conn, account, items, data=None):
             (oid, row['name'], row['qty'], row['unit_chf'], row['bottle_ml'], 1 if row['preorder'] else 0, row['sku']))
     names = ', '.join('%s%s' % (row['name'], ' (Vorbestellung)' if row['preorder'] else '') for row in lines)
     ship_note = 'Versand gratis' if shipping == 0 else 'Versand CHF %.2f' % shipping
+    test_tag = ' [TEST]' if test_flag else ''
     conn.execute(
         'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
-        (cid, 'website', 'in', 'Shop-Kasse #%s %s · CHF %.2f (%s) [TEST]. %s' % (oid, ref, total, ship_note, names), 'Shop'))
+        (cid, 'website', 'in', 'Shop-Kasse #%s %s · CHF %.2f (%s)%s. %s' % (oid, ref, total, ship_note, test_tag, names), 'Shop'))
     if age_status == AGE_OPEN:
         conn.execute(
             'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
@@ -305,7 +308,7 @@ def place(conn, account, items, data=None):
     conn.commit()
     body = {
         'ok': True, 'order_id': oid, 'ref': ref, 'paymentUrl': url, 'integrationMode': 'PaymentPage',
-        'test': True, 'items': _public_lines(lines),
+        'test': bool(test_flag), 'items': _public_lines(lines),
         'needs_age_check': age_status == AGE_OPEN,
         'age_check_status': age_status,
         'notices': order_notices({'age_check_status': age_status}),
@@ -439,6 +442,8 @@ def apply_webhook(conn, data):
         conn.execute(
             'insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
             (order['customer_id'], 'notiz', 'bexio Sync #%s: %s — %s' % (order['id'], bexio.get('status'), detail), 'System'))
+        fresh = conn.execute('select * from orders where id=?', (order['id'],)).fetchone()
+        _mail_paid(conn, fresh)
         paid = 'paid'
     elif state in FAIL_STATES:
         conn.execute(
@@ -452,6 +457,37 @@ def apply_webhook(conn, data):
     if bexio is not None:
         body['bexio'] = {'status': bexio.get('status'), 'created': bool(bexio.get('created'))}
     return 200, body
+
+
+def _mail_paid(conn, order):
+    """Order confirmation after a paid webhook. A mail failure stays in the log and does not undo the payment."""
+    cust = conn.execute('select name,email from customers where id=?', (order['customer_id'],)).fetchone()
+    email = (cust['email'] if cust and cust['email'] else '') or ''
+    name = (cust['name'] if cust and cust['name'] else '') or ''
+    if not email:
+        acc = conn.execute(
+            'select name,email from customer_accounts where customer_id=? order by id limit 1',
+            (order['customer_id'],)).fetchone()
+        if acc:
+            email = acc['email'] or ''
+            name = name or (acc['name'] or '')
+    if not email:
+        logging.getLogger('bernvapes.mail').error('Bestellbestätigung #%s ohne E-Mail', order['id'])
+        return
+    items = conn.execute(
+        'select article,qty,preorder from order_items where order_id=?', (order['id'],)).fetchall()
+    lines = [{
+        'name': row['article'], 'qty': row['qty'], 'preorder': bool(row['preorder']),
+    } for row in items]
+    ref = order['external_ref'] or ('bv-%s' % order['id'])
+    subject, body = order_mail(name, ref, lines, float(order['shipping_chf'] or 0), float(order['total_chf'] or 0))
+    if deliver(conn, email, subject, body):
+        return
+    conn.execute(
+        'insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
+        (order['customer_id'], 'notiz',
+         'Bestellbestätigung an %s nicht gesendet. Details im Server-Log.' % email, 'System'))
+    conn.commit()
 
 
 def _event_begin(conn, event_id):

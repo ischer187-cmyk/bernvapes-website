@@ -7,7 +7,7 @@ from auth import (
     token_hash, totp_ok, utcnow, verify_password,
 )
 from crmlib import enroll_prospects
-from mailer import get_mailer
+from mailer import deliver, invite_mail
 from orders import process_order
 from pricing import TIER_LABEL, normalize_tier, normalize_uid, unit_price
 from db import IntegrityError
@@ -76,18 +76,11 @@ def create_invite(conn, customer_id, email, tier):
                values(?,?, 'invited', ?, ?, ?, ?, ?)""",
             (customer_id, email, cust['company_name'] or cust['name'], cust['contact_person'], tier, token_hash(token), exp)).lastrowid
     link = f'{_public_base()}/haendler.html?token={token}'
-    subject = 'Bernvapes Händlerportal – Einladung'
-    body = (
-        f"Guten Tag\n\n"
-        f"für {cust['company_name'] or cust['name']} liegt ein Zugang zum Bernvapes-Händlerportal bereit.\n"
-        f"Der Link ist einmalig und gilt {os.environ.get('INVITE_TTL_DAYS', '14')} Tage:\n\n{link}\n\n"
-        f"Danach Passwort setzen und die Zwei-Faktor-Anmeldung (TOTP) aktivieren.\n"
-        f"Preisstufe: {TIER_LABEL[tier]}.\n\nBernvapes\n"
-    )
-    get_mailer().send(email, subject, body)
-    conn.execute('insert into mail_log(to_addr,subject,body) values(?,?,?)', (email, subject, body))
+    days = os.environ.get('INVITE_TTL_DAYS', '14')
+    subject, body = invite_mail(cust['company_name'] or cust['name'], link, days, TIER_LABEL[tier])
+    deliver(conn, email, subject, body)
     conn.execute('insert into notes(customer_id,channel,body,author) values(?,?,?,?)',
-                 (customer_id, 'notiz', f'Händler-Einladung an {email} ({TIER_LABEL[tier]}). Versand nicht konfiguriert, Link nur im Mail-Log.', 'CRM'))
+                 (customer_id, 'notiz', f'Händler-Einladung an {email} ({TIER_LABEL[tier]}). Kopie im Mail-Log.', 'CRM'))
     return {'dealer_id': did, 'link': link, 'email': email, 'tier': tier}
 
 def handle(handler, method, path):

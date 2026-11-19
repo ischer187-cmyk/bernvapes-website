@@ -59,6 +59,7 @@ class ArticleMapTests(unittest.TestCase):
         os.environ['BEXIO_DELIVERY_ENABLED'] = '0'
         os.environ['BEXIO_API_TOKEN'] = 'bexio-token-do-not-log'
         os.environ['BEXIO_USER_ID'] = '7'
+        os.environ['BEXIO_TAX_ID'] = '44'
         os.environ.pop('SMTP_HOST', None)
         os.environ.pop('STOCK_ALERT_RECIPIENT', None)
         self.mails = []

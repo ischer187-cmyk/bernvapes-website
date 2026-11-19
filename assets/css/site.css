@@ -1,7 +1,11 @@
 /* =========================================================
    BERNVAPES — Papercraft-Welten · Stylesheet
    Tokens siehe Webstyle/BERNVAPES_Webstyle_Guide.md
+   Schriften lokal (OFL), kein Aufruf an Google.
    ========================================================= */
+@font-face{font-family:"Poiret One";font-style:normal;font-weight:400;font-display:swap;src:url("../fonts/poiret-one-latin.woff2") format("woff2")}
+@font-face{font-family:"Cinzel";font-style:normal;font-weight:400 900;font-display:swap;src:url("../fonts/cinzel-latin.woff2") format("woff2")}
+@font-face{font-family:"Work Sans";font-style:normal;font-weight:300 500;font-display:swap;src:url("../fonts/work-sans-latin.woff2") format("woff2")}
 :root{
   --bv-cream:#F2E8CF; --bv-sand:#E7D9B6;
   --bv-crimson:#9E2A2B; --bv-crimson-deep:#7E2121;
@@ -746,6 +750,12 @@ html:not([data-b2b]) [data-b2b]{display:none !important}
 .shipbar{height:4px;margin-top:6px;border-radius:999px;background:rgba(198,161,58,.25);overflow:hidden}
 .shipbar i{display:block;height:100%;width:0;background:var(--bv-gold)}
 .agenote{margin:10px 0 0;font-size:.92rem;line-height:1.45}
+.agehold{margin:16px 0;padding:14px 16px;border:2px solid var(--bv-gold);background:rgba(158,42,43,.38);font-size:1.05rem;line-height:1.45;font-weight:500}
+.legal-accept{margin:14px 0;font-size:.98rem}
+.legal-accept a,.legalnav a{color:var(--bv-gold);text-decoration:underline;text-underline-offset:3px}
+.legalnav{display:flex;flex-wrap:wrap;gap:8px 16px}
+.legal-doc h2{margin:1.5em 0 .35em;font-size:1.05rem}
+.ph{opacity:.7;font-style:italic}
 .kasse-total{margin-top:8px}
 .cartgo{display:block;margin-top:12px;text-align:center;text-decoration:none;box-sizing:border-box}
 a.cartgo[hidden]{display:none}

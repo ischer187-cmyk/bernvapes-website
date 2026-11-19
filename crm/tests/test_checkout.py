@@ -331,6 +331,7 @@ class OrderFlowTests(unittest.TestCase):
         os.environ['BEXIO_SYNC_ENABLED'] = '1'
         os.environ['BEXIO_API_TOKEN'] = 'bexio-token-do-not-log'
         os.environ['BEXIO_USER_ID'] = '7'
+        os.environ['BEXIO_TAX_ID'] = '44'
         gate = Gateway()
         postfinance.set_transport(gate)
         st, placed, _ = client.request('POST', '/api/b2b/customer/checkout', json_body=_checkout_body([
@@ -356,6 +357,9 @@ class OrderFlowTests(unittest.TestCase):
                 payload = json.loads(req.data.decode('utf-8'))
                 self.assertIn('Vorbestellung', payload['positions'][0]['text'])
                 self.assertEqual(payload['api_reference'], placed['ref'])
+                self.assertEqual(payload['mwst_type'], 0)
+                self.assertFalse(payload['mwst_is_net'])
+                self.assertTrue(all(row.get('tax_id') == 44 for row in payload['positions']))
                 return _Fake(b'{"id": 44, "document_nr": "AU-00044"}')
             if path.endswith('/invoice'):
                 return _Fake(b'{"id": 88}')
@@ -370,6 +374,10 @@ class OrderFlowTests(unittest.TestCase):
         self.assertTrue(paid['bexio']['created'])
         self.assertNotIn('bexio-token-do-not-log', text)
         self.assertEqual(len(bexio_calls), 4)
+        paths = [urlsplit(req.full_url).path for req in bexio_calls]
+        self.assertTrue(paths[2].endswith('/2.0/kb_order'))
+        self.assertIn('/kb_order/', paths[3])
+        self.assertTrue(paths[3].endswith('/invoice'))
         db = connect()
         cid = db.execute("select id from customers where email='anna-kasse@example.com'").fetchone()[0]
         self.assertEqual(db.execute('select bexio_contact_id from customers where id=?', (cid,)).fetchone()[0], 77)

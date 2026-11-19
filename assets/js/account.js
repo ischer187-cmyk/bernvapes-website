@@ -25,6 +25,7 @@
       'CRM nid erreichbar.': 'CRM nicht erreichbar.',
       'Letschti Aamäldig': 'Letzte Anmeldung',
       'Link isch im Mail-Log. Es wird nüt verschickt.': 'Der Link steht im Mail-Log. Es wird nichts verschickt.',
+      'Wen es für die E-Mail es Konto git, chunnt e Link zum Zruggsetze.': 'Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.',
       'Passwort (mind. 10 Zeiche)': 'Passwort (mind. 10 Zeichen)'
     };
     var german = de[s] || s;
@@ -252,14 +253,14 @@
       + '<h2>' + esc(L('Passwort vergässe')) + '</h2><form id="f">'
       + field('email', 'E-Mail', 'email', 'required')
       + '<p style="margin-top:16px"><button class="btn" type="submit">' + esc(L('Passwort vergässe')) + '</button></p></form>'
-      + '<p class="muted">' + esc(L('Link isch im Mail-Log. Es wird nüt verschickt.')) + '</p>'
+      + '<p class="muted">' + esc(L('Wen es für die E-Mail es Konto git, chunnt e Link zum Zruggsetze.')) + '</p>'
       + '<p><a href="konto.html">' + esc(L('Zrügg zum Aamälde')) + '</a></p>'
     );
     if (!root) return;
     root.querySelector('#f').onsubmit = function (ev) {
       ev.preventDefault();
       api('/forgot', { method: 'POST', body: { email: new FormData(ev.target).get('email') } }).then(function (r) {
-        if (r.status === 200) renderForgot(L('Link isch im Mail-Log. Es wird nüt verschickt.'), '');
+        if (r.status === 200) renderForgot(L('Wen es für die E-Mail es Konto git, chunnt e Link zum Zruggsetze.'), '');
         else renderForgot('', errText(r.data && r.data.error));
       });
     };
