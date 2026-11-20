@@ -3,7 +3,8 @@
    Die anderen beiden bleiben beim Canvas-Colorkey des MP4. */
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var GAP=2800, V='20261029l';
+  var GAP=2800;
+  function bv(u){ return window.BV?BV(u):u; }
   var BLICK_WAIT=7000, blickReadyAt=0, blickWaitDone=false;
   function blickGate(){
     var h=document.getElementById('hero');
@@ -25,16 +26,16 @@
   function mount(s){
     var sec=document.querySelector(s.sel); if(!sec) return;
     var pin=sec.querySelector('.pin')||sec;
-    var poster='assets/web/fox3/'+(s.id==='blick'?'fox_cut_full':s.id)+'.webp?v='+V;
+    var poster=bv('assets/web/fox3/'+(s.id==='blick'?'fox_cut_full':s.id)+'.webp');
     var el=document.createElement('div');
     el.className='wfox wfox-'+s.id;
     el.setAttribute('aria-hidden','true');
     if(s.id==='blick'){
-      el.innerHTML='<div class="wfox-mask"><img alt="" src="assets/web/fox3/blick_solid.webp?v='+V+'"></div>';
+      el.innerHTML='<div class="wfox-mask"><img alt="" src="'+bv('assets/web/fox3/blick_solid.webp?v=39e3b2914c')+'"></div>';
     }else if(reduce){
       el.innerHTML='<img class="wfox-still" alt="" src="'+poster+'">';
     }else{
-      el.innerHTML='<canvas></canvas><video muted playsinline preload="none" src="assets/web/fox3/'+s.id+'.mp4?v='+V+'"></video>';
+      el.innerHTML='<canvas></canvas><video muted playsinline preload="none" src="'+bv('assets/web/fox3/'+s.id+'.mp4')+'"></video>';
     }
     pin.appendChild(el);
     s.el=el; s.sec=sec; s.video=el.querySelector('video'); s.canvas=el.querySelector('canvas');

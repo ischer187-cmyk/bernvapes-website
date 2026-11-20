@@ -126,19 +126,57 @@
   /* ---------- Fox-Scrub (Bildsequenz mit Alpha) ---------- */
   class FoxScrub{
     constructor(canvas,base,count){
-      this.c=canvas; this.ctx=canvas.getContext('2d'); this.frames=[]; this.count=count; this.loaded=0; this.idx=-1; this.target=0; this.cur=0;
-      for(let i=0;i<count;i++){ const im=new Image(); im.onload=()=>{this.loaded++; if(i===0) this.draw(0,true);}; im.src=`${base}${String(i).padStart(3,'0')}.webp`; this.frames.push(im); }
-      this.win=new Image(); this.win.onload=()=>this.draw(this.idx,true); this.win.src=`${base}window.webp`;   /* Fenster in Fuchs-Silhouette (hart, für den Stand) */
-      this.winSoft=new Image(); this.winSoft.src=`${base}window_soft.webp`;                                     /* weiche Variante, blendet mit der Bewegung ein */
+      this.c=canvas; this.ctx=canvas.getContext('2d'); this.frames=[]; this.count=count; this.loaded=0; this.idx=-1; this.target=0; this.cur=0; this.ready=false;
+      this.c.style.opacity='0'; this.c.style.transform='scale(.96)'; this.c.style.transformOrigin='50% 42%';
+      this.c.style.transition='opacity .7s ease, transform .8s cubic-bezier(.16,.84,.28,1)';
+      const reveal=()=>{ if(this.ready) return; const im=this.frames[0]; if(!im||!im.naturalWidth) return; this.ready=true; this.draw(0,true); this.c.style.opacity='1'; this.c.style.transform='scale(1)'; };
+      /* Nur ein Fenster der Sequenz dekodieren. 85 Full-HD-Frames auf einmal
+         verdrängen die Produktbilder (Apple Pie, Mango Lassi, Quartier, Berg). */
+      this._load=(i)=>{
+        if(i<0||i>=count) return null;
+        let im=this.frames[i];
+        if(im&&im.getAttribute('data-on')==='1') return im;
+        if(!im){ im=new Image(); this.frames[i]=im; }
+        if(im.getAttribute('data-busy')==='1') return im;
+        im.decoding='async'; im.setAttribute('data-busy','1');
+        let tries=0; const raw=`${base}${String(i).padStart(3,'0')}.webp`;
+        const src=window.BV?BV(raw):raw;
+        const go=()=>{ im.src=tries?src+(src.indexOf('?')>=0?'&':'?')+'r='+tries:src; };
+        im.onload=()=>{ im.setAttribute('data-on','1'); im.removeAttribute('data-busy'); this.loaded++; if(i===0) reveal(); };
+        im.onerror=()=>{ im.removeAttribute('data-busy'); if(++tries<4) setTimeout(go, 280*tries); };
+        go();
+        return im;
+      };
+      this._window=(i)=>{
+        for(let k=i-2;k<=i+5;k++) this._load(k);
+        this._load(0);
+        for(let k=1;k<count;k++){
+          if(Math.abs(k-i)>12 && this.frames[k]){
+            const old=this.frames[k]; old.onload=old.onerror=null; old.src=''; this.frames[k]=null;
+          }
+        }
+      };
+      this._load(0);
+      const bv=function(u){ return window.BV?BV(u):u; };
+      this.win=new Image(); this.win.onload=()=>this.draw(this.idx,true); this.win.src=bv(base+'window.webp');   /* Fenster in Fuchs-Silhouette (hart, für den Stand) */
+      this.winSoft=new Image(); this.winSoft.src=bv(base+'window_soft.webp');                                     /* weiche Variante, blendet mit der Bewegung ein */
       this.black=1;
       this.resize(); addEventListener('resize',()=>{this.resize(); this.draw(this.idx,true);});
     }
     resize(){ const dpr=Math.min(devicePixelRatio||1,1.5); this.c.width=Math.round(innerWidth*dpr); this.c.height=Math.round(innerHeight*dpr); }
-    draw(i,force){
-      i=clamp(Math.round(i),0,this.count-1); if(i===this.idx&&!force&&this.lastScale===this.scale&&this.lastBlack===this.black&&this.lastVg===this.vignette&&this.lastGlow===this.glow&&this.lastFire===this.fire&&this.lastSoft===this.soft&&this.lastFA===this.frameAlpha) return;
+    draw(pos,force){
+      if(!this.ready&&!force) return;
+      const max=this.count-1;
+      const raw=clamp(pos,0,max);
+      const i0=Math.floor(raw+1e-4);
+      const frac=Math.min(1, Math.max(0, raw-i0));
+      let i=i0;
+      if(!force && Math.abs((this._raw==null? -1:this._raw)-raw)<0.012 && i===this.idx && this.lastScale===this.scale&&this.lastBlack===this.black&&this.lastVg===this.vignette&&this.lastGlow===this.glow&&this.lastFire===this.fire&&this.lastSoft===this.soft&&this.lastFA===this.frameAlpha) return;
+      this._raw=raw; this._frac=frac; this._i1=Math.min(max, i0+1);
       this.lastVg=this.vignette; this.lastGlow=this.glow; this.lastFire=this.fire; this.lastSoft=this.soft; this.lastFA=this.frameAlpha;
-      let im=this.frames[i]; let k=i; while((!im||!im.complete||!im.naturalWidth)&&k>0){ k--; im=this.frames[k]; }   /* Fallback: nächster geladener Frame */
-      if(!im||!im.complete||!im.naturalWidth) return; i=k;
+      if(this._window) this._window(i);
+      let im=this.frames[i];
+      if(!im||!im.complete||!im.naturalWidth){ const z=this.frames[0]; if(z&&z.naturalWidth) im=z; else return; }
       this.idx=i; this.lastScale=this.scale; this.lastBlack=this.black; const W=this.c.width,H=this.c.height; const ctx=this.ctx;
       const s=Math.min(W/im.naturalWidth,H/im.naturalHeight)*(this.scale||1); const w=im.naturalWidth*s,h=im.naturalHeight*s, x=(W-w)/2, y=(H-h)/2-H*0.15*Math.max(0,Math.min(1,this.black==null?1:this.black));   /* Intro: Kopf ~15 % höher (Platz für Wortmarke darunter), gleitet beim Aufbrechen zurück in die Mitte; contain: ganzer Kopf immer sichtbar */
       ctx.clearRect(0,0,W,H);
@@ -183,7 +221,22 @@
           const g2=ctx.createRadialGradient(px,py,0,px,py,fr*0.28); g2.addColorStop(0,`rgba(255,200,90,${fi*0.32})`); g2.addColorStop(1,'rgba(255,120,30,0)'); ctx.fillStyle=g2; ctx.fillRect(px-fr*0.3,py-fr*0.3,fr*0.6,fr*0.6); }
         ctx.globalCompositeOperation='source-over';
       }
-      ctx.globalAlpha=this.frameAlpha==null?1:this.frameAlpha; ctx.drawImage(im,x,y,w,h); ctx.globalAlpha=1;   /* Reste am Ende ausblenden */
+      ctx.globalAlpha=this.frameAlpha==null?1:this.frameAlpha; ctx.drawImage(im,x,y,w,h);
+      /* Augenhöhlen der Standframes sind transparente Löcher. Hinter dem Mesh
+         mit dunklem Metall schliessen, solange der Kopf noch ganz ist. */
+      if(i<30 && this.win){
+        ctx.save(); ctx.globalCompositeOperation='destination-over';
+        eyes.forEach(([ex,ey])=>{ const rad=w*0.055; const g=ctx.createRadialGradient(ex,ey,rad*0.15,ex,ey,rad);
+          g.addColorStop(0,'#3a322c'); g.addColorStop(0.7,'#6a5848'); g.addColorStop(1,'rgba(90,70,55,0)');
+          ctx.fillStyle=g; ctx.beginPath(); ctx.arc(ex,ey,rad,0,6.2832); ctx.fill(); });
+        ctx.restore();
+      }
+      const nxt=this.frames[this._i1];
+      if(this._frac>0.02 && nxt && nxt.complete && nxt.naturalWidth && this._i1!==i){
+        ctx.globalAlpha=(this.frameAlpha==null?1:this.frameAlpha)*this._frac;
+        ctx.drawImage(nxt,x,y,w,h);
+      }
+      ctx.globalAlpha=1;
       const bl=fi*Math.max(ss01(((this.fireR||0)-0.45)/0.55)*0.5, (this.spill||0)*0.9);   /* Bloom über die Maskenkanten erst, wenn das Loch gross ist — anfangs bleibt alles hinter der Maske */
       if(bl>0.001){
         const cx=(eyes[0][0]+eyes[1][0])/2, cy=(eyes[0][1]+eyes[1][1])/2; const fr=w*(0.18+0.9*(this.fireR||0));
@@ -199,7 +252,19 @@
         ctx.globalCompositeOperation='source-over';
       }
     }
-    tick(){ this.cur=lerp(this.cur,this.target,reduce?1:0.16); this.draw(this.cur*(this.count-1)); }
+    tick(now){
+      if(!this.ready) return;
+      const dt=Math.min(0.05, ((now||performance.now())-(this._tickT||now||performance.now()))/1000);
+      this._tickT=now||performance.now();
+      const k=reduce?1:(1-Math.exp(-dt/0.16));
+      this.cur+=(this.target-this.cur)*k;
+      if(Math.abs(this.target-this.cur)<0.0006) this.cur=this.target;
+      /* Frames 0–28 are the same still head. A short hold, then the unique frames,
+         so a slow scroll moves instead of sitting still and then jumping. */
+      const u=clamp(this.cur,0,1), hold=28, span=this.count-1, share=0.07;
+      const frame=u<=share ? (u/share)*0.35 : hold+((u-share)/(1-share))*(span-hold);
+      this.draw(frame);
+    }
   }
 
   /* ---------- Schnee (leise, wenige Flocken, mit Tiefe) ---------- */
@@ -250,15 +315,33 @@
   }
 
   /* ---------- Beasts ---------- */
+  let loopsReady=false;
+  addEventListener('scroll',()=>{ loopsReady=true; },{passive:true,once:true});
   function initBeasts(root){
+    const touch=mobile();
     root.querySelectorAll('.beast').forEach(b=>{
       const art=b.querySelector('.art'), loop=b.querySelector('img.loop');
       let armed=false;
-      const play=()=>{ if(loop){ if(!armed){ loop.src=loop.dataset.src; armed=true; } else { const s=loop.src; loop.src=''; loop.src=s; } } b.classList.add('playing'); };
+      /* Animierte Loops (~3 MB) bleiben ohne src, bis Hover (Desktop) oder Sichtbarkeit/Tap (Mobil). */
+      const play=(restart)=>{ if(loop){ if(!armed){ if(loop.dataset.src) loop.src=loop.dataset.src; armed=true; } else if(restart && loop.src){ const s=loop.src; loop.src=''; loop.src=s; } } b.classList.add('playing'); };
       const stop=()=>{ b.classList.remove('playing'); };
-      b.addEventListener('mouseenter',play); b.addEventListener('mouseleave',()=>{stop(); art.style.transform='';});
-      b.addEventListener('mousemove',e=>{ if(reduce) return; const r=b.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; art.style.transform=`rotateY(${x*12}deg) rotateX(${-y*8}deg)`; });
-      b.addEventListener('click',()=>{ if(b.dataset.label) openLB(b.dataset.label,b.dataset.bottle); else if(matchMedia('(hover:none)').matches){ b.classList.contains('playing')?stop():play(); } });
+      b.addEventListener('mouseenter',()=>play(true)); b.addEventListener('mouseleave',()=>{stop(); if(art) art.style.transform='';});
+      b.addEventListener('mousemove',e=>{ if(reduce||!art) return; const r=b.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; art.style.transform=`rotateY(${x*12}deg) rotateX(${-y*8}deg)`; });
+      b.addEventListener('click',()=>{
+        if(b.dataset.label){ if(touch) play(true); openLB(b.dataset.label,b.dataset.bottle); }
+        else if(touch){ b.classList.contains('playing')?stop():play(true); }
+      });
+      if(touch && loop && 'IntersectionObserver' in window){
+        const show=()=>{
+          if(!loopsReady) return;
+          const r=b.getBoundingClientRect();
+          const vis=Math.max(0, Math.min(r.bottom, innerHeight)-Math.max(r.top,0));
+          if(r.height && vis/r.height>=0.35) play(false);
+        };
+        const io=new IntersectionObserver(es=>{ es.forEach(en=>{ if(en.isIntersecting) show(); else stop(); }); },{threshold:0.35});
+        io.observe(b);
+        addEventListener('scroll', show, {passive:true});
+      }
     });
   }
   /* Tiefen-Parallaxe der Tiere (vorne mehr als hinten) */
@@ -332,7 +415,7 @@
     let autoP=0, autoStart=null;
     function updateHero(now){
       let p;
-      if(mobile()){ if(autoStart===null) autoStart=now; p=clamp((now-autoStart)/4200,0,1); }   // Mobile: Entrance läuft automatisch ab
+      if(mobile()){ p=hero._touchP||0; }   // Mobile: der Hero ist nicht lang. Ziehen scrubbt den Kopf.
       else p=sceneProgress(hero);
       if(window.BV_FORCE_P!=null) p=window.BV_FORCE_P;          /* Debug/Test */
       /* Scroll→Scrub mit Ease-out-Quart + Tempo-Deckel:
@@ -343,15 +426,10 @@
       const dt=Math.min(0.05,(now-(hero._t||now))/1000); hero._t=now;
       if(hero._ps==null||window.BV_FORCE_P!=null||reduce) hero._ps=p;
       else{
-        const d=p-hero._ps;
-        const MAX=0.05;           /* Bezugs-Delta pro Frame */
-        const k=1.1;              /* leichte Verstärkung für kleine Deltas */
-        const x=Math.min(Math.abs(d)/MAX,1);
-        const eased=MAX*easeOutQuart(x)*k;
-        const maxv=0.18*dt;       /* max 18 % des Hero-Scrollwegs pro Sekunde */
-        const step=Math.sign(d)*Math.min(eased, Math.abs(d), maxv);
-        hero._ps+=step;
-        if(Math.abs(p-hero._ps)<0.0005) hero._ps=p;
+        /* Immer ein Stück Richtung Ziel, auch bei sehr kleinem Scroll. Kein Tempo-Deckel, der stehen bleibt. */
+        const k=1-Math.exp(-dt/0.14);
+        hero._ps+=(p-hero._ps)*k;
+        if(Math.abs(p-hero._ps)<0.0004) hero._ps=p;
       }
       p=hero._ps;
       const ss=t=>t*t*(3-2*t);                        // smoothstep
@@ -391,6 +469,21 @@
       if(nav){ nav.classList.toggle('show',p>0.12); nav.classList.toggle('solid',p>0.5); }
     }
     hero._update=updateHero;
+    const pin=hero.querySelector('.pin');
+    if(pin){
+      pin.addEventListener('pointerdown',e=>{
+        if(!mobile()||e.button>0||e.target.closest('a,button,.beast,.toggle')) return;
+        hero._drag={y:e.clientY,p:hero._touchP||0,id:e.pointerId};
+        try{ pin.setPointerCapture(e.pointerId); }catch(err){}
+      });
+      pin.addEventListener('pointermove',e=>{
+        if(!hero._drag||hero._drag.id!==e.pointerId) return;
+        hero._touchP=clamp(hero._drag.p+(hero._drag.y-e.clientY)/(innerHeight*1.15),0,1);
+      });
+      const end=e=>{ if(hero._drag&&(!e||hero._drag.id===e.pointerId)) hero._drag=null; };
+      pin.addEventListener('pointerup',end);
+      pin.addEventListener('pointercancel',end);
+    }
   }
 
   /* ---------- Haupt-Loop ---------- */
@@ -398,13 +491,23 @@
     window.BV_TICKS=(window.BV_TICKS||0)+1;
     mouse.x=lerp(mouse.x,mouse.active?mouse.tx:0,0.06); mouse.y=lerp(mouse.y,mouse.active?mouse.ty:0,0.06);
     if(hero) hero._update(now);
-    if(fox) fox.tick();
+    if(fox) fox.tick(now);
     World.all.forEach(w=>w.render(now));
     document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',(sc.id==='quartiere'?((sc.getBoundingClientRect().top<innerHeight*0.4&&sc.getBoundingClientRect().bottom>innerHeight*0.3)?(sc._inAt=sc._inAt||now,now-sc._inAt>450):(sc._inAt=0,false)):p>0.08)||mobile());   /* Quartier: Flaschen erscheinen ~0.45 s nach Einstieg (Scroll oder #quartiere-Anker) von selbst (auch via #quartiere-Anker), nicht erst nach 8 % Pin-Scroll */ const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; sc._bvZoom=w.zoom; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
     parallaxFns.forEach(f=>f());
     if(hero&&!mobile()){ hero.querySelectorAll('.clouds img').forEach(c=>{ const d=parseFloat(c.style.getPropertyValue('--d')||1); c.style.transform=`translate(${-mouse.x*14*d}px,${-mouse.y*6*d}px)`; }); }   /* Wolken: ferne Ebene, bewegt sich wenig */
     requestAnimationFrame(frame);
   }
+  /* Produktbilder nie verwerfen. Fehlschlag erneut versuchen, Quelle merken. */
+  function guardImg(img){
+    if(!img||img.dataset.guard) return; img.dataset.guard='1';
+    const src=img.getAttribute('src'); if(!src) return;
+    img.dataset.src0=src; let n=0;
+    img.addEventListener('error',()=>{ if(++n>4) return; const base=src.split('?')[0]; setTimeout(()=>{ img.src=base+'?retry='+n; }, 350*n); });
+  }
+  document.querySelectorAll('img[src]').forEach(guardImg);
+  new MutationObserver(ms=>{ ms.forEach(m=>m.addedNodes&&m.addedNodes.forEach&&m.addedNodes.forEach(node=>{ if(node.tagName==='IMG') guardImg(node); else if(node.querySelectorAll) node.querySelectorAll('img[src]').forEach(guardImg); })); }).observe(document.body,{childList:true,subtree:true});
+
   window.BV_FRAME=frame;   /* Debug/Test */
   requestAnimationFrame(frame);
 })();
@@ -451,8 +554,14 @@
     const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv||o.css&&sec.contains(o.css));
     const z=1.08*((w&&w.zoom)||1), ra=W/H, ri=IMG[0]/IMG[1], s=ra>ri?[1,ri/ra]:[ra/ri,1];
     const sx=u=>(0.5+(u-0.5)*z/s[0])*W, sy=u=>(0.5+(u-0.52)*z/s[1])*H;
-    const x0=sx(X0), avail=sx(X1)-x0, k=Math.min(1,avail/tg.offsetWidth);
-    tg.style.left=x0+'px'; tg.style.top=(sy(YC)-tg.offsetHeight/2)+'px'; tg.style.transform=`scale(${k.toFixed(3)})`;
+    const x0=sx(X0);
+    const maxW=Math.min(340, Math.max(180, W-24));
+    tg.style.maxWidth=maxW+'px';
+    tg.style.width=maxW+'px';
+    const left=Math.max(12, Math.min(x0, W-maxW-12));
+    tg.style.left=left+'px';
+    tg.style.top=Math.max(88, sy(YC)-8)+'px';
+    tg.style.transform='none';
   }
   let last='';(function loop(){const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv);const key=innerWidth+'x'+innerHeight+':'+(w&&w.zoom);if(key!==last){last=key;place()}requestAnimationFrame(loop)})();
   addEventListener('resize',place);

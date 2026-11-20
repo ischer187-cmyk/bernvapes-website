@@ -129,19 +129,36 @@ def order_notices(order):
     return notes
 
 
+def consumer_unit(prod):
+    """Shop price for end customers. Retail from the old shop when we have one.
+
+    B2B Einstieg/Händler/Grossist stay on the tier columns. The new line has no
+    old-shop price, so the cart still shows the marked sample Einstieg price.
+    """
+    retail = prod['price_retail'] if 'price_retail' in prod.keys() else None
+    if retail is not None:
+        return round(float(retail), 2), True
+    return round(float(prod['price_einstieg']), 2), False
+
+
 def public_catalog(conn):
     rows = conn.execute(
-        'select sku,name,price_einstieg from products where coalesce(active,1)=1 order by name'
+        'select * from products where coalesce(active,1)=1 order by name'
     ).fetchall()
+    products = []
+    for r in rows:
+        unit, is_retail = consumer_unit(r)
+        products.append({
+            'sku': r['sku'], 'name': r['name'], 'price_chf': unit,
+            'retail': is_retail, 'sample_price': not is_retail,
+        })
     return {
         'ok': True,
         'currency': 'CHF',
         'shipping_fee_chf': SHIPPING_FEE_CHF,
         'free_shipping_threshold_chf': FREE_SHIPPING_THRESHOLD_CHF,
         'vat_rate': VAT_RATE,
-        'products': [{
-            'sku': r['sku'], 'name': r['name'], 'price_chf': round(float(r['price_einstieg']), 2),
-        } for r in rows],
+        'products': products,
     }
 
 
@@ -187,7 +204,8 @@ def price_items(conn, items):
             raise CheckoutError(422, 'invalid_qty')
         sku = prod['sku']
         if sku not in merged:
-            merged[sku] = {'sku': sku, 'name': prod['name'], 'qty': 0, 'unit_chf': round(float(prod['price_einstieg']), 2),
+            unit, _retail = consumer_unit(prod)
+            merged[sku] = {'sku': sku, 'name': prod['name'], 'qty': 0, 'unit_chf': unit,
                            'bottle_ml': prod['bottle_ml'], 'preorder': sku in PREORDER_SKUS}
             order.append(sku)
         merged[sku]['qty'] += qty
@@ -222,6 +240,9 @@ def quote(conn, account, items):
         'notices': notices_for(conn, account),
     }
     body.update(_money_fields(subtotal, shipping, total, remaining))
+    body['payment_ready'] = postfinance.configured()
+    if not body['payment_ready']:
+        body['payment_missing'] = postfinance.missing_settings()
     return body
 
 
@@ -235,8 +256,11 @@ def _split_name(name):
 
 
 def place(conn, account, items, data=None):
-    if not postfinance.configured():
-        raise CheckoutError(503, 'postfinance_not_configured')
+    missing = postfinance.missing_settings()
+    if missing:
+        err = CheckoutError(503, 'postfinance_not_configured')
+        err.missing = missing
+        raise err
     lines, _goods = price_items(conn, items)
     birth = assert_adult(data or {})
     subtotal, shipping, total, remaining = _totals(lines)
@@ -360,6 +384,9 @@ def customer_checkout(handler, conn, account, data):
         body = {'ok': False, 'error': ex.code}
         if ex.code in AGE_MESSAGES:
             body['message'] = AGE_MESSAGES[ex.code]
+        missing = getattr(ex, 'missing', None)
+        if missing:
+            body['missing'] = list(missing)
         return handler.json(ex.status, body)
     except postfinance.PostFinanceError:
         return handler.json(502, {'ok': False, 'error': 'postfinance_failed'})

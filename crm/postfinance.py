@@ -38,8 +38,20 @@ def space_key():
     return (os.environ.get('POSTFINANCE_SPACE_KEY') or '').strip()
 
 
+def missing_settings():
+    """Names of the PostFinance settings that are empty. Never the values."""
+    missing = []
+    if not space_id():
+        missing.append('POSTFINANCE_SPACE_ID')
+    if not user_id():
+        missing.append('POSTFINANCE_USER_ID')
+    if not space_key():
+        missing.append('POSTFINANCE_SPACE_KEY')
+    return missing
+
+
 def configured():
-    return bool(space_id() and user_id() and space_key())
+    return not missing_settings()
 
 
 def is_test_mode():

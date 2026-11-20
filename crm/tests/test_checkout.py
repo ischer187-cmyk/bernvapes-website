@@ -207,6 +207,9 @@ class OrderFlowTests(unittest.TestCase):
         st, data, _ = client.request('POST', '/api/b2b/customer/checkout', json_body={'items': items})
         self.assertEqual(st, 503, data)
         self.assertEqual(data['error'], 'postfinance_not_configured')
+        self.assertEqual(data.get('missing'), [
+            'POSTFINANCE_SPACE_ID', 'POSTFINANCE_USER_ID', 'POSTFINANCE_SPACE_KEY'])
+        self.assertNotIn('SPACE_KEY=', str(data))
         self.assertEqual(called, [])
 
         os.environ['POSTFINANCE_SPACE_ID'] = '102832'
