@@ -16,8 +16,37 @@ _ALIAS = {
 
 # Sample trade prices for the local test. Dominic replaces them in the CRM (Preise).
 # 60 ml: Einstieg / Händler / Grosshändler. 100 ml is a step up. Not live shop prices.
+# The consumer shop must not charge these. It uses RETAIL_CHF (old shop, inkl. MwSt.).
 SAMPLE_60 = (12.90, 10.40, 8.20)
 SAMPLE_100 = (16.90, 13.50, 10.80)
+
+# Consumer prices copied from https://bernvapes.ch (WooCommerce), read 20 Nov 2026.
+# Quartier lines are 40 ml shortfill (filled toward 60 ml) at CHF 25.
+# Bergtier lines are 100 ml shortfill at CHF 34. On-the-rocks is the same price.
+# The new line (lemon-pie, mango-lassi, mandarine-nuss, apple-pie) is not on the old shop.
+RETAIL_CHF = {
+    'monbijou-marder': 25.00,
+    'breitsch-hirsch': 25.00,
+    'matte-eule': 25.00,
+    'laenggass-dachs': 25.00,
+    'wyler-falke': 25.00,
+    'schanzen-kater': 25.00,
+    'bollwerk-koeter': 25.00,
+    'matte-eule-uf-ys': 25.00,
+    'laenggass-dachs-uf-ys': 25.00,
+    'wyler-falke-uf-ys': 25.00,
+    'gipfel-adler': 34.00,
+    'nebel-wolf': 34.00,
+    'steinschlag-bock': 34.00,
+    'waldwiesen-biene': 34.00,
+    'wildwasser-biber': 34.00,
+    'absturz-milan': 34.00,
+    'waldbrand-salamander': 34.00,
+    'erdbeben-elch': 34.00,
+    'gipfel-adler-uf-ys': 34.00,
+    'nebel-wolf-uf-ys': 34.00,
+    'steinschlag-bock-uf-ys': 34.00,
+}
 
 def _p(name, ml):
     a, b, c = SAMPLE_100 if ml == 100 else SAMPLE_60
@@ -46,8 +75,15 @@ def normalize_tier(value):
 def seed_products(conn):
     for sku, name, ml, a, b, c in SAMPLE_PRODUCTS:
         conn.execute(
-            'insert or ignore into products(sku,name,bottle_ml,price_einstieg,price_haendler,price_grosshaendler,sample_price,active) values(?,?,?,?,?,?,1,1)',
-            (sku, name, ml, a, b, c))
+            'insert or ignore into products(sku,name,bottle_ml,price_einstieg,price_haendler,price_grosshaendler,sample_price,active,price_retail) values(?,?,?,?,?,?,1,1,?)',
+            (sku, name, ml, a, b, c, RETAIL_CHF.get(sku)))
+
+def apply_retail(conn):
+    """Fill empty consumer prices. Does not touch B2B tiers or a retail price already set."""
+    for sku, price in RETAIL_CHF.items():
+        conn.execute(
+            'update products set price_retail=? where sku=? and price_retail is null',
+            (price, sku))
 
 def unit_price(conn, dealer_id, product):
     ov = conn.execute(

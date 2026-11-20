@@ -27,8 +27,8 @@
       empty_cart: 'Der Warenkorb ist leer.',
       unknown_item: 'Eine Position ist unbekannt.',
       invalid_qty: 'Die Menge stimmt nicht.',
-      postfinance_not_configured: 'PostFinance ist noch nicht konfiguriert.',
-      postfinance_failed: 'PostFinance hat die Zahlung nicht gestartet.',
+      postfinance_not_configured: 'Die PostFinance-Testzahlung ist auf dem Server noch nicht eingerichtet. Es wird nichts abgebucht.',
+      postfinance_failed: 'PostFinance hat die Zahlung nicht gestartet. Es wurde nichts abgebucht.',
       underage: 'Du musst mindestens 18 Jahre alt sein.',
       birthdate_invalid: 'Bitte Geburtsdatum als TT.MM.JJJJ angeben.',
       age_confirm_required: 'Bitte bestätige, dass du 18 Jahre oder älter bist.',
@@ -138,6 +138,9 @@
       if (r.status !== 200 || !r.data.ok) {
         root.innerHTML = '<p class="err">' + esc(errText(r.data && r.data.error)) + '</p>';
         return;
+      }
+      if (r.data.payment_ready === false) {
+        root.insertAdjacentHTML('beforeend', '<p class="err">Die PostFinance-Testzahlung ist auf dem Server noch nicht eingerichtet. Die Bestellung kann noch nicht bezahlt werden.</p>');
       }
       root.innerHTML = linesHtml(r.data.items)
         + summaryHtml(r.data)

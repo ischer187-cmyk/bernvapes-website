@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 from db import ROOT, connect, adapt_schema_pg, PG_COMPAT, database_url
 from auth import hash_password
-from pricing import seed_products
+from pricing import apply_retail, seed_products
 
 FILES = ('schema.sql', 'schema_v2.sql', 'schema_v3.sql', 'schema_v4.sql')
 ADD = {
@@ -86,8 +86,12 @@ def migrate(conn=None, seed=True):
         ('Einstiegspaket neue Liquids',
          'Einstiegspaket für neue Shops (Entwurf, inaktiv). Versand nicht konfiguriert.',
          'entwurf', 0))
+    have_products = _columns(conn, 'products')
+    if 'price_retail' not in have_products:
+        conn.execute('alter table products add column price_retail REAL')
     if seed:
         seed_products(conn)
+        apply_retail(conn)
         ensure_admin(conn)
     if own:
         conn.commit()
