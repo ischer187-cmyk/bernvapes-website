@@ -490,6 +490,16 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 #bergtiere .beast.grp.bot .ings img{width:45%}
 #bergtiere .beast.grp.bot .ings img:nth-child(2){width:40%}
 #bergtiere .beast.grp.bot .ings img:nth-child(3){width:37.5%}
+/* Eine Zutat (Wildwasser Biber): die Flex-Zeile mit space-between legt das einzelne Bild aufs Etikett. */
+#bergtiere .beast.grp.bot .ings:has(> img:only-child){left:auto;right:104%;width:max-content;bottom:10%;justify-content:flex-end}
+#bergtiere .beast.grp.bot .ings:has(> img:only-child) img{width:74px;max-width:5.6vw;min-width:52px}
+/* Drei Zutaten (Waldbrand Salamander): 45+40+37.5 sprengen die Zeile, die mittlere Frucht landet auf der Flasche.
+   Zwei links, eine rechts, die Lücke bleibt die Flasche. */
+#bergtiere .beast.grp.bot .ings:has(> img:nth-child(3)){left:-150%;width:400%;bottom:8%;justify-content:flex-start;align-items:flex-end;gap:4px}
+#bergtiere .beast.grp.bot .ings:has(> img:nth-child(3)) img,
+#bergtiere .beast.grp.bot .ings:has(> img:nth-child(3)) img:nth-child(2),
+#bergtiere .beast.grp.bot .ings:has(> img:nth-child(3)) img:nth-child(3){width:16.5%;flex:0 0 auto}
+#bergtiere .beast.grp.bot .ings:has(> img:nth-child(3)) img:nth-child(3){margin-left:26%}
 
 /* ===== Bärgtier: Summer/On-the-rocks-Schalter oben rechts, gleich wie Quartier (gross, dunkel, klarer Aktivzustand) ===== */
 #bergtiere .toggle{top:clamp(96px,14vh,150px);bottom:auto;right:clamp(16px,3vw,40px);gap:14px;padding:13px 20px;font-size:.9rem;letter-spacing:.2em;white-space:nowrap;z-index:12;
