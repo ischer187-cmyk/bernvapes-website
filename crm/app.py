@@ -12,8 +12,8 @@ import portal
 import shop_accounts
 from auth import (
     clear_cookie, create_session, csrf_ok, delete_session, hash_password, login_limit,
-    new_totp_secret, otpauth_uri, rate_clear, rate_ok, read_session, rotate_session,
-    session_cookie, totp_ok, utcnow, verify_password,
+    new_totp_secret, otpauth_uri, rate_clear, rate_ok, read_session, require_2fa,
+    rotate_session, session_cookie, totp_ok, utcnow, verify_password,
 )
 from crmlib import convert, enroll_prospects, set_member_status
 from db import IntegrityError, begin_request, connect, end_request
@@ -188,7 +188,8 @@ class H(BaseHTTPRequestHandler):
 
     def login_html(self, session, err=''):
         msg = {'login': 'Anmeldung fehlgeschlagen.', 'totp': 'Code ungültig.', 'rate': 'Zu viele Versuche. Kurz warten.'}.get(err, '')
-        if session and session['scope'] == 'totp_setup':
+        twofa = require_2fa()
+        if twofa and session and session['scope'] == 'totp_setup':
             c = self.db()
             user = c.execute('select * from admin_users where id=?', (session['user_id'],)).fetchone()
             c.close()
@@ -206,12 +207,18 @@ class H(BaseHTTPRequestHandler):
         n = c.execute('select count(*) from admin_users').fetchone()[0]
         c.close()
         hint = '' if n else '<p class="no">Kein Admin. <code>CRM_ADMIN_EMAIL</code> und <code>CRM_ADMIN_PASSWORD</code> setzen und den Prozess neu starten.</p>'
+        totp_field = '' if not twofa else '<input name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="TOTP-Code, falls schon aktiv">'
+        mode_hint = (
+            'Admin-Login nur mit Passwort (CRM_REQUIRE_2FA=false). Keine Secrets im Code.'
+            if not twofa else
+            'Passwort und TOTP (CRM_REQUIRE_2FA=true). Keine Secrets im Code.'
+        )
         body = f'''<section><h2>Anmeldung</h2>{hint}<p class="mu">{pages.e(msg)}</p>
         <form method="post" action="/login"><input name="email" type="email" placeholder="E-Mail" required>
         <input name="password" type="password" placeholder="Passwort" required>
-        <input name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="TOTP-Code, falls schon aktiv">
+        {totp_field}
         <button class="pri">Anmelden</button></form>
-        <p class="mu">Lokal auf 127.0.0.1. Passwort und TOTP. Keine Secrets im Code.</p></section>'''
+        <p class="mu">{pages.e(mode_hint)}</p></section>'''
         pages.CSRF.set('')
         return pages.page('Anmeldung', body, '/login')
 
@@ -254,6 +261,13 @@ class H(BaseHTTPRequestHandler):
             verify_password(password, _DUMMY)
             c.commit(); c.close()
             return self.json(401, {'ok': False, 'error': 'login_failed'}) if self._json else self.redirect('/login?e=login')
+        if not require_2fa():
+            token, csrf = create_session(c, 'admin', user['id'], 'full')
+            c.execute("update admin_users set last_login_at=datetime('now') where id=?", (user['id'],))
+            rate_clear(c, bucket)
+            c.commit(); c.close()
+            cook = session_cookie(ADMIN_COOKIE, token)
+            return self.json(200, {'ok': True, 'scope': 'full', 'csrf_token': csrf}, cookie=cook) if self._json else self.redirect('/', cookie=cook)
         if not user['totp_confirmed']:
             secret = user['totp_secret'] or new_totp_secret()
             if not user['totp_secret']:

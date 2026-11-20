@@ -30,6 +30,7 @@ def configure(db_path):
     os.environ['CRM_COOKIE_SECURE'] = '0'
     os.environ.setdefault('CRM_LOGIN_LIMIT', '8')
     os.environ.setdefault('CRM_LOGIN_WINDOW', '600')
+    os.environ.setdefault('CRM_REQUIRE_2FA', 'true')
 
 def ensure_server():
     global _server, _port
