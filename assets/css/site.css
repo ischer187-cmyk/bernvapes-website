@@ -126,7 +126,7 @@ h2{font-size:clamp(1.5rem,3.2vw,2.6rem);line-height:1.15}
 @keyframes cloudDrift{from{translate:calc(var(--amp,3vw) * -1) 0}to{translate:var(--amp,3vw) 0}}
 @keyframes cloudLit{0%,100%{filter:drop-shadow(0 10px 14px rgba(40,10,0,.35)) brightness(1)}50%{filter:drop-shadow(0 10px 14px rgba(40,10,0,.35)) brightness(1.12) saturate(1.1)}}
 .hero .title{opacity:0;transform:translate(-50%,16px);transition:opacity .6s,transform .8s var(--ease);left:50%;right:auto;width:max-content;max-width:min(92vw,760px)}
-.hero .title h2{font-size:clamp(1.5rem,3.2vw,2.7rem);letter-spacing:.12em;text-transform:uppercase;color:var(--bv-cream);text-shadow:0 2px 18px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.6)}
+.hero .title h2{font-size:clamp(1.5rem,3.2vw,2.7rem);font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--bv-cream);text-shadow:0 2px 18px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.6)}
 .hero .title p{font-size:.92rem;color:var(--bv-cream);opacity:.92;text-shadow:0 1px 10px rgba(0,0,0,.6)}
 .hero.phase-b .title{opacity:1;transform:translate(-50%,0)}
 
