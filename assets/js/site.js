@@ -220,18 +220,26 @@
 
   /* ---------- Papier-Gras im Vordergrund (wiegt im Wind und mit der Maus) ---------- */
   class Grass{
-    constructor(c){ this.c=c; this.ctx=c.getContext('2d'); this.blades=[]; this.resize(); addEventListener('resize',()=>this.resize());
-      const cols=['#9a7a4a','#b08a52','#7d6238','#c39a5c','#6b5a3a','#a8864f'];
-      let seed=7; const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
-      for(let t=0;t<16;t++){ const x=0.01+rnd()*0.98, n=3+Math.floor(rnd()*4), base=0.0+rnd()*0.04;   /* Büschel */
-        for(let i=0;i<n;i++) this.blades.push({x:x+(rnd()-0.5)*0.035, h:0.03+rnd()*0.05, w:0.003+rnd()*0.004, lean:(rnd()-0.5)*0.5, c:cols[Math.floor(rnd()*cols.length)], ph:rnd()*6.28, y:base*rnd()}); }
+    /* opts.back: wenige, dezente Halme hinter den Flaschen entlang der Fuchs-Laufbahn (reagieren auf den Fuchs).
+       Vordergrund wieder grösser (h 0.06–0.15 statt 0.03–0.08) und mit kräftigerem Wiegen. */
+    constructor(c,opts){ opts=opts||{}; this.back=!!opts.back; this.c=c; this.ctx=c.getContext('2d'); this.blades=[]; this.resize(); addEventListener('resize',()=>this.resize());
+      const cols=this.back?['#8a6a3e','#9a7a4a','#7d6238','#a8864f']:['#9a7a4a','#b08a52','#7d6238','#c39a5c','#6b5a3a','#a8864f'];
+      let seed=this.back?23:7; const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+      const tufts=this.back?9:16;
+      for(let t=0;t<tufts;t++){ const x=this.back?0.04+(t+rnd()*0.8)/tufts*0.92:0.01+rnd()*0.98, n=this.back?2+Math.floor(rnd()*2):3+Math.floor(rnd()*4), base=this.back?0:0.0+rnd()*0.04, row=this.back?0.27+rnd()*0.05:0;   /* Büschel */
+        for(let i=0;i<n;i++) this.blades.push(this.back
+          ?{x:x+(rnd()-0.5)*0.02, h:0.035+rnd()*0.035, w:0.0035+rnd()*0.003, lean:(rnd()-0.5)*0.4, c:cols[Math.floor(rnd()*cols.length)], ph:rnd()*6.28, y:row}
+          :{x:x+(rnd()-0.5)*0.04, h:0.06+rnd()*0.09, w:0.005+rnd()*0.006, lean:(rnd()-0.5)*0.6, c:cols[Math.floor(rnd()*cols.length)], ph:rnd()*6.28, y:base*rnd()}); }
       this.blades.sort((a,b)=>a.h-b.h); }
-    resize(){ const dpr=Math.min(devicePixelRatio||1,1.5); const r=this.c.getBoundingClientRect(); this.c.width=Math.max(2,Math.round(r.width*dpr)); this.c.height=Math.max(2,Math.round(r.height*dpr)); }
+    resize(){ const dpr=Math.min(devicePixelRatio||1,1.5); const r=this.c.getBoundingClientRect(); this.c.width=Math.max(2,Math.round(r.width*dpr)); this.c.height=Math.max(2,Math.round(r.height*dpr)); this.dpr=dpr; }
     render(now,cool){ const W=this.c.width,H=this.c.height,ctx=this.ctx; ctx.clearRect(0,0,W,H); const t=now/1000, mx=mouse.x;
+      const fx=window.__qfox, amp=this.back?1:1.9;
       for(const b of this.blades){ const bx=b.x*W, by=H*(1-b.y), h=b.h*H, w=b.w*W;
-        const sway=Math.sin(t*1.1+b.ph+b.x*9)*0.18 + Math.sin(t*2.3+b.ph)*0.05 + mx*0.35;   /* Wind + Maus */
+        let sway=(Math.sin(t*1.1+b.ph+b.x*9)*0.18 + Math.sin(t*2.3+b.ph)*0.05)*amp + mx*0.35*(this.back?1:1.5);   /* Wind + Maus */
+        if(!this.back) sway+=Math.sin(t*0.55+b.x*5)*0.12+Math.sin(t*3.1+b.ph*2)*0.05;   /* Böen + Flattern */
+        if(this.back&&fx&&fx.on){ const d=(bx/this.dpr-fx.x)/Math.max(30,fx.w*0.55); if(Math.abs(d)<1.4) sway+=Math.sign(d||1)*(1.4-Math.abs(d))*0.55; }   /* Fuchs streift das Gras */
         const tipx=bx+(b.lean+sway)*h, tipy=by-h; const mid=by-h*0.5;
-        ctx.fillStyle=cool?'#c9d6e6':b.c; ctx.globalAlpha=0.95;
+        ctx.fillStyle=cool?'#c9d6e6':b.c; ctx.globalAlpha=this.back?0.85:0.95;
         ctx.beginPath(); ctx.moveTo(bx-w,by); ctx.quadraticCurveTo(bx-w*0.6+(tipx-bx)*0.3,mid,tipx,tipy); ctx.quadraticCurveTo(bx+w*0.6+(tipx-bx)*0.3,mid,bx+w,by); ctx.closePath(); ctx.fill();
         ctx.fillStyle='rgba(0,0,0,.18)'; ctx.beginPath(); ctx.moveTo(bx,by); ctx.quadraticCurveTo(bx+(tipx-bx)*0.3,mid,tipx,tipy); ctx.quadraticCurveTo(bx+w*0.6+(tipx-bx)*0.3,mid,bx+w,by); ctx.closePath(); ctx.fill(); }
       ctx.globalAlpha=1; }
@@ -254,10 +262,12 @@
     root.querySelectorAll('.beast').forEach(b=>{
       const art=b.querySelector('.art'), loop=b.querySelector('img.loop');
       let armed=false;
-      const play=()=>{ if(loop){ if(!armed){ loop.src=loop.dataset.src; armed=true; } else { const s=loop.src; loop.src=''; loop.src=s; } } b.classList.add('playing'); };
+      /* Fix 'Tiere verschwinden kurz bei Hover/Swipe': früher wurde loop.src geleert und neu gesetzt (Bild leer) während das Standbild schon ausgeblendet war.
+         Jetzt: Loop nur einmal laden, Standbild erst ausblenden wenn der Loop geladen ist (.loopready), kein Leeren von src. */
+      const play=()=>{ if(loop&&!armed){ armed=true; const rdy=()=>b.classList.add('loopready'); loop.addEventListener('load',rdy,{once:true}); loop.src=loop.dataset.src; if(loop.complete&&loop.naturalWidth) rdy(); } b.classList.add('playing'); };
       const stop=()=>{ b.classList.remove('playing'); };
-      b.addEventListener('mouseenter',play); b.addEventListener('mouseleave',()=>{stop(); art.style.transform='';});
-      b.addEventListener('mousemove',e=>{ if(reduce) return; const r=b.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; art.style.transform=`rotateY(${x*12}deg) rotateX(${-y*8}deg)`; });
+      b.addEventListener('mouseenter',play); b.addEventListener('mouseleave',()=>{stop(); if(art) art.style.transform='';});
+      b.addEventListener('mousemove',e=>{ if(reduce||!art) return; const r=b.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; art.style.transform=`rotateY(${x*12}deg) rotateX(${-y*8}deg)`; });
       b.addEventListener('click',()=>{ if(b.dataset.label) openLB(b.dataset.label,b.dataset.bottle); else if(matchMedia('(hover:none)').matches){ b.classList.contains('playing')?stop():play(); } });
     });
   }
@@ -291,7 +301,7 @@
     /* Winter-Welt (zweiter Canvas, blendet über) + Schnee */
     const cw=sc.querySelector('canvas.world.winter'); if(cw){ worlds[sc.id+'_w']=new World(cw,cw.dataset.src,{strength:parseFloat(cw.dataset.strength||1)}); }
     const snow=sc.querySelector('canvas.snow'); if(snow) sc._snow=new Snow(snow);
-    const gr=sc.querySelector('canvas.grass'); if(gr) sc._grass=new Grass(gr);
+    const gr=sc.querySelector('canvas.grass:not(.back)'); if(gr) sc._grass=new Grass(gr); const grb=sc.querySelector('canvas.grass.back'); if(grb) sc._grassB=new Grass(grb,{back:true});
     initFlash(sc);
     /* Sortenliste: Hover/Klick hebt die Flasche am Berg hervor, die anderen treten zurück */
     const lg=sc.querySelector('.legend');
@@ -400,7 +410,7 @@
     if(hero) hero._update(now);
     if(fox) fox.tick();
     World.all.forEach(w=>w.render(now));
-    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) bs.classList.toggle('in',(sc.id==='quartiere'?((sc.getBoundingClientRect().top<innerHeight*0.4&&sc.getBoundingClientRect().bottom>innerHeight*0.3)?(sc._inAt=sc._inAt||now,now-sc._inAt>450):(sc._inAt=0,false)):p>0.08)||mobile());   /* Quartier: Flaschen erscheinen ~0.45 s nach Einstieg (Scroll oder #quartiere-Anker) von selbst (auch via #quartiere-Anker), nicht erst nach 8 % Pin-Scroll */ const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; sc._bvZoom=w.zoom; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
+    document.querySelectorAll('.scene:not(#hero)').forEach(sc=>{ const p=sceneProgress(sc); const bs=sc.querySelector('.beasts'); if(bs) { const want=((sc.id==='quartiere'?((sc.getBoundingClientRect().top<innerHeight*0.4&&sc.getBoundingClientRect().bottom>innerHeight*0.3)?(sc._inAt=sc._inAt||now,now-sc._inAt>450):(sc._inAt=0,false)):p>0.08)||mobile()); if(want) bs.classList.add('in'); else if(!(sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight)) bs.classList.remove('in'); }   /* Quartier: Flaschen erscheinen ~0.45 s nach Einstieg (Scroll oder #quartiere-Anker) von selbst (auch via #quartiere-Anker), nicht erst nach 8 % Pin-Scroll */ const w=worlds[sc.id]; if(w){ w.zoom=1.0+p*0.08; sc._bvZoom=w.zoom; } const ww=worlds[sc.id+'_w']; if(ww){ ww.zoom=1.0+p*0.08; } const vis=sc.getBoundingClientRect().bottom>0&&sc.getBoundingClientRect().top<innerHeight; if(sc._snow) sc._snow.render(now,vis); if(sc._grass&&vis&&!mobile()) sc._grass.render(now,sc.classList.contains('cool')); if(sc._grassB&&vis&&!mobile()) sc._grassB.render(now,sc.classList.contains('cool')); if(!mobile()){ placeOnImage(sc); if(sc.querySelector('svg.lifts')&&(window.BV_TICKS%20===0)) drawLifts(sc); } });
     parallaxFns.forEach(f=>f());
     if(hero&&!mobile()){ hero.querySelectorAll('.clouds img').forEach(c=>{ const d=parseFloat(c.style.getPropertyValue('--d')||1); c.style.transform=`translate(${-mouse.x*14*d}px,${-mouse.y*6*d}px)`; }); }   /* Wolken: ferne Ebene, bewegt sich wenig */
     requestAnimationFrame(frame);
