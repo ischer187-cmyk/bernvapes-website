@@ -153,6 +153,13 @@ def rate_clear(conn, bucket):
 def login_limit():
     return int(os.environ.get('CRM_LOGIN_LIMIT', '8')), int(os.environ.get('CRM_LOGIN_WINDOW', '600'))
 
+def require_2fa():
+    """Admin login needs TOTP when true (default). Only exact false/0/off/no disables it."""
+    raw = (os.environ.get('CRM_REQUIRE_2FA') or 'true').strip().lower()
+    if raw in ('0', 'false', 'no', 'off'):
+        return False
+    return True
+
 def csrf_ok(session, presented):
     if not session or not presented:
         return False
