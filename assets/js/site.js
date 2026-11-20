@@ -315,15 +315,33 @@
   }
 
   /* ---------- Beasts ---------- */
+  let loopsReady=false;
+  addEventListener('scroll',()=>{ loopsReady=true; },{passive:true,once:true});
   function initBeasts(root){
+    const touch=mobile();
     root.querySelectorAll('.beast').forEach(b=>{
       const art=b.querySelector('.art'), loop=b.querySelector('img.loop');
       let armed=false;
-      const play=()=>{ if(loop){ if(!armed){ loop.src=loop.dataset.src; armed=true; } else { const s=loop.src; loop.src=''; loop.src=s; } } b.classList.add('playing'); };
+      /* Animierte Loops (~3 MB) bleiben ohne src, bis Hover (Desktop) oder Sichtbarkeit/Tap (Mobil). */
+      const play=(restart)=>{ if(loop){ if(!armed){ if(loop.dataset.src) loop.src=loop.dataset.src; armed=true; } else if(restart && loop.src){ const s=loop.src; loop.src=''; loop.src=s; } } b.classList.add('playing'); };
       const stop=()=>{ b.classList.remove('playing'); };
-      b.addEventListener('mouseenter',play); b.addEventListener('mouseleave',()=>{stop(); art.style.transform='';});
-      b.addEventListener('mousemove',e=>{ if(reduce) return; const r=b.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; art.style.transform=`rotateY(${x*12}deg) rotateX(${-y*8}deg)`; });
-      b.addEventListener('click',()=>{ if(b.dataset.label) openLB(b.dataset.label,b.dataset.bottle); else if(matchMedia('(hover:none)').matches){ b.classList.contains('playing')?stop():play(); } });
+      b.addEventListener('mouseenter',()=>play(true)); b.addEventListener('mouseleave',()=>{stop(); if(art) art.style.transform='';});
+      b.addEventListener('mousemove',e=>{ if(reduce||!art) return; const r=b.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; art.style.transform=`rotateY(${x*12}deg) rotateX(${-y*8}deg)`; });
+      b.addEventListener('click',()=>{
+        if(b.dataset.label){ if(touch) play(true); openLB(b.dataset.label,b.dataset.bottle); }
+        else if(touch){ b.classList.contains('playing')?stop():play(true); }
+      });
+      if(touch && loop && 'IntersectionObserver' in window){
+        const show=()=>{
+          if(!loopsReady) return;
+          const r=b.getBoundingClientRect();
+          const vis=Math.max(0, Math.min(r.bottom, innerHeight)-Math.max(r.top,0));
+          if(r.height && vis/r.height>=0.35) play(false);
+        };
+        const io=new IntersectionObserver(es=>{ es.forEach(en=>{ if(en.isIntersecting) show(); else stop(); }); },{threshold:0.35});
+        io.observe(b);
+        addEventListener('scroll', show, {passive:true});
+      }
     });
   }
   /* Tiefen-Parallaxe der Tiere (vorne mehr als hinten) */
