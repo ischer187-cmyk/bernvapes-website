@@ -51,6 +51,8 @@ def handle(handler, method, path):
     token = handler.cookie(COOKIE)
     session = read_session(conn, 'customer', token) if token else None
     try:
+        if method == 'GET' and rel == '/catalog':
+            return handler.json(200, checkout.public_catalog(conn))
         if method == 'GET' and rel == '/me':
             row = _load(conn, session)
             if not row:
@@ -135,6 +137,7 @@ def _register(handler, conn, ip, data):
         conn.commit()
         return handler.json(409, {'ok': False, 'error': 'email_taken'})
     now = utcnow()
+    # Checkbox = Selbstbestätigung. age_verified bleibt 0, bis das CRM manuell prüft. Keine Ausweisbilder.
     existing = conn.execute(
         "select id, customer_type from customers where lower(email)=? order by id limit 1", (email,)).fetchone()
     if existing and existing['customer_type'] not in ('Endkunde', None, ''):
@@ -144,13 +147,13 @@ def _register(handler, conn, ip, data):
         cid = existing['id']
         conn.execute(
             """update customers set name=?, address=?, city=?, customer_type='Endkunde',
-               age_verified_at=?, age_verify_method='checkbox', age_verified=1, updated_at=datetime('now')
+               age_verified_at=?, age_verify_method='checkbox', age_verified=0, updated_at=datetime('now')
                where id=?""",
             (name, address, city, now, cid))
     else:
         cid = conn.execute(
             """insert into customers(name,email,customer_type,address,city,age_verified_at,age_verify_method,age_verified,source,tags)
-               values(?,?, 'Endkunde', ?, ?, ?, 'checkbox', 1, 'website', 'B2C')""",
+               values(?,?, 'Endkunde', ?, ?, ?, 'checkbox', 0, 'website', 'B2C')""",
             (name, email, address, city, now)).lastrowid
     try:
         aid = conn.execute(

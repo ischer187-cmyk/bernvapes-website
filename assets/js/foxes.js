@@ -3,7 +3,7 @@
    Die anderen beiden bleiben beim Canvas-Colorkey des MP4. */
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var GAP=2800, V='20261029l';
+  var GAP=2800, V='72c5bfb47f55155f';
   var BLICK_WAIT=7000, blickReadyAt=0, blickWaitDone=false;
   function blickGate(){
     var h=document.getElementById('hero');
@@ -17,7 +17,6 @@
   }
   var slots=[
     {id:'blick', sel:'#hero', gate:blickGate},
-    {id:'laufen', sel:'#quartiere'},
     {id:'pfote', sel:'#bergtiere'}
   ];
   var playing=null, pauseUntil=0, played={}, raf=0;
@@ -31,7 +30,7 @@
     el.setAttribute('aria-hidden','true');
     if(s.id==='blick'){
       el.innerHTML='<div class="wfox-mask"><img alt="" src="assets/web/fox3/blick_solid.webp?v='+V+'"></div>';
-    }else if(reduce){
+    }else if(reduce||s.id==='pfote'){
       el.innerHTML='<img class="wfox-still" alt="" src="'+poster+'">';
     }else{
       el.innerHTML='<canvas></canvas><video muted playsinline preload="none" src="assets/web/fox3/'+s.id+'.mp4?v='+V+'"></video>';
@@ -142,6 +141,53 @@
   }
 
   slots.forEach(mount);
+
+  /* ---------- Quartiere-Fuchs: Alpha-Sprite (laufen_seq.webp), läuft HINTER den Flaschen auf dem runden Boden ----------
+     Loch im Kopf: der alte Canvas-Colorkey hat jedes fast weisse Pixel (>=240) gelöscht, auch die hellen Flächen am weissen Fuchs.
+     Jetzt: Alpha einmalig offline aus dem Umriss (Flood-Fill) gebaut, kein Colorkey mehr.
+     Bewegung: Schrittphase = zurückgelegte Strecke (Füsse rutschen nicht), Bahn = Bogen der runden Bodenfläche,
+     Ping-Pong: taucht hinter Flasche 7 auf, läuft nach links, verschwindet hinter Flasche 1, Pause, kommt zurück (gespiegelt). */
+  (function(){
+    var sec=document.getElementById('quartiere'); if(!sec) return;
+    var pin=sec.querySelector('.pin'); if(!pin) return;
+    var el=document.createElement('div'); el.className='qfox'; el.setAttribute('aria-hidden','true');
+    var cv=document.createElement('canvas'); el.appendChild(cv); pin.insertBefore(el,pin.querySelector('.beasts')||null);
+    var FW=262, FH=167, COLS=10, F0=6, FN=25;
+    var img=new Image(); img.src='assets/web/fox3/laufen_seq.webp?v='+V;
+    var ctx=cv.getContext('2d'); cv.width=FW; cv.height=FH;
+    var frame=-1;
+    function drawFrame(k){ if(k===frame||!img.complete||!img.naturalWidth) return; frame=k; ctx.clearRect(0,0,FW,FH); var f=F0+k; ctx.drawImage(img,(f%COLS)*FW,Math.floor(f/COLS)*FH,FW,FH,0,0,FW,FH); }
+    function bottles(){ var xs=[]; sec.querySelectorAll('.beast[data-season="s"]').forEach(function(b){ xs.push(parseFloat(b.style.left)/100); }); xs.sort(function(a,b){return a-b;}); return xs; }
+    var dir=-1, u=0, last=0, wait=1500, dist=0;
+    function pos(u,W,H,xa,xb){ var x=xa+(xb-xa)*u, arc=Math.sin(Math.PI*u); return {x:x*W, y:H*(0.752-0.058*arc), s:1-0.16*arc}; }
+    function loop(now){
+      requestAnimationFrame(loop);
+      if(!last) last=now; var dt=Math.min(100,now-last); last=now;
+      var r=pin.getBoundingClientRect(), vis=r.bottom>0&&r.top<innerHeight&&sec.getBoundingClientRect().top<innerHeight*0.5&&sec.getBoundingClientRect().bottom>innerHeight*0.3;
+      var mob=matchMedia('(max-width:900px)').matches;
+      if(mob||!vis||sec.classList.contains('cool')&&false){ el.style.display=(mob?'none':'block'); el.style.opacity=0; window.__qfox=null; return; }
+      el.style.display='block';
+      var xs=bottles(); if(xs.length<2){ return; }
+      var xa=dir<0?xs[xs.length-1]:xs[0], xb=dir<0?xs[0]:xs[xs.length-1];
+      var W=pin.clientWidth, H=pin.clientHeight;
+      var wpx=Math.max(120,Math.min(260,W*0.15));
+      if(reduce){ var q=pos(0.5,W,H,xs[0],xs[xs.length-1]); place(q,wpx,1,W); drawFrame(0); el.style.opacity=1; window.__qfox=null; return; }
+      if(wait>0){ wait-=dt; el.style.opacity=0; window.__qfox=null; return; }
+      var speed=0.09; /* Pfad-Anteil pro s */
+      u+=speed*dt/1000*(0.9/Math.max(.3,Math.abs(xb-xa)));
+      if(u>=1){ u=0; dir=-dir; wait=2800; el.style.opacity=0; window.__qfox=null; return; }
+      var p=pos(u,W,H,xa,xb), w=wpx*p.s;
+      dist+=speed*dt/1000*(0.9/Math.max(.3,Math.abs(xb-xa)))*Math.abs(xb-xa)*W;
+      var cyc=w*1.15; drawFrame(Math.floor((dist/cyc)*FN)%FN);
+      var edge=Math.min(1,u/0.07,(1-u)/0.07);    /* taucht hinter der Flasche auf/ab */
+      el.style.opacity=edge;
+      place(p,wpx,dir,W);
+      window.__qfox={x:p.x,y:p.y,w:w,on:true};
+    }
+    function place(p,wpx,d,W){ var w=wpx*p.s, h=w*FH/FW; el.style.width=w+'px'; el.style.height=h+'px';
+      el.style.transform='translate('+(p.x-w/2)+'px,'+(p.y-h)+'px) scaleX('+(d>0?-1:1)+')'; }
+    requestAnimationFrame(loop);
+  })();
   setInterval(tick, 360);
   window.__foxSlots=slots;
 })();
