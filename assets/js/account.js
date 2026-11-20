@@ -145,7 +145,17 @@
       document.body.appendChild(btn);
     }
     paintHeader();
+    fitNav();
   }
+  function fitNav(){
+    var nav=document.querySelector('.nav');
+    var bar=document.querySelector('.shopbar');
+    if(!nav) return;
+    if(!bar||innerWidth<=760){ nav.style.paddingRight=''; return; }
+    var gap=Math.ceil(innerWidth-bar.getBoundingClientRect().left)+16;
+    nav.style.paddingRight=gap+'px';
+  }
+  addEventListener('resize',function(){ fitNav(); });
 
   function shell(html) {
     var root = document.getElementById('konto');

@@ -534,8 +534,14 @@
     const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv||o.css&&sec.contains(o.css));
     const z=1.08*((w&&w.zoom)||1), ra=W/H, ri=IMG[0]/IMG[1], s=ra>ri?[1,ri/ra]:[ra/ri,1];
     const sx=u=>(0.5+(u-0.5)*z/s[0])*W, sy=u=>(0.5+(u-0.52)*z/s[1])*H;
-    const x0=sx(X0), avail=sx(X1)-x0, k=Math.min(1,avail/tg.offsetWidth);
-    tg.style.left=x0+'px'; tg.style.top=(sy(YC)-tg.offsetHeight/2)+'px'; tg.style.transform=`scale(${k.toFixed(3)})`;
+    const x0=sx(X0);
+    const maxW=Math.min(340, Math.max(180, W-24));
+    tg.style.maxWidth=maxW+'px';
+    tg.style.width=maxW+'px';
+    const left=Math.max(12, Math.min(x0, W-maxW-12));
+    tg.style.left=left+'px';
+    tg.style.top=Math.max(88, sy(YC)-8)+'px';
+    tg.style.transform='none';
   }
   let last='';(function loop(){const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv);const key=innerWidth+'x'+innerHeight+':'+(w&&w.zoom);if(key!==last){last=key;place()}requestAnimationFrame(loop)})();
   addEventListener('resize',place);

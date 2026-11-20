@@ -797,7 +797,15 @@ a.cartgo[hidden]{display:none}
 #bergtiere .beast .plaque,#quartiere .beast .plaque{max-width:min(220px,40vw);white-space:normal}
 #bergtiere .beast:hover .plaque,#bergtiere .beast.hi .plaque,#quartiere .beast:hover .plaque{opacity:1!important}
 .scene .toggle{font-size:.92rem;padding:12px 16px;gap:8px;max-width:min(360px,90vw);flex-wrap:wrap;z-index:8}
-.scene .toggle .otc-note{flex-basis:100%;font-family:var(--font-body);font-weight:500;letter-spacing:0;text-transform:none;font-size:.8rem;line-height:1.35;opacity:.92}
+.scene .toggle .otc-note{flex-basis:100%;display:block;white-space:normal;overflow:visible;max-width:100%;font-family:var(--font-body);font-weight:500;letter-spacing:0;text-transform:none;font-size:.8rem;line-height:1.35;opacity:.92}
+#quartiere .toggle.at-muenster,#bergtiere .toggle{white-space:normal;overflow:visible;height:auto}
+#bergtiere .toggle{max-width:min(340px,calc(100vw - 28px));right:14px}
+@media (max-width:900px){
+  .scene .title,.scene .title.side{position:relative;top:auto;left:auto;right:auto;margin:70px 12px 8px;max-width:none;width:auto}
+  .scene .pin{display:flex;flex-direction:column}
+  .scene .beasts{position:relative;order:2}
+  #quartiere .toggle,#bergtiere .toggle{position:relative;order:1;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:auto!important;max-width:none!important;margin:8px 12px 12px;transform:none!important;white-space:normal}
+}
 #quartiere .beast .bottle3,#bergtiere .beast .bottle3{z-index:5}
 .teaser .shots{display:grid;gap:14px}
 .teaser .thumb.wide{aspect-ratio:16/9}
