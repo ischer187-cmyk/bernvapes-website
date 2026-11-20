@@ -139,8 +139,9 @@
         if(!im){ im=new Image(); this.frames[i]=im; }
         if(im.getAttribute('data-busy')==='1') return im;
         im.decoding='async'; im.setAttribute('data-busy','1');
-        let tries=0; const src=`${base}${String(i).padStart(3,'0')}.webp`;
-        const go=()=>{ im.src=tries?`${src}?r=${tries}`:src; };
+        let tries=0; const raw=`${base}${String(i).padStart(3,'0')}.webp`;
+        const src=window.BV?BV(raw):raw;
+        const go=()=>{ im.src=tries?src+(src.indexOf('?')>=0?'&':'?')+'r='+tries:src; };
         im.onload=()=>{ im.setAttribute('data-on','1'); im.removeAttribute('data-busy'); this.loaded++; if(i===0) reveal(); };
         im.onerror=()=>{ im.removeAttribute('data-busy'); if(++tries<4) setTimeout(go, 280*tries); };
         go();
@@ -156,8 +157,9 @@
         }
       };
       this._load(0);
-      this.win=new Image(); this.win.onload=()=>this.draw(this.idx,true); this.win.src=`${base}window.webp`;   /* Fenster in Fuchs-Silhouette (hart, für den Stand) */
-      this.winSoft=new Image(); this.winSoft.src=`${base}window_soft.webp`;                                     /* weiche Variante, blendet mit der Bewegung ein */
+      const bv=function(u){ return window.BV?BV(u):u; };
+      this.win=new Image(); this.win.onload=()=>this.draw(this.idx,true); this.win.src=bv(base+'window.webp');   /* Fenster in Fuchs-Silhouette (hart, für den Stand) */
+      this.winSoft=new Image(); this.winSoft.src=bv(base+'window_soft.webp');                                     /* weiche Variante, blendet mit der Bewegung ein */
       this.black=1;
       this.resize(); addEventListener('resize',()=>{this.resize(); this.draw(this.idx,true);});
     }

@@ -3,9 +3,9 @@
    Tokens siehe Webstyle/BERNVAPES_Webstyle_Guide.md
    Schriften lokal (OFL), kein Aufruf an Google.
    ========================================================= */
-@font-face{font-family:"Poiret One";font-style:normal;font-weight:400;font-display:swap;src:url("../fonts/poiret-one-latin.woff2") format("woff2")}
-@font-face{font-family:"Cinzel";font-style:normal;font-weight:400 900;font-display:swap;src:url("../fonts/cinzel-latin.woff2") format("woff2")}
-@font-face{font-family:"Work Sans";font-style:normal;font-weight:300 500;font-display:swap;src:url("../fonts/work-sans-latin.woff2") format("woff2")}
+@font-face{font-family:"Poiret One";font-style:normal;font-weight:400;font-display:swap;src:url("../fonts/poiret-one-latin.woff2?v=a6361b9b4b") format("woff2")}
+@font-face{font-family:"Cinzel";font-style:normal;font-weight:400 900;font-display:swap;src:url("../fonts/cinzel-latin.woff2?v=09941fb1c1") format("woff2")}
+@font-face{font-family:"Work Sans";font-style:normal;font-weight:300 500;font-display:swap;src:url("../fonts/work-sans-latin.woff2?v=1dd49afc07") format("woff2")}
 :root{
   --bv-cream:#F2E8CF; --bv-sand:#E7D9B6;
   --bv-crimson:#9E2A2B; --bv-crimson-deep:#7E2121;
@@ -417,7 +417,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .hero .lg-w2{width:48px;height:40px;animation-delay:-3.5s}
 .hero .lg-car svg{position:relative;display:block;width:100%;height:100%;overflow:visible}
 @keyframes lgFahrt{0%{offset-distance:0%;visibility:visible}76%{offset-distance:100%;visibility:visible}76.1%,100%{offset-distance:100%;visibility:hidden}}
-.hero .lg-occ{position:absolute;inset:0;background:url('../web/worlds/neue.webp') 0 0/2400px 1028px no-repeat}
+.hero .lg-occ{position:absolute;inset:0;background:url('../web/worlds/neue.webp?v=0b1570d5eb') 0 0/2400px 1028px no-repeat}
 .hero .lg-occ-l{clip-path:polygon(1000px 559px,1064px 530px,1242px 608px,1300px 583px,1300px 720px,1000px 720px)}
 .hero .lg-occ-r{clip-path:polygon(1400px 617px,1517px 544px,1552px 526px,1642px 569px,1673px 542px,1732px 517px,1800px 500px,1800px 720px,1400px 720px)}
 /* Dampf: geschichtete, quellende Wolken (weiche Radial-Blobs) steigen auf und treiben gegen die Fahrtrichtung; dazu dünne Fahnen, die sich strecken und verblassen. Verebbt, wenn der Zug abtaucht */
@@ -791,9 +791,9 @@ a.cartgo[hidden]{display:none}
 @media (max-width:760px){.cartpanel{top:auto;bottom:16px;right:12px;left:12px;width:auto}}
 
 /* Inhalt sofort sichtbar, auch bevor das grosse Welten-Skript fertig ist */
-#hero canvas.world{background:#24180f url('../web/worlds/neue.webp') center/cover no-repeat}
-#quartiere canvas.world:not(.winter){background:#3a2a18 url('../web/worlds/wald.webp') center/cover no-repeat}
-#bergtiere canvas.world:not(.winter){background:#1b2430 url('../web/worlds/berg.webp') center/cover no-repeat}
+#hero canvas.world{background:#24180f url('../web/worlds/neue.webp?v=0b1570d5eb') center/cover no-repeat}
+#quartiere canvas.world:not(.winter){background:#3a2a18 url('../web/worlds/wald.webp?v=7f7fa5c528') center/cover no-repeat}
+#bergtiere canvas.world:not(.winter){background:#1b2430 url('../web/worlds/berg.webp?v=b99ea08ca9') center/cover no-repeat}
 .scene:not(#hero) .beast[data-season="s"]{opacity:1}
 #flaschen{overflow:visible}
 #flaschen .bottle3 img,#hero .bottle3 img{object-fit:contain;object-position:center bottom}
