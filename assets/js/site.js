@@ -278,7 +278,14 @@
 
   /* ---------- Lightbox ---------- */
   const lb=document.getElementById('lb');
-  function openLB(label,bottle){ if(!lb) return; lb.querySelector('.poster').src=label; const bo=lb.querySelector('.bot'); if(bottle){bo.src=bottle;bo.style.display='';} else bo.style.display='none'; lb.classList.add('open'); document.body.style.overflow='hidden'; }
+  const LBMAP={lemon_pie:{n:'Lemon Pie · Lemmy',t:'Lemur',s:'lemur_still',k:'Lemon Pie'},mango_lassi:{n:'Mango Lassi · Fabantu',t:'Elefant',s:'elefant_still',k:'Mango Lassi'},mandarine_nuss:{n:'Mandarine Nuss · Chippy',t:'Chipmunk',s:'chipmunk_still',k:'Mandarine Nuss'},apple_pie:{n:'Öpfuchueche · Pandu',t:'Roter Panda',s:'panda_still',k:'Apple Pie'}};
+  function openLB(label,bottle){ if(!lb) return;
+    const m=bottle&&/flasche_(\w+)\.webp/.exec(bottle), d=m&&LBMAP[m[1]], po=lb.querySelector('.poster'), bo=lb.querySelector('.bot'), info=lb.querySelector('.lbinfo');
+    lb.classList.toggle('grumpy',!!d);
+    if(d){ po.src='assets/web/loops_grumpy/'+d.s+'.webp'; po.alt=d.t; bo.src=bottle; bo.style.display=''; info.hidden=false;
+      info.querySelector('.lbname').textContent=d.n; const a=info.querySelector('.lborder'); a.href='mailto:info@bernvapes.ch?subject='+encodeURIComponent('Vorbestellung '+d.k)+'&body='+encodeURIComponent('Hoi BERNVAPES\n\nI möcht gärn '+d.k+' (60 ml Shortfill, 0 mg/ml) vorbestelle.\nAazahl: \nName: \nAdrässe: \n\nDanke!'); a.setAttribute('aria-label',d.k+' vorbestellen'); }
+    else { po.src=label; po.alt=''; if(bottle){bo.src=bottle;bo.style.display='';} else bo.style.display='none'; if(info) info.hidden=true; }
+    lb.classList.add('open'); document.body.style.overflow='hidden'; }
   function closeLB(){ if(!lb) return; lb.classList.remove('open'); document.body.style.overflow=''; }
   if(lb){ lb.querySelector('.close').addEventListener('click',closeLB); lb.addEventListener('click',e=>{if(e.target===lb)closeLB();}); addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();}); }
   document.querySelectorAll('.bottle[data-label],.bottle3[data-label]').forEach(b=>b.addEventListener('click',()=>openLB(b.dataset.label,b.dataset.bottle)));

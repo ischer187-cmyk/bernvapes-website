@@ -645,3 +645,26 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 /* #bergtiere mobil: Intro-Text auf dunklem Glas-Panel (wie #quartiere) */
 @media (max-width:760px){#bergtiere .title.side{left:12px;right:12px;max-width:none;padding:12px 16px 14px;border-radius:14px;background:rgba(14,18,28,.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
  #bergtiere .title.side p{font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.8)}}
+
+/* ===== Runde 2 (23.11.): Proportionen, Lightbox mit Bestellbutton ===== */
+/* Flaschen: echtes Seitenverhältnis des Bildes (--bar) statt 0.355 + object-fit:fill (zog die Flaschen ~56 % zu breit). Höhe bleibt wie vorher, Breite schrumpft. */
+.beast.grp:not(.bot) .bottle3{aspect-ratio:var(--bar,.2394);flex:0 0 calc(20% * var(--bar,.2394) / .355)}
+.beast.grp:not(.bot) .bottle3 img,.bottles .bottle3 img{object-fit:contain}
+.bottles .bottle3{aspect-ratio:var(--bar,.2394);width:calc(clamp(136px,14vw,196px) * var(--bar,.2394) / .355)}
+@media (max-width:760px){.bottles .bottle3{width:calc(clamp(120px,36vw,160px) * var(--bar,.2394) / .355)}}
+@media (min-width:761px){#flaschen .bottle3{width:calc(clamp(96px,min(14vw,14vh),196px) * var(--bar,.2394) / .355)}}
+/* Lightbox (neue Linie): Tier + Flasche, darunter Name, Daten und Vorbestellen – nichts überlappt */
+.lb{overflow-y:auto;align-items:flex-start}
+.lb .inner{margin:auto}
+.lb.grumpy .inner{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:clamp(8px,2vw,28px) clamp(12px,3vw,40px);max-width:min(1000px,94vw);padding:48px 0 24px}
+.lb.grumpy img.poster{outline:0;height:min(52vh,520px);max-width:46vw;width:auto;object-fit:contain;filter:drop-shadow(0 24px 24px rgba(0,0,0,.6))}
+.lb.grumpy img.bot{height:min(52vh,520px);width:auto;max-width:20vw;object-fit:contain}
+.lb .lbinfo{flex:0 0 100%;text-align:center;color:var(--bv-cream,#f2e8cf)}
+.lb .lbinfo[hidden]{display:none}
+.lb .lbname{margin:0 0 6px;font-family:var(--font-head);font-size:clamp(1.1rem,2.4vw,1.7rem);letter-spacing:.14em;text-transform:uppercase;color:var(--bv-gold)}
+.lb .lbspec{margin:0 0 16px;font-size:clamp(.85rem,1.6vw,1rem);opacity:.85}
+.lb .lborder{display:inline-block;padding:.85em 2.2em;min-height:48px;background:var(--bv-crimson,#a3242b);color:#fff;border:1px solid var(--bv-gold);outline:1px solid var(--bv-gold);outline-offset:3px;font-family:var(--font-head);font-size:1rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform .2s,background .2s}
+.lb .lborder:hover,.lb .lborder:focus-visible{background:#c1303a;transform:translateY(-2px)}
+@media (max-width:760px){.lb.grumpy .inner{display:flex;padding-top:56px}.lb.grumpy img.poster{height:min(34vh,300px);max-width:58vw}.lb.grumpy img.bot{display:block;height:min(34vh,300px);max-width:24vw}.lb .lborder{width:100%;max-width:340px}}
+/* Mobile/Tablet: Namensschild unter dem eigenen Tier (nicht nach links in das Nachbartier geschoben) */
+@media (max-width:900px){.hero .beast.grp .plaque{left:auto;top:auto;margin-top:6px}.hero .beast.grp{margin-bottom:6px}}
