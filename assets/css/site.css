@@ -390,8 +390,13 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 /* ===== /Hero-Tiere ===== */
 
 /* ===== Hero-Tiere: keine Animations-Loops (wirkten wie ein Video) – nur Standbilder ===== */
-#hero .beast .art img.loop{display:none}
+/* Loops (lazy via JS): Still bleibt, bis der Loop geladen ist */
+#hero .beast .art img.loop{opacity:0}
+#hero .beast.loop-on .art img.loop{opacity:1}
+#hero .beast.loop-on .art img.still{opacity:0}
 #hero .beast.playing .art img.still{opacity:1}
+#hero .beast.loop-on.playing .art img.still{opacity:0}
+@media (prefers-reduced-motion:reduce){#hero .beast .art img.loop{display:none}}
 
 /* ===== Quartiere: Flaschen sauber – Originalbild ohne Filter, ohne Schimmer-Overlay ===== */
 #quartiere .beast.grp.bot .bottle3 img.base,#bergtiere .beast.grp.bot .bottle3 img.base{filter:drop-shadow(0 14px 14px rgba(0,0,0,.45))}   /* Original-Flasche, nur weicher Schatten – kein Matt-/Kontrast-Filter */

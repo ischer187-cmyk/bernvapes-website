@@ -456,3 +456,33 @@
   let last='';(function loop(){const w=(window.BVWorld&&BVWorld.all||[]).find(o=>o.c===cv);const key=innerWidth+'x'+innerHeight+':'+(w&&w.zoom);if(key!==last){last=key;place()}requestAnimationFrame(loop)})();
   addEventListener('resize',place);
 })();
+
+/* ---------- Hero: grantige Tiere – Hover-Loops (lazy) ----------
+   Still bleibt Standard. Loop wird erst bei Hover/Fokus (Desktop) bzw. Sichtbarkeit (Touch) geladen.
+   prefers-reduced-motion: nur Still. */
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const beasts=[...document.querySelectorAll('#hero .beast[data-label]')];
+  if(!beasts.length) return;
+  const touch=matchMedia('(hover: none)').matches;
+  const state=new WeakMap();
+  function loopOf(b){
+    let s=state.get(b); if(s) return s;
+    const still=b.querySelector('.art img.still'); if(!still) return null;
+    const img=document.createElement('img'); img.className='loop'; img.alt=''; img.decoding='async'; img.setAttribute('aria-hidden','true');
+    s={img,loaded:false,want:false}; state.set(b,s);
+    img.addEventListener('load',()=>{ s.loaded=true; if(s.want) b.classList.add('loop-on'); });
+    img.src=still.src.replace('_still.webp','.webp');
+    still.after(img);
+    return s;
+  }
+  function play(b){ const s=loopOf(b); if(!s) return; s.want=true; if(s.loaded) b.classList.add('loop-on'); }
+  function stop(b){ const s=state.get(b); if(s) s.want=false; b.classList.remove('loop-on'); }
+  if(!touch){
+    beasts.forEach(b=>{ b.addEventListener('mouseenter',()=>play(b)); b.addEventListener('mouseleave',()=>stop(b)); b.addEventListener('focus',()=>play(b)); b.addEventListener('blur',()=>stop(b)); });
+  } else if('IntersectionObserver' in window){
+    /* Touch: Loop läuft, solange das Tier gut sichtbar ist (erst dann wird geladen) */
+    const io=new IntersectionObserver(es=>es.forEach(e=>{ e.isIntersecting&&e.intersectionRatio>=0.6?play(e.target):stop(e.target); }),{threshold:[0,0.6,1]});
+    beasts.forEach(b=>io.observe(b));
+  }
+})();
