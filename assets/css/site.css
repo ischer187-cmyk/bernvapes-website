@@ -825,7 +825,7 @@ a.cartgo[hidden]{display:none}
 .tm-logo{width:auto;height:clamp(120px,22vh,190px);max-width:100%;box-shadow:none;filter:drop-shadow(0 8px 10px rgba(40,25,10,.35))}
 
 /* ===== Flaschen-Proportion (Port aus „Runde 2 (23.11.)“, ohne Lightbox) =====
-   Flaschen: echtes Seitenverhältnis des Bildes (--bar = Breite/Höhe von loops_grumpy/flasche_*.webp) statt 0.355 + object-fit:fill
+   Flaschen: echtes Seitenverhältnis des Bildes (--bar = Breite/Höhe von loops_charisma/flasche_*.webp) statt 0.355 + object-fit:fill
    (zog die Flaschen ~50 % zu breit). Höhe bleibt wie vorher, nur die Breite schrumpft.
    Hero: Basis hier 34 % (dieser Branch, Runde 12), nicht 20 % wie auf dem alten Branch. */
 .beast.grp:not(.bot) .bottle3{aspect-ratio:var(--bar,.2394);flex:0 0 calc(34% * var(--bar,.2394) / .355)}
