@@ -819,3 +819,6 @@ a.cartgo[hidden]{display:none}
 #quartiere .beast .bottle3,#bergtiere .beast .bottle3{z-index:5}
 .teaser .shots{display:grid;gap:14px}
 .teaser .thumb.wide{aspect-ratio:16/9}
+
+/* Tier-Modal: Flasche (schmal) statt Etikett-Quadrat */
+.tm-logo{width:auto;height:clamp(120px,22vh,190px);max-width:100%;box-shadow:none;filter:drop-shadow(0 8px 10px rgba(40,25,10,.35))}
