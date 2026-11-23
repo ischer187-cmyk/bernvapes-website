@@ -824,3 +824,14 @@ a.cartgo[hidden]{display:none}
 /* Tier-Modal: Flasche (schmal) statt Etikett-Quadrat */
 .tm-logo{width:auto;height:clamp(120px,22vh,190px);max-width:100%;box-shadow:none;filter:drop-shadow(0 8px 10px rgba(40,25,10,.35))}
 
+/* ===== Flaschen-Proportion (Port aus „Runde 2 (23.11.)“, ohne Lightbox) =====
+   Flaschen: echtes Seitenverhältnis des Bildes (--bar = Breite/Höhe von loops_grumpy/flasche_*.webp) statt 0.355 + object-fit:fill
+   (zog die Flaschen ~50 % zu breit). Höhe bleibt wie vorher, nur die Breite schrumpft.
+   Hero: Basis hier 34 % (dieser Branch, Runde 12), nicht 20 % wie auf dem alten Branch. */
+.beast.grp:not(.bot) .bottle3{aspect-ratio:var(--bar,.2394);flex:0 0 calc(34% * var(--bar,.2394) / .355)}
+.beast.grp:not(.bot) .bottle3 img,.bottles .bottle3 img{object-fit:contain}
+.bottles .bottle3{aspect-ratio:var(--bar,.2394);width:calc(clamp(136px,14vw,196px) * var(--bar,.2394) / .355)}
+@media (max-width:760px){.bottles .bottle3{width:calc(clamp(120px,36vw,160px) * var(--bar,.2394) / .355)}}
+@media (min-width:761px){#flaschen .bottle3{width:calc(clamp(96px,min(14vw,14vh),196px) * var(--bar,.2394) / .355)}}
+/* Mobile/Tablet: Namensschild unter dem eigenen Tier (nicht nach links in das Nachbartier geschoben) */
+@media (max-width:900px){.hero .beast.grp .plaque{left:auto;top:auto;margin-top:6px}.hero .beast.grp{margin-bottom:6px}}
