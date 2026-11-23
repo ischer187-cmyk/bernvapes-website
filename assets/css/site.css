@@ -445,7 +445,8 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .lg-steam b:nth-of-type(3){--t:5.8s;--dl:4.1s;--dy:-40px}
 @keyframes lgWisp{0%{opacity:0;transform:translate(-10px,-10px) scale(.6,.8)}15%{opacity:.7}100%{opacity:0;transform:translate(-200px,var(--dy)) scale(4.2,1.6)}}
 /* Dampf-Deckkraft steuert JS (verebbt, wenn die Lok hinter dem goldenen Gipfel abtaucht) */
-/* Fuchs: Cartoon-Fuchs als Inline-SVG (.fx), aus dem Fuchsmasken-Logo abgeleitet (hohe spitze Ohren, Gunmetal + Rost-Orange).
+/* Fuchs: Cartoon-Fuchs als Inline-SVG (.fx) nach dem schwarzen BERNVAPES-Fuchsmasken-Logo (Etikett Felsenau Fuchs): hohe Spitzohren mit
+   Blitz-Schnitt im Innenohr, Stirn-Chevron, schräge Masken-Augenschlitze (.c = Kraftpapier-Ton wie das Etikett), Wangenzacken, schwarz mit grauen Low-Poly-Facetten.
    Taucht selten (25–40 s) hinter dem goldenen Gipfel auf, läuft (Gangzyklus, kein Hüpfen) den Grat hoch, schaut sich um, dreht und läuft zurück. JS: BVFox.
    Teile: .fx-leg (.fx-ff1/.fx-ff2 vorne nah/fern, .fx-fh1/.fx-fh2 hinten), .fx-up (Körper, wippt), .fx-head, .fx-tail. */
 .lg-fox,.bl-fox{position:absolute;left:0;top:0;width:46px;height:35px;visibility:hidden;transform-origin:50.5% 100%;filter:drop-shadow(0 .8px 0 rgba(20,12,6,.4))}
@@ -453,7 +454,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .fx-leg{transform-box:fill-box;transform-origin:50% 0}
 .fx-head{transform-box:fill-box;transform-origin:84% 79%}
 .fx-tail{transform-box:fill-box;transform-origin:5% 75%}
-.fx .k{fill:#1f2026}.fx .k2{fill:#16171b}.fx .b{fill:#3a3c44}.fx .l{fill:#5a5e69}.fx .l2{fill:#474a53}.fx .o{fill:#c8692b}.fx .c{fill:#e7e1d4}
+.fx .k{fill:#111114}.fx .k2{fill:#08080a}.fx .b{fill:#1d1e22}.fx .l{fill:#4c4f57}.fx .l2{fill:#2e3036}.fx .o{fill:#c8692b}.fx .c{fill:#cdb68a}
 @media (prefers-reduced-motion:reduce){.hero .lokgrat{display:none}}
 /* ===== /Dampflok Grat ===== */
 
@@ -638,7 +639,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 /* Weisser Cartoon-Fuchs: lugt hinter einem hinteren Grat hervor. Der Grat ist ein Loch im clip-path (.bl-foxclip), keine Bildkopie von berg.webp. */
 #bergtiere .bl-foxclip{position:absolute;inset:0;clip-path:path(evenodd,'M0 0H2400V1028H0Z M1780 505L1835 489L1880 545L1880 570L1780 570Z')}
 #bergtiere .bl-fox{filter:drop-shadow(0 0 1px rgba(80,40,20,.5))}
-#bergtiere .bl-fox .k{fill:#b9b6ae}#bergtiere .bl-fox .k2{fill:#a29f97}#bergtiere .bl-fox .b{fill:#f2efe8}#bergtiere .bl-fox .l{fill:#fff}#bergtiere .bl-fox .l2{fill:#e4e0d8}#bergtiere .bl-fox .o{fill:#d98b4a}#bergtiere .bl-fox .c{fill:#fff}
+#bergtiere .bl-fox .k{fill:#b9b6ae}#bergtiere .bl-fox .k2{fill:#a29f97}#bergtiere .bl-fox .b{fill:#f2efe8}#bergtiere .bl-fox .l{fill:#fff}#bergtiere .bl-fox .l2{fill:#e4e0d8}#bergtiere .bl-fox .o{fill:#d98b4a}#bergtiere .bl-fox .c{fill:#4a3f33}
 @media (max-width:900px),(prefers-reduced-motion:reduce){#bergtiere .berglife{display:none}}
 
 /* Sprachwahl BE / DE / FR / EN */
@@ -835,3 +836,14 @@ a.cartgo[hidden]{display:none}
 @media (min-width:761px){#flaschen .bottle3{width:calc(clamp(96px,min(14vw,14vh),196px) * var(--bar,.2394) / .355)}}
 /* Mobile/Tablet: Namensschild unter dem eigenen Tier (nicht nach links in das Nachbartier geschoben) */
 @media (max-width:900px){.hero .beast.grp .plaque{left:auto;top:auto;margin-top:6px}.hero .beast.grp{margin-bottom:6px}}
+
+/* Peek-a-boo der Logo-Tiere (JS: Peek-Modul am Ende von site.js, Test: window.__peekRun('hero'|'quartiere'|'bergtiere')).
+   Ebene liegt unter .beasts/.title, fängt keine Klicks; die Tiere lugen nur vom Szenenrand herein (.pin hat overflow:hidden). */
+.scene .peek{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.scene .peek img{position:absolute;display:block;pointer-events:none;user-select:none;will-change:transform;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.scene .peek img.peek-l{transform-origin:0 60%}
+.scene .peek img.peek-r{transform-origin:100% 60%}
+.scene .peek img.peek-b{transform-origin:50% 100%}
+#hero .peek img,#quartiere .peek img{filter:drop-shadow(0 0 1px rgba(242,232,207,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+#bergtiere .peek img{filter:drop-shadow(0 0 3px rgba(0,0,0,.55))}
+@media (max-width:900px),(prefers-reduced-motion:reduce){.scene .peek{display:none}}
