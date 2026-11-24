@@ -842,17 +842,22 @@ a.cartgo[hidden]{display:none}
 .scene .peek img.peek-l{transform-origin:0 60%}
 .scene .peek img.peek-r{transform-origin:100% 60%}
 .scene .peek img.peek-b{transform-origin:50% 100%}
+.scene .peek img.peek-k{transform-origin:50% 90%}
 #hero .peek img,#quartiere .peek img{filter:drop-shadow(0 0 1px rgba(242,232,207,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 #bergtiere .peek img{filter:drop-shadow(0 0 3px rgba(0,0,0,.55))}
 @media (max-width:900px),(prefers-reduced-motion:reduce){.scene .peek{display:none}}
 
-/* ===== BVBirds: Papercraft-Vögel (assets/js/birds.js?v=f7705d37de), Overlay 2400x1028 in Bild-Koordinaten, unter Titeln/Tieren/Buttons ===== */
+/* ===== BVBirds: Papercraft-Vögel (assets/js/birds.js?v=4bd2388bfc), Overlay 2400x1028 in Bild-Koordinaten, unter Titeln/Tieren/Buttons ===== */
 .bv-birds{position:absolute;left:0;top:0;width:2400px;height:1028px;transform-origin:0 0;z-index:2;pointer-events:none;overflow:visible}
 .bv-birds.off{visibility:hidden}
 .bv-bird{position:absolute;left:0;top:0;pointer-events:none;will-change:transform;transform-origin:50% 50%}
 .bv-bird i{display:block;width:100%;height:100%;background-repeat:no-repeat;background-size:400% 100%;background-position:0 0;animation:bv-flap .3s steps(4) infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.28))}
 .bv-schwalbe{background-image:url(../web/birds/schwalbe_sprite.webp?v=06984bec51)}
 .bv-dohle{background-image:url(../web/birds/dohle_sprite.webp?v=86d387c663)}
+.bv-taube{background-image:url(../web/birds/taube_sprite.webp?v=9715281aad)}
+.bv-rabe{background-image:url(../web/birds/rabe_sprite.webp?v=8170c03229)}
+.bv-adler2{background-image:url(../web/birds/adler_sprite.webp?v=b89fe4c05a)}
+.bv-birds{transition:opacity 1.2s ease}.bv-birds.gated{opacity:0}
 .bv-adler{background-image:url(../web/birds_fix/adler_sprite.webp?v=bfd92d06ce)} /* Adler fix (abgenommen 24.11.), getrennt vom austauschbaren Ordner birds/ */
 @keyframes bv-flap{to{background-position:133.333% 0}}
 @media (prefers-reduced-motion:reduce){.bv-birds{display:none}}

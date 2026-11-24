@@ -571,17 +571,20 @@
    Embleme = aus den Etiketten freigestellt – Ordner assets/web/peek, je ~150 px: Quartier-Tiere schwarz, Bärgtiere Kupfer.
    Pro Szene zufällig alle 20–45 s, nur solange die Szene sichtbar ist (IntersectionObserver), nie zwei gleichzeitig.
    Spots nur an Rändern/unteren Ecken; jeder Kandidat wird gegen Titel, Plaketten, Buttons, Tiere/Flaschen, Toggle, Nav geprüft.
-   Aus bei prefers-reduced-motion, document.hidden, ≤900 px. Test: window.__peekRun('hero'|'quartiere'|'bergtiere'[, 'tiername']). */
+   Aus bei prefers-reduced-motion, document.hidden, ≤900 px. Test: window.__peekRun('hero'|'quartiere'|'bergtiere'[, 'tiername'[, 'l'|'r'|'b'|'k']]). */
 (function(){
   if(!('animate' in Element.prototype)) return;
   const RM=matchMedia('(prefers-reduced-motion:reduce)');
   const Q=['assets/web/peek/monbijou_marder.webp?v=0d1b88f8d2','assets/web/peek/schanzen_kater.webp?v=bec7c08af7','assets/web/peek/breitschplatz_hirsch.webp?v=0ec3d92ba9','assets/web/peek/matte_eule.webp?v=f521cb4202','assets/web/peek/laengass_dachs.webp?v=6eeeab3298','assets/web/peek/bollwerk_koeter.webp?v=88f1501a8b','assets/web/peek/wyler_falke.webp?v=c6d4620052'];
   const B=['assets/web/peek/gipfel_adler.webp?v=cff2e8affc','assets/web/peek/nebel_wolf.webp?v=1824bde537','assets/web/peek/steinschlag_bock.webp?v=67713b6c70','assets/web/peek/waldwiesen_biene.webp?v=4e139fb2a7','assets/web/peek/wildwasser_bieber.webp?v=a84d31dc56','assets/web/peek/absturz_milan.webp?v=0f081dbee8','assets/web/peek/waldbrand_salamander.webp?v=669ada0e0f','assets/web/peek/erdbeben_elch.webp?v=a051f17a43'];
-  /* edges: l/r = seitlicher Rand (at = Höhe 0..1 der Szene), b = Unterkante (at = x 0..1) */
+  /* Ergänzt 24.11.: Fuchs (altes Logo, schwarz) für Quartier/Hero, Nöii-Linie-Embleme (Chipmunk, Elefant, Lemur, Panda; Kraftpapier-Gold) im Hero */
+  const N=['assets/web/peek/chipmunk.webp?v=1cf9079fa9','assets/web/peek/elefant.webp?v=f72bd7d925','assets/web/peek/lemur.webp?v=7dc456505d','assets/web/peek/panda.webp?v=01b97d8bf1','assets/web/peek/fuchs.webp?v=7f22117fd1','assets/web/peek/monbijou_marder.webp?v=0d1b88f8d2'];
+  const Q2=Q.concat(['assets/web/peek/fuchs.webp?v=7f22117fd1']);
+  /* edges: l/r = seitlicher Rand (at = Höhe 0..1 der Szene), b = Unterkante (at = x 0..1), k = hinter einer Flasche hervor (at = Höhe auf der Flasche) */
   const CFG={
-    hero:{set:Q,edges:[['l',.3,.56],['r',.3,.56]]},
-    quartiere:{set:Q,edges:[['r',.3,.62],['l',.6,.8],['b',.03,.97]]},
-    bergtiere:{set:B,edges:[['r',.3,.62],['b',.25,.97]]}
+    hero:{set:N,edges:[['l',.3,.56],['r',.3,.56],['k',.12,.34]]},
+    quartiere:{set:Q2,edges:[['r',.3,.62],['l',.6,.8],['b',.03,.97],['k',.1,.32],['k',.1,.32]]},
+    bergtiere:{set:B,edges:[['r',.3,.62],['b',.25,.97],['k',.12,.34]]}
   };
   const BLOCK='.title,.plaque,.tocart,.toggle,.hint,.beast,.brand,.lg-fox,button,a,nav,.nav';
   const R=(a,b)=>a+Math.random()*(b-a);
@@ -590,14 +593,25 @@
     const out=[],nv=document.getElementById('nav');
     if(nv){const r=nv.getBoundingClientRect();out.push({l:-1e4,r:1e4,t:-1e4,b:r.bottom+8});}
     const PA=pin.clientWidth*pin.clientHeight;
-    pin.querySelectorAll(BLOCK).forEach(e=>{const r=e.getBoundingClientRect();if(r.width&&r.height&&r.width*r.height<PA*.5&&getComputedStyle(e).visibility!=='hidden')out.push({l:r.left-14,r:r.right+14,t:r.top-14,b:r.bottom+14});});
+    pin.querySelectorAll(BLOCK).forEach(e=>{const r=e.getBoundingClientRect();if(r.width&&r.height&&r.width*r.height<PA*.5&&getComputedStyle(e).visibility!=='hidden')out.push({l:r.left-14,r:r.right+14,t:r.top-14,b:r.bottom+14,e:e});});
     return out;
   }
-  function spot(sec,pin,w,h){
-    const P=pin.getBoundingClientRect(),bl=blockers(pin),E=CFG[sec.id].edges;
+  function spot(sec,pin,w,h,only){
+    const P=pin.getBoundingClientRect(),bl=blockers(pin),E=CFG[sec.id].edges.filter(e=>!only||e[0]===only);
     for(let i=0;i<40;i++){
       const e=E[Math.floor(Math.random()*E.length)],a=R(e[1],e[2]);
       let r;
+      if(e[0]==='k'){ /* hinter einer Flasche hervor: Tier startet ganz verdeckt hinter der Flasche und lugt seitlich raus */
+        const bs=[...pin.querySelectorAll('.beast')].filter(b=>b.offsetParent&&+getComputedStyle(b).opacity>.6);if(!bs.length)continue;
+        const host=bs[Math.floor(Math.random()*bs.length)],bo=(host.querySelector('.bottle3')||host).getBoundingClientRect();
+        const kh=Math.min(h,bo.width*.85*h/w),kw=kh*w/h;if(kh<44)continue;
+        const sd=Math.random()<.5?1:-1,y=bo.top+bo.height*a;
+        r=sd>0?{l:bo.right-kw*.45,r:bo.right+kw*.55,t:y,b:y+kh}:{l:bo.left-kw*.55,r:bo.left+kw*.45,t:y,b:y+kh};
+        const vis=sd>0?{l:bo.right,r:r.r,t:r.t,b:r.b}:{l:r.l,r:bo.left,t:r.t,b:r.b};
+        if(r.l<P.left||r.r>P.right||r.t<P.top+60)continue;
+        if(bl.some(b=>!host.contains(b.e)&&!(b.e&&b.e.contains&&b.e.contains(host))&&vis.l<b.r&&vis.r>b.l&&vis.t<b.b&&vis.b>b.t))continue;
+        return {edge:'k',sd:sd,x:r.l-P.left,y:r.t-P.top,w:kw,h:kh};
+      }
       if(e[0]==='l'){const y=P.top+P.height*a-h/2;r={l:P.left,r:P.left+w*.6,t:y,b:y+h};}
       else if(e[0]==='r'){const y=P.top+P.height*a-h/2;r={l:P.right-w*.6,r:P.right,t:y,b:y+h};}
       else{const x=P.left+P.width*a-w/2;r={l:x,r:x+w,t:P.bottom-h*.62,b:P.bottom};}
@@ -608,7 +622,7 @@
     return null;
   }
   const last={};
-  function run(id,name){
+  function run(id,name,only){
     const sec=document.getElementById(id),cfg=CFG[id];
     if(!sec||!cfg||busy||RM.matches||innerWidth<=900||document.hidden)return false;
     if(id==='hero'&&!sec.classList.contains('phase-b'))return false;
@@ -624,10 +638,14 @@
     const done=()=>{img.remove();busy=false;};
     img.decode().then(()=>{
       const H=pin.clientHeight,h=Math.round(Math.max(64,Math.min(112,H*.12))),w=Math.round(h*img.naturalWidth/img.naturalHeight);
-      const s=spot(sec,pin,w,h);if(!s){done();return;}
-      img.style.width=w+'px';img.style.height=h+'px';img.className='peek-'+s.edge;
+      const s=spot(sec,pin,w,h,only);if(!s){done();return;}
+      img.style.width=(s.w||w)+'px';img.style.height=(s.h||h)+'px';img.className='peek-'+s.edge;
       let k;
-      if(s.edge==='b'){
+      if(s.edge==='k'){
+        const d=(s.w)*.55*s.sd,rz=6*s.sd;
+        img.style.left=s.x+'px';img.style.top=s.y+'px';
+        k=[{transform:'translateX('+(-d)+'px) rotate(0deg)'},{transform:'translateX(0) rotate('+rz+'deg)',offset:.24},{transform:'translateX('+(-d*.12)+'px) rotate('+(rz*.4)+'deg)',offset:.5},{transform:'translateX(0) rotate('+(rz*.9)+'deg)',offset:.72},{transform:'translateX('+(-d)+'px) rotate(0deg)'}];
+      }else if(s.edge==='b'){
         const rz=R(-7,7),dy=h*.62;
         img.style.left=s.x+'px';img.style.top=(H-dy)+'px';
         k=[{transform:'translateY('+dy+'px) rotate('+rz+'deg)'},{transform:'translateY(0) rotate('+(rz*.4)+'deg)',offset:.22},{transform:'translateY(3px) rotate('+(-rz*.6)+'deg)',offset:.5},{transform:'translateY(0) rotate('+(rz*.3)+'deg)',offset:.74},{transform:'translateY('+dy+'px) rotate('+rz+'deg)'}];
@@ -647,8 +665,8 @@
   Object.keys(CFG).forEach(id=>{
     const sec=document.getElementById(id);if(!sec)return;
     let vis=false,t=0;
-    const tick=()=>{t=0;if(!vis)return;t=setTimeout(tick,run(id)?R(20000,45000):R(4000,9000));};
+    const tick=()=>{t=0;if(!vis)return;t=setTimeout(tick,run(id)?R(15000,32000):R(4000,9000));}; /* 24.11.: etwas öfter, weiterhin selten und nie zwei gleichzeitig */
     new IntersectionObserver(es=>{es.forEach(en=>{vis=en.isIntersecting;
-      if(vis&&!t)t=setTimeout(tick,R(9000,22000));if(!vis&&t){clearTimeout(t);t=0;}});},{threshold:0}).observe(sec);
+      if(vis&&!t)t=setTimeout(tick,R(7000,16000));if(!vis&&t){clearTimeout(t);t=0;}});},{threshold:0}).observe(sec);
   });
 })();
