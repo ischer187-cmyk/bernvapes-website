@@ -18,7 +18,7 @@
   }
   var slots=[
     {id:'blick', sel:'#hero', gate:blickGate},
-    {id:'laufen', sel:'#quartiere'},
+    /* laufen (#quartiere) entfernt 24.11.: weisser Fuchs auf weissem MP4-Grund liess sich per Colorkey nicht sauber freistellen (Loch im Kopf, Pfoten weg) */
     {id:'pfote', sel:'#bergtiere'}
   ];
   var playing=null, pauseUntil=0, played={}, raf=0;
