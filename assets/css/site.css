@@ -847,3 +847,14 @@ a.cartgo[hidden]{display:none}
 #hero .peek img,#quartiere .peek img{filter:drop-shadow(0 0 1px rgba(242,232,207,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 #bergtiere .peek img{filter:drop-shadow(0 0 3px rgba(0,0,0,.55))}
 @media (max-width:900px),(prefers-reduced-motion:reduce){.scene .peek{display:none}}
+
+/* ===== BVBirds: Papercraft-Vögel (assets/js/birds.js?v=6b0165eedf), Overlay 2400x1028 in Bild-Koordinaten, unter Titeln/Tieren/Buttons ===== */
+.bv-birds{position:absolute;left:0;top:0;width:2400px;height:1028px;transform-origin:0 0;z-index:2;pointer-events:none;overflow:visible}
+.bv-birds.off{visibility:hidden}
+.bv-bird{position:absolute;left:0;top:0;pointer-events:none;will-change:transform;transform-origin:50% 50%}
+.bv-bird i{display:block;width:100%;height:100%;background-repeat:no-repeat;background-size:400% 100%;background-position:0 0;animation:bv-flap .3s steps(4) infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.28))}
+.bv-schwalbe{background-image:url(../web/birds/schwalbe_sprite.webp?v=9179bca359)}
+.bv-dohle{background-image:url(../web/birds/dohle_sprite.webp?v=e6fa727356)}
+.bv-adler{background-image:url(../web/birds/adler_sprite.webp?v=bfd92d06ce)}
+@keyframes bv-flap{to{background-position:133.333% 0}}
+@media (prefers-reduced-motion:reduce){.bv-birds{display:none}}
