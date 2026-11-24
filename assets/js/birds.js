@@ -7,11 +7,8 @@
  if(matchMedia('(prefers-reduced-motion:reduce)').matches){window.__birds=function(){return{hero:0,bergtiere:0,quartiere:0};};return;}
  var AR={schwalbe:.698,dohle:.705,adler:.777};
  var CFG={
-  hero:{warp:1,b:[
-   {t:'schwalbe',cx:1180,cy:345,rx:400,ry:125,T:34,ph:.05,dir:1,h:36,m:1},
-   {t:'schwalbe',cx:1185,cy:350,rx:285,ry:88,T:26,ph:.55,dir:-1,h:32},
-   {t:'schwalbe',cx:1175,cy:350,rx:500,ry:140,T:46,ph:.3,dir:1,h:30},
-   {t:'dohle',cx:1570,cy:300,rx:170,ry:34,T:40,ph:.2,dir:-1,h:44}]},
+  /* hero: bewusst keine Vögel (24.11.: nicht über dem Intro/Fuchskopf) */
+  /* Adler (Bärgtier): von Dominic abgenommen, Sprite + Flugbahn NICHT ändern, beim Vogel-Austausch aussen vor lassen */
   bergtiere:{b:[
    {t:'adler',cx:1500,cy:125,rx:360,ry:72,T:62,ph:.1,dir:1,h:86,m:1},
    {t:'dohle',cx:1900,cy:350,rx:150,ry:38,T:34,ph:.4,dir:-1,h:42},
@@ -50,7 +47,14 @@
    b.e.style.transform='translate('+(x-d.h*AR[d.t]/2).toFixed(1)+'px,'+(y-d.h/2).toFixed(1)+'px) rotate('+bank.toFixed(1)+'deg) scale('+(b.sx*depth).toFixed(3)+','+depth.toFixed(3)+')';});
   s.n=n;}
  document.addEventListener('visibilitychange',go);
- function init(){['hero','bergtiere','quartiere'].forEach(function(id){mk(id,CFG[id]);});go();}
+ function init(){Object.keys(CFG).forEach(function(id){mk(id,CFG[id]);});fitAR();go();}
+ /* Austausch: neue Sprites einfach als assets/web/birds/<vogel>_sprite.webp ablegen (4 Frames nebeneinander, Blick nach rechts),
+    dann scripts/cachebust.py. Seitenverhältnis wird hier aus der Datei gelesen, nichts im Code anpassen.
+    Austauschbar: schwalbe, dohle. Der Adler liegt getrennt in assets/web/birds_fix/adler_sprite.webp (AR fix .777) und bleibt wie er ist. */
+ function fitAR(){Object.keys(AR).filter(function(t){return t!=='adler';}).forEach(function(t){var tmp=document.createElement('i');tmp.className='bv-'+t;tmp.style.display='none';document.body.appendChild(tmp);
+  var m=/url\(["']?([^"')]+)/.exec(getComputedStyle(tmp).backgroundImage||'');tmp.remove();if(!m)return;
+  var im=new Image();im.onload=function(){if(!im.naturalHeight)return;AR[t]=im.naturalWidth/4/im.naturalHeight;
+   secs.forEach(function(s){s.list.forEach(function(b){if(b.d.t===t)b.e.style.width=b.d.h*AR[t]+'px';});});};im.src=m[1];});}
  window.BVBirds={sections:secs};
  window.__birds=function(){var r={hero:0,bergtiere:0,quartiere:0};secs.forEach(function(s){r[s.id]=act(s)?(s.n||0):0;});return r;};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();

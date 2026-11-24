@@ -414,7 +414,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .hero .lokgrat{position:absolute;left:0;top:0;width:2400px;height:1028px;transform-origin:0 0;z-index:1;pointer-events:none;
  clip-path:path(evenodd,'M0 0H2400V1028H0Z M1000 559L1064 530L1242 608L1300 583L1300 720L1000 720Z M1400 617L1517 544L1552 526L1642 569L1673 542L1732 517L1800 500L1800 720L1400 720Z M830 466L915 395L945 377L1000 418L1000 480L830 480Z')}
 /* Wagen (.lg-car, auch die Klone in #bergtiere): Position/Drehung/Grösse setzt JS (BVTrain) – Räder exakt auf dem Pfad, Sehne zwischen den Radaufstandspunkten.
-   Klassen: .lg-lok (Lok + Berner Fahne .lg-flag), .lg-tender, .lg-w1 (rot), .lg-w2 (grün), .lg-w3 (Güterwagen), .lg-w4 (Kesselwagen), .lg-w5 (Schlusswagen, altes Fuchs-Logo auf Creme); Räder .lg-wh, Stangen .lg-rod/.lg-mrod/.lg-xh */
+   Klassen: .lg-lok (Lok + Berner Fahne .lg-flag), .lg-tender, .lg-w1 (rot), .lg-w3 (Güterwagen), .lg-w5 (offener Schlusswagen, schwarzer Fuchskopf schaut heraus); w2/w4 seit 24.11. raus; Räder .lg-wh, Stangen .lg-rod/.lg-mrod/.lg-xh */
 .lg-car{position:absolute;left:0;top:0;transform-origin:0 0;visibility:hidden;filter:drop-shadow(0 1px 0 rgba(20,12,6,.4))}
 .lg-car svg{position:relative;display:block;width:100%;height:100%;overflow:visible}
 .lg-flag{transform-box:fill-box;transform-origin:100% 50%;animation:lgFlag 1.1s ease-in-out infinite alternate}
@@ -846,14 +846,14 @@ a.cartgo[hidden]{display:none}
 #bergtiere .peek img{filter:drop-shadow(0 0 3px rgba(0,0,0,.55))}
 @media (max-width:900px),(prefers-reduced-motion:reduce){.scene .peek{display:none}}
 
-/* ===== BVBirds: Papercraft-Vögel (assets/js/birds.js?v=6b0165eedf), Overlay 2400x1028 in Bild-Koordinaten, unter Titeln/Tieren/Buttons ===== */
+/* ===== BVBirds: Papercraft-Vögel (assets/js/birds.js?v=f7705d37de), Overlay 2400x1028 in Bild-Koordinaten, unter Titeln/Tieren/Buttons ===== */
 .bv-birds{position:absolute;left:0;top:0;width:2400px;height:1028px;transform-origin:0 0;z-index:2;pointer-events:none;overflow:visible}
 .bv-birds.off{visibility:hidden}
 .bv-bird{position:absolute;left:0;top:0;pointer-events:none;will-change:transform;transform-origin:50% 50%}
 .bv-bird i{display:block;width:100%;height:100%;background-repeat:no-repeat;background-size:400% 100%;background-position:0 0;animation:bv-flap .3s steps(4) infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.28))}
-.bv-schwalbe{background-image:url(../web/birds/schwalbe_sprite.webp?v=9179bca359)}
-.bv-dohle{background-image:url(../web/birds/dohle_sprite.webp?v=e6fa727356)}
-.bv-adler{background-image:url(../web/birds/adler_sprite.webp?v=bfd92d06ce)}
+.bv-schwalbe{background-image:url(../web/birds/schwalbe_sprite.webp?v=06984bec51)}
+.bv-dohle{background-image:url(../web/birds/dohle_sprite.webp?v=86d387c663)}
+.bv-adler{background-image:url(../web/birds_fix/adler_sprite.webp?v=bfd92d06ce)} /* Adler fix (abgenommen 24.11.), getrennt vom austauschbaren Ordner birds/ */
 @keyframes bv-flap{to{background-position:133.333% 0}}
 @media (prefers-reduced-motion:reduce){.bv-birds{display:none}}
 
@@ -865,3 +865,16 @@ a.cartgo[hidden]{display:none}
 #quartiere .toggle i::after,#bergtiere .toggle i::after{top:2px;left:2px;width:13px;height:13px}
 #quartiere .toggle.on i::after,#bergtiere .toggle.on i::after{left:23px}
 #quartiere .toggle .otc-note,#bergtiere .toggle .otc-note{font-size:.74rem}
+
+/* Schlusswagen (24.11.): Fuchskopf ragt über den SVG-Rand hinaus */
+.lg-w5 svg{overflow:visible}
+/* Quartiere kompakter (24.11.): Infobox unter der Flasche muss bei 1440×800 ganz sichtbar sein */
+#quartiere .title.side{max-width:50ch;top:clamp(66px,8.5vh,110px)}
+#quartiere .title.side .kicker{font-size:.85rem;margin-bottom:2px}
+#quartiere .title.side h2{font-size:clamp(1.6rem,2.7vw,2.6rem);line-height:1.05;margin:2px 0 6px}
+#quartiere .title.side p{font-size:clamp(.92rem,1vw,1.04rem);line-height:1.38;margin-top:0;max-width:none}
+#quartiere .beast .plaque{padding:6px 12px 6px;max-width:min(270px,36vw)}
+#quartiere .beast .plaque .flavor{font-size:1rem;line-height:1.15}
+#quartiere .beast .plaque .who{font-size:.76rem;line-height:1.25;margin-top:2px}
+#quartiere .plaque .tocart{margin-top:5px}
+@media (min-width:901px){#quartiere .beasts{bottom:calc(9% + 14px)}}
