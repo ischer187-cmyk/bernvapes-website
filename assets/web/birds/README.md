@@ -41,3 +41,11 @@ Tipps:
 - Schwalben klein und schnell und gern zu zweit oder dritt; der Adler gross und langsam, am besten über dem Berg-Bereich; die Dohlen passen zu Fels und Gipfel.
 - Für eine Gleitphase statt Dauer-Flattern einfach `<img src="…_gleiten.webp">` nehmen (2 Schläge, dann gleiten).
 - Rohmaterial + Skript: `assets/heads_src/birds/` (`_birds.py`).
+
+## Austausch auf der Website (Stand 24.11.)
+
+Die Website nutzt nur die Sprite-Strips: `schwalbe_sprite.webp`, `dohle_sprite.webp`, `adler_sprite.webp`.
+**Adler bleibt**: die Website nimmt ihn aus `assets/web/birds_fix/adler_sprite.webp` (abgenommen, nicht ersetzen); `birds/adler_sprite.webp` wird von der Website nicht mehr benutzt.
+Neue Schwalbe/Dohle: Datei gleichen Namens ersetzen (4 Frames nebeneinander, gleich breit, Blick nach rechts, transparent),
+dann `python3 scripts/cachebust.py`. Das Seitenverhältnis liest `assets/js/birds.js` selbst aus der Datei.
+Flugbahnen/Anzahl: `CFG` in `assets/js/birds.js`. Im Intro (Hero) fliegen bewusst keine Vögel.
