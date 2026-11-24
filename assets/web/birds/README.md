@@ -1,4 +1,24 @@
-# Low-Poly-Papercraft-Vögel (fliegen über die Bereiche)
+# Origami-Vögel aus Kraftpapier (NEU, 24.11.)
+
+Die Sprites in diesem Ordner sind jetzt **braun-beige Origami-Vögel aus Kraftpapier** (gleiche Dateinamen, 4 Frames, Blick nach rechts, transparent, am Kopf ausgerichtet):
+
+| Datei | Vogel | B/H | Tempo-Vorschlag |
+|---|---|---|---|
+| `schwalbe_sprite.webp` | Origami-Schwalbe | .838 | 70 ms/Frame |
+| `dohle_sprite.webp` | Origami-Kranich | .953 | 110 ms/Frame |
+| `adler_sprite.webp` | Origami-Adler (dunkleres Kraftpapier) | 1.095 | 150 ms/Frame |
+| `taube_sprite.webp` | Origami-Taube (neu) | .652 | 90 ms/Frame |
+| `rabe_sprite.webp` | Origami-Rabe (neu) | .767 | 120 ms/Frame |
+
+Jeweils auch als `*.webp` (Loop), `*_gleiten.webp` und `*_f1..f4.png`. Die alte bunte Low-Poly-Version liegt in `v1_bunt/`.
+**Für Bonnie:**
+- Schwalbe und Dohle werden durch das Ersetzen automatisch übernommen. Danach `python3 scripts/cachebust.py` ausführen.
+- Taube und Rabe bitte in `CFG` (`assets/js/birds.js`) ergänzen.
+- Für den Adler entscheidet iceman, ob der neue Origami-Adler den abgenommenen aus `birds_fix/` ersetzen soll.
+
+---
+
+# (alt) Low-Poly-Papercraft-Vögel (fliegen über die Bereiche)
 
 Drei Vögel, je 4 Flügelschlag-Frames, freigestellt (transparent), alle Frames am Schnabel ausgerichtet, damit der Körper beim Abspielen nicht springt.
 
