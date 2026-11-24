@@ -14,7 +14,7 @@ Jeweils auch als `*.webp` (Loop), `*_gleiten.webp` und `*_f1..f4.png`. Die alte 
 **Für Bonnie:**
 - Schwalbe und Dohle werden durch das Ersetzen automatisch übernommen. Danach `python3 scripts/cachebust.py` ausführen.
 - Taube und Rabe bitte in `CFG` (`assets/js/birds.js`) ergänzen.
-- Für den Adler entscheidet iceman, ob der neue Origami-Adler den abgenommenen aus `birds_fix/` ersetzen soll.
+- **Adler:** Beide sollen fliegen. Der bisherige Adler aus `birds_fix/` bleibt drin, der neue Origami-Adler kommt **zusätzlich** dazu als `adler_origami_sprite.webp` (B/H 1.095, ca. 150 ms/Frame). Bitte in `CFG` als eigenen Vogel ergänzen.
 
 ---
 
