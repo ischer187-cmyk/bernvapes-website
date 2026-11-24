@@ -414,7 +414,7 @@ svg.lifts circle{fill:rgba(23,19,15,.6);stroke:var(--bv-gold);stroke-width:1.2}
 .hero .lokgrat{position:absolute;left:0;top:0;width:2400px;height:1028px;transform-origin:0 0;z-index:1;pointer-events:none;
  clip-path:path(evenodd,'M0 0H2400V1028H0Z M1000 559L1064 530L1242 608L1300 583L1300 720L1000 720Z M1400 617L1517 544L1552 526L1642 569L1673 542L1732 517L1800 500L1800 720L1400 720Z M830 466L915 395L945 377L1000 418L1000 480L830 480Z')}
 /* Wagen (.lg-car, auch die Klone in #bergtiere): Position/Drehung/Grösse setzt JS (BVTrain) – Räder exakt auf dem Pfad, Sehne zwischen den Radaufstandspunkten.
-   Klassen: .lg-lok (Lok + Berner Fahne .lg-flag), .lg-tender, .lg-w1 (rot), .lg-w2 (grün), .lg-w3 (Güterwagen), .lg-w4 (Kesselwagen); Räder .lg-wh, Stangen .lg-rod/.lg-mrod/.lg-xh */
+   Klassen: .lg-lok (Lok + Berner Fahne .lg-flag), .lg-tender, .lg-w1 (rot), .lg-w2 (grün), .lg-w3 (Güterwagen), .lg-w4 (Kesselwagen), .lg-w5 (Schlusswagen, altes Fuchs-Logo auf Creme); Räder .lg-wh, Stangen .lg-rod/.lg-mrod/.lg-xh */
 .lg-car{position:absolute;left:0;top:0;transform-origin:0 0;visibility:hidden;filter:drop-shadow(0 1px 0 rgba(20,12,6,.4))}
 .lg-car svg{position:relative;display:block;width:100%;height:100%;overflow:visible}
 .lg-flag{transform-box:fill-box;transform-origin:100% 50%;animation:lgFlag 1.1s ease-in-out infinite alternate}
