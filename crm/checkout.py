@@ -4,7 +4,7 @@ Pre-order bottles (Lemon Pie, Mango Lassi, Mandarine Nuss, Apple Pie) use the
 same payment. The line is stored with preorder=1. Prices come from the product
 table (price_einstieg), never from the browser.
 """
-import datetime, logging, os, re
+import datetime, hashlib, hmac, json, logging, os, re
 from bexio_sync import sync_paid_order
 from db import IntegrityError
 from mailer import SHIP_NOTICE, deliver, order_mail
@@ -28,6 +28,15 @@ AGE_MESSAGES = {
     'birthdate_invalid': 'Bitte Geburtsdatum als TT.MM.JJJJ angeben.',
     'age_confirm_required': 'Bitte bestätige, dass du 18 Jahre oder älter bist.',
     'terms_required': 'Bitte akzeptiere die AGB und die Datenschutzerklärung.',
+}
+GUEST_CHANNEL = 'website-gast'
+GUEST_TAGS = 'B2C,Gast'
+_EMAIL = re.compile(r'^[^@\s]{1,64}@[^@\s]+\.[^@\s]{2,}$')
+_ZIP = re.compile(r'^\d{4}$')
+GUEST_MESSAGES = {
+    'guest_invalid': 'Bitte Name, E-Mail und Lieferadresse vollständig angeben.',
+    'dealer_email': 'Diese E-Mail gehört zu einem Händlerkonto. Bitte im Händlerportal bestellen.',
+    'rate_limited': 'Zu viele Versuche. Bitte kurz warten.',
 }
 
 
@@ -234,12 +243,14 @@ def _split_name(name):
     return 'Kunde', 'Kunde'
 
 
-def place(conn, account, items, data=None):
+def place(conn, account, items, data=None, guest=False):
     if not postfinance.configured():
         raise CheckoutError(503, 'postfinance_not_configured')
     lines, _goods = price_items(conn, items)
     birth = assert_adult(data or {})
     subtotal, shipping, total, remaining = _totals(lines)
+    if guest:
+        account = dict(account, customer_id=_guest_customer(conn, account), id=None)
     cid = account['customer_id']
     aid = account['id']
     email = (account['email'] or '').strip().lower()
@@ -250,7 +261,7 @@ def place(conn, account, items, data=None):
         """insert into orders(customer_id,customer_account_id,channel,status,total_chf,shipping_chf,birthdate,
            age_check_status,payment_status,payment_provider,currency,is_test,payment_method,updated_at)
            values(?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))""",
-        (cid, aid, 'website', 'offen', total, shipping, birth, age_status,
+        (cid, aid, GUEST_CHANNEL if guest else 'website', 'offen', total, shipping, birth, age_status,
          'offen', 'postfinance', 'CHF', test_flag, 'postfinance')).lastrowid
     ref = 'bv-%s' % oid
     conn.execute('update orders set external_ref=? where id=?', (ref, oid))
@@ -267,6 +278,13 @@ def place(conn, account, items, data=None):
     conn.execute(
         'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
         (cid, 'website', 'in', 'Shop-Kasse #%s %s · CHF %.2f (%s)%s. %s' % (oid, ref, total, ship_note, test_tag, names), 'Shop'))
+    if guest:
+        conn.execute(
+            'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
+            (cid, 'notiz', 'in',
+             'Gastbestellung #%s ohne Kundenkonto. Lieferadresse: %s, %s %s.' % (
+                 oid, account['address'], account['zip'], account['city']),
+             'Shop'))
     if age_status == AGE_OPEN:
         conn.execute(
             'insert into notes(customer_id,channel,direction,body,author) values(?,?,?,?,?)',
@@ -281,8 +299,8 @@ def place(conn, account, items, data=None):
         'merchantReference': ref,
         'invoiceMerchantReference': ref,
         'customerEmailAddress': email,
-        'successUrl': '%s/kasse-ok.html?ref=%s' % (_public(), ref),
-        'failedUrl': '%s/kasse-fail.html?ref=%s' % (_public(), ref),
+        'successUrl': '%s/kasse-ok.html?ref=%s%s' % (_public(), ref, _guest_q(ref) if guest else ''),
+        'failedUrl': '%s/kasse-fail.html?ref=%s%s' % (_public(), ref, _guest_q(ref) if guest else ''),
         'billingAddress': {
             'givenName': given,
             'familyName': family,
@@ -316,8 +334,13 @@ def place(conn, account, items, data=None):
         'age_check_status': age_status,
         'notices': order_notices({'age_check_status': age_status}),
     }
+    if guest:
+        body['guest'] = True
+        token = guest_token(ref)
+        if token:
+            body['guest_token'] = token
     body.update(_money_fields(subtotal, shipping, total, remaining))
-    _mail_received(conn, oid, ref, lines, shipping, total, account)
+    _mail_received(conn, oid, ref, lines, shipping, total, account, guest=guest)
     return body
 
 
@@ -363,6 +386,149 @@ def customer_checkout(handler, conn, account, data):
         return handler.json(ex.status, body)
     except postfinance.PostFinanceError:
         return handler.json(502, {'ok': False, 'error': 'postfinance_failed'})
+
+
+def guest_profile(data):
+    """Pflichtangaben für die Gastbestellung. Nur Schweizer Lieferadressen (PLZ 4-stellig)."""
+    raw = data.get('guest') if isinstance(data, dict) else None
+    if not isinstance(raw, dict):
+        raise CheckoutError(422, 'guest_invalid')
+    def val(key, limit=200):
+        return str(raw.get(key) or '').strip()[:limit]
+    g = {
+        'name': ' '.join(val('name').split()),
+        'email': val('email', 254).lower(),
+        'address': val('address'),
+        'zip': val('zip', 10),
+        'city': val('city', 100),
+        'phone': val('phone', 40),
+    }
+    bad = []
+    if len(g['name']) < 2 or len(g['name'].split()) < 2:
+        bad.append('name')
+    if not _EMAIL.match(g['email']):
+        bad.append('email')
+    if len(g['address']) < 3:
+        bad.append('address')
+    if not _ZIP.match(g['zip']):
+        bad.append('zip')
+    if len(g['city']) < 2:
+        bad.append('city')
+    if bad:
+        ex = CheckoutError(422, 'guest_invalid')
+        ex.fields = bad
+        raise ex
+    return g
+
+
+def _guest_customer(conn, g):
+    """CRM-Kontakt für den Gast: bestehenden Endkunden per E-Mail weiterverwenden, sonst neu anlegen.
+    Ein Kontakt mit Kundenkonto wird nicht überschrieben. Händler-E-Mails sind gesperrt."""
+    email = g['email']
+    if conn.execute('select 1 from dealer_accounts where lower(email)=?', (email,)).fetchone():
+        raise CheckoutError(409, 'dealer_email')
+    row = conn.execute(
+        'select id, customer_type, extra, tags from customers where lower(email)=? order by id limit 1',
+        (email,)).fetchone()
+    if row and row['customer_type'] not in ('Endkunde', None, ''):
+        raise CheckoutError(409, 'dealer_email')
+    has_account = conn.execute(
+        'select 1 from customer_accounts where lower(email)=?', (email,)).fetchone()
+    if row:
+        if not has_account:
+            try:
+                extra = json.loads(row['extra'] or '{}')
+                if not isinstance(extra, dict):
+                    extra = {}
+            except ValueError:
+                extra = {}
+            extra.update({'gast': True, 'zip': g['zip']})
+            tags = row['tags'] or ''
+            if 'Gast' not in tags.split(','):
+                tags = (tags + ',Gast') if tags else GUEST_TAGS
+            conn.execute(
+                """update customers set name=?, address=?, city=?, phone=coalesce(nullif(?,''),phone),
+                   extra=?, tags=?, updated_at=datetime('now') where id=?""",
+                (g['name'], g['address'], g['city'], g.get('phone') or '', json.dumps(extra, ensure_ascii=False), tags, row['id']))
+        return row['id']
+    return conn.execute(
+        """insert into customers(name,email,phone,customer_type,address,city,age_verify_method,age_verified,source,tags,extra)
+           values(?,?,?,'Endkunde',?,?,'checkbox',0,'website',?,?)""",
+        (g['name'], email, g.get('phone') or None, g['address'], g['city'], GUEST_TAGS,
+         json.dumps({'gast': True, 'zip': g['zip']}, ensure_ascii=False))).lastrowid
+
+
+def _guest_key():
+    secret = os.environ.get('CRM_GUEST_ORDER_SECRET') or os.environ.get('CRM_WEBHOOK_SECRET') or ''
+    return secret.encode('utf-8') if secret else b''
+
+
+def guest_token(ref):
+    """Zugriffsschlüssel für die Bestellbestätigung ohne Login. Ohne Server-Secret kein Token."""
+    key = _guest_key()
+    if not key:
+        return ''
+    return hmac.new(key, ('guest-order:' + ref).encode('utf-8'), hashlib.sha256).hexdigest()[:32]
+
+
+def _guest_q(ref):
+    token = guest_token(ref)
+    return '&g=%s' % token if token else ''
+
+
+def guest_checkout(handler, conn, data):
+    try:
+        if data.get('preview'):
+            body = quote(conn, {'id': None, 'customer_id': None}, data.get('items'))
+            body['guest'] = True
+            body.pop('customer_id', None)
+            return handler.json(200, body)
+        g = guest_profile(data)
+        account = {'id': None, 'customer_id': None, 'email': g['email'], 'name': g['name'],
+                   'address': g['address'], 'zip': g['zip'], 'city': g['city'], 'phone': g['phone']}
+        return handler.json(200, place(conn, account, data.get('items'), data, guest=True))
+    except CheckoutError as ex:
+        conn.rollback()
+        body = {'ok': False, 'error': ex.code}
+        if ex.code in AGE_MESSAGES:
+            body['message'] = AGE_MESSAGES[ex.code]
+        elif ex.code in GUEST_MESSAGES:
+            body['message'] = GUEST_MESSAGES[ex.code]
+        if getattr(ex, 'fields', None):
+            body['fields'] = ex.fields
+        return handler.json(ex.status, body)
+    except postfinance.PostFinanceError:
+        return handler.json(502, {'ok': False, 'error': 'postfinance_failed'})
+
+
+def guest_order(handler, conn):
+    """Status einer Gastbestellung für kasse-ok.html. Nur mit gültigem Token, ohne Adresse und Geburtsdatum."""
+    from urllib.parse import parse_qs, urlparse
+    q = parse_qs(urlparse(handler.path).query)
+    ref = (q.get('ref') or [''])[0].strip()
+    token = (q.get('g') or [''])[0].strip()
+    if not re.fullmatch(r'bv-\d{1,18}', ref or ''):
+        return handler.json(422, {'ok': False, 'error': 'invalid_ref'})
+    want = guest_token(ref)
+    if not want or not token or not hmac.compare_digest(want, token):
+        return handler.json(404, {'ok': False, 'error': 'not_found'})
+    order = conn.execute(
+        'select * from orders where external_ref=? and channel=?', (ref, GUEST_CHANNEL)).fetchone()
+    if not order:
+        return handler.json(404, {'ok': False, 'error': 'not_found'})
+    items = conn.execute('select article,qty,preorder from order_items where order_id=?', (order['id'],)).fetchall()
+    shipping = round(float(order['shipping_chf'] or 0), 2)
+    total = round(float(order['total_chf'] or 0), 2)
+    return handler.json(200, {
+        'ok': True, 'guest': True, 'ref': ref,
+        'payment_status': order['payment_status'],
+        'shipping_chf': shipping, 'total_chf': total,
+        'currency': order['currency'] or 'CHF',
+        'test': bool(order['is_test']),
+        'needs_age_check': (order['age_check_status'] or '') == AGE_OPEN,
+        'notices': order_notices(order),
+        'items': [{'name': i['article'], 'qty': i['qty'], 'preorder': bool(i['preorder'])} for i in items],
+    })
 
 
 def customer_order(handler, conn, account):
@@ -461,7 +627,7 @@ def apply_webhook(conn, data):
     return 200, body
 
 
-def _mail_received(conn, oid, ref, lines, shipping, total, account):
+def _mail_received(conn, oid, ref, lines, shipping, total, account, guest=False):
     """Eingangsbestätigung sofort nach der Bestellung (UWG). Ein Mailfehler macht die Bestellung nicht rückgängig."""
     email = (account['email'] or '').strip()
     name = account['name'] or ''
@@ -472,6 +638,11 @@ def _mail_received(conn, oid, ref, lines, shipping, total, account):
         'name': row['name'], 'qty': row['qty'], 'preorder': bool(row['preorder']),
     } for row in lines]
     subject, body = order_mail(name, ref, payload, shipping, total)
+    if guest:
+        hint = (
+            'Du hast als Gast bestellt, ohne Kundenkonto. Wenn du später mit dieser E-Mail '
+            'ein Konto anlegst, siehst du deine Bestellungen dort: %s/konto.html?neu=1\n\n' % _public())
+        body = body.replace('Freundliche Grüsse', hint + 'Freundliche Grüsse', 1)
     order = conn.execute('select customer_id from orders where id=?', (oid,)).fetchone()
     if deliver(conn, email, subject, body):
         return

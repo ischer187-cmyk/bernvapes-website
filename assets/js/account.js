@@ -261,6 +261,16 @@
       + '<p><a href="' + esc(keepNext('konto.html')) + '">' + esc(L('Zrügg zum Aamälde')) + '</a></p>'
     );
     if (!root) return;
+    /* Nach einer Gastbestellung: Angaben aus diesem Tab vorausfüllen (nie das Passwort). */
+    try {
+      var guest = JSON.parse(sessionStorage.getItem('bv-guest') || 'null');
+      if (guest && typeof guest === 'object') {
+        ['name', 'email', 'address', 'zip', 'city'].forEach(function (k) {
+          var el = root.querySelector('#f [name="' + k + '"]');
+          if (el && !el.value && guest[k]) el.value = String(guest[k]);
+        });
+      }
+    } catch (e) { /* kein sessionStorage */ }
     root.querySelector('#f').onsubmit = function (ev) {
       ev.preventDefault();
       var fd = new FormData(ev.target);
@@ -270,6 +280,7 @@
         age_18: fd.get('age_18') === 'on'
       }}).then(function (r) {
         if ((r.status === 201 || r.status === 200) && r.data.ok) {
+          try { sessionStorage.removeItem('bv-guest'); } catch (e) { /* egal */ }
           me = r.data; paintHeader();
           var n = nextPage();
           if (n) { location.href = n; return; }
