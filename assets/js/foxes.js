@@ -3,7 +3,8 @@
    Die anderen beiden bleiben beim Canvas-Colorkey des MP4. */
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var GAP=2800, V='20261029l';
+  var GAP=2800;
+  function bv(u){ return window.BV?BV(u):u; }
   var BLICK_WAIT=7000, blickReadyAt=0, blickWaitDone=false;
   function blickGate(){
     var h=document.getElementById('hero');
@@ -17,7 +18,7 @@
   }
   var slots=[
     {id:'blick', sel:'#hero', gate:blickGate},
-    {id:'laufen', sel:'#quartiere'},
+    /* laufen (#quartiere) entfernt 24.11.: weisser Fuchs auf weissem MP4-Grund liess sich per Colorkey nicht sauber freistellen (Loch im Kopf, Pfoten weg) */
     {id:'pfote', sel:'#bergtiere'}
   ];
   var playing=null, pauseUntil=0, played={}, raf=0;
@@ -25,16 +26,16 @@
   function mount(s){
     var sec=document.querySelector(s.sel); if(!sec) return;
     var pin=sec.querySelector('.pin')||sec;
-    var poster='assets/web/fox3/'+(s.id==='blick'?'fox_cut_full':s.id)+'.webp?v='+V;
+    var poster=bv('assets/web/fox3/'+(s.id==='blick'?'fox_cut_full':s.id)+'.webp');
     var el=document.createElement('div');
     el.className='wfox wfox-'+s.id;
     el.setAttribute('aria-hidden','true');
     if(s.id==='blick'){
-      el.innerHTML='<div class="wfox-mask"><img alt="" src="assets/web/fox3/blick_solid.webp?v='+V+'"></div>';
+      el.innerHTML='<div class="wfox-mask"><img alt="" src="'+bv('assets/web/fox3/blick_solid.webp?v=39e3b2914c')+'"></div>';
     }else if(reduce){
       el.innerHTML='<img class="wfox-still" alt="" src="'+poster+'">';
     }else{
-      el.innerHTML='<canvas></canvas><video muted playsinline preload="none" src="assets/web/fox3/'+s.id+'.mp4?v='+V+'"></video>';
+      el.innerHTML='<canvas></canvas><video muted playsinline preload="none" src="'+bv('assets/web/fox3/'+s.id+'.mp4')+'"></video>';
     }
     pin.appendChild(el);
     s.el=el; s.sec=sec; s.video=el.querySelector('video'); s.canvas=el.querySelector('canvas');
@@ -48,7 +49,8 @@
   function hide(s){
     if(s.peek){ try{s.peek.cancel();}catch(e){} s.peek=null; }
     if(s.hold){ clearTimeout(s.hold); s.hold=0; }
-    if(s.el) s.el.classList.remove('on');
+    if(s.fadeT){ clearTimeout(s.fadeT); s.fadeT=0; } s.fading=false;
+    if(s.el) s.el.classList.remove('on','fade');
     var img=s.el&&s.el.querySelector('img');
     if(img&&s.id==='blick') img.style.transform='translateY(70%)';
     if(s.video){ s.video.pause(); try{s.video.currentTime=0;}catch(e){} }
@@ -74,6 +76,11 @@
       }, 1300);
     };
   }
+  var FADE=1500;
+  function startFade(s){
+    s.fading=true; s.el.classList.add('fade'); s.el.classList.remove('on');
+    s.fadeT=setTimeout(function(){ s.fadeT=0; if(playing===s) finish(s); }, FADE+120);
+  }
   function finish(s){ hide(s); if(playing===s){ playing=null; cancelAnimationFrame(raf); } pauseUntil=performance.now()+GAP; played[s.id]=1; }
 
   function draw(){
@@ -96,7 +103,9 @@
       }
       ctx.putImageData(img,0,0);
     }
-    if(v.ended){ finish(s); return; }
+    /* Runde 8: weich ausblenden – Fade startet FADE ms vor Clipende, letzter Frame bleibt stehen (kein Reset/Abschneiden) */
+    if(!s.fading && v.duration && v.currentTime>=v.duration-FADE/1000) startFade(s);
+    if(v.ended){ if(!s.fading) startFade(s); return; }
     raf=requestAnimationFrame(draw);
   }
 

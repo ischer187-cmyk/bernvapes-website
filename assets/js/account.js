@@ -145,7 +145,17 @@
       document.body.appendChild(btn);
     }
     paintHeader();
+    fitNav();
   }
+  function fitNav(){
+    var nav=document.querySelector('.nav');
+    var bar=document.querySelector('.shopbar');
+    if(!nav) return;
+    if(!bar||innerWidth<=760){ nav.style.paddingRight=''; return; }
+    var gap=Math.ceil(innerWidth-bar.getBoundingClientRect().left)+16;
+    nav.style.paddingRight=gap+'px';
+  }
+  addEventListener('resize',function(){ fitNav(); });
 
   function shell(html) {
     var root = document.getElementById('konto');
@@ -157,6 +167,20 @@
     var n = new URLSearchParams(location.search).get('next') || '';
     if (/^(kasse|kasse-ok|kasse-fail)\.html$/.test(n)) return n;
     return '';
+  }
+  /* Login, Registrieren und Passwort-vergessen behalten ?next=, sonst landet
+     jemand, der von der Kasse kam, nach dem Konto-Anlegen nur auf «Abmelden». */
+  function keepNext(href) {
+    var n = nextPage();
+    if (!n) return href;
+    return href + (href.indexOf('?') >= 0 ? '&' : '?') + 'next=' + encodeURIComponent(n);
+  }
+  function cartCount() {
+    try {
+      var v = JSON.parse(localStorage.getItem('bv-cart'));
+      if (!Array.isArray(v)) return 0;
+      return v.reduce(function (n, it) { return n + (Number(it.qty) || 1); }, 0);
+    } catch (e) { return 0; }
   }
   function mode() {
     var q = new URLSearchParams(location.search);
@@ -173,10 +197,20 @@
       + '<p class="muted">' + esc(L('Registriert')) + ': ' + esc((me.created_at || '').slice(0, 16))
       + '<br>' + esc(L('Letschti Aamäldig')) + ': ' + esc((me.last_login_at || '').slice(0, 16)) + '</p>'
       + '<p class="muted">18+ · Checkbox. Kei e-ID, kei Usweis.</p>'
-      + '<p><button class="btn" type="button" id="out">' + esc(L('Abmälden')) + '</button></p>'
+      + '<p><a class="btn" id="zur-kasse" href="kasse.html">' + esc(L('Zur Kasse')) + '</a></p>'
+      + '<p class="muted" id="cart-hint"></p>'
+      + '<p><a href="index.html">' + esc(L('Zum Shop')) + '</a></p>'
+      + '<p><button class="btn ghost" type="button" id="out">' + esc(L('Abmälden')) + '</button></p>'
       + (window.BV_B2B_ENABLED ? '<p><a href="haendler.html">' + esc(L('Händler-Portal')) + '</a></p>' : '')
     );
     if (!root) return;
+    var hint = root.querySelector('#cart-hint');
+    if (hint) {
+      var nItems = cartCount();
+      hint.textContent = nItems
+        ? (nItems + ' im Warenkorb. Die Alters- und AGB-Bestätigung steht an der Kasse.')
+        : 'Der Warenkorb ist leer. Die Kasse bleibt erreichbar.';
+    }
     root.querySelector('#out').onclick = function () {
       api('/logout', { method: 'POST', body: {} }).then(function () {
         me = null; csrf = null;
@@ -192,7 +226,7 @@
       + field('email', 'E-Mail', 'email', 'required autocomplete="username"')
       + field('password', 'Passwort', 'password', 'required autocomplete="current-password"')
       + '<p style="margin-top:16px"><button class="btn" type="submit">' + esc(L('Aamälde')) + '</button></p></form>'
-      + '<p><a href="konto.html?neu=1">' + esc(L('Registriere')) + '</a> · <a href="konto.html?vergessen=1">' + esc(L('Passwort vergässe')) + '</a></p>'
+      + '<p><a href="' + esc(keepNext('konto.html?neu=1')) + '">' + esc(L('Registriere')) + '</a> · <a href="' + esc(keepNext('konto.html?vergessen=1')) + '">' + esc(L('Passwort vergässe')) + '</a></p>'
       + (window.BV_B2B_ENABLED ? '<p class="muted"><a href="haendler.html">' + esc(L('Händler-Portal')) + '</a></p>' : '')
     );
     if (!root) return;
@@ -224,7 +258,7 @@
       + '</div><label class="agebox"><input type="checkbox" name="age_18" id="age_18"> '
       + esc(L('I bi 18 oder elter. Kei Usweis, nume die Bestätigung.')) + '</label>'
       + '<p style="margin-top:16px"><button class="btn" type="submit">' + esc(L('Konto aalege')) + '</button></p></form>'
-      + '<p><a href="konto.html">' + esc(L('Zrügg zum Aamälde')) + '</a></p>'
+      + '<p><a href="' + esc(keepNext('konto.html')) + '">' + esc(L('Zrügg zum Aamälde')) + '</a></p>'
     );
     if (!root) return;
     root.querySelector('#f').onsubmit = function (ev) {
@@ -254,7 +288,7 @@
       + field('email', 'E-Mail', 'email', 'required')
       + '<p style="margin-top:16px"><button class="btn" type="submit">' + esc(L('Passwort vergässe')) + '</button></p></form>'
       + '<p class="muted">' + esc(L('Wen es für die E-Mail es Konto git, chunnt e Link zum Zruggsetze.')) + '</p>'
-      + '<p><a href="konto.html">' + esc(L('Zrügg zum Aamälde')) + '</a></p>'
+      + '<p><a href="' + esc(keepNext('konto.html')) + '">' + esc(L('Zrügg zum Aamälde')) + '</a></p>'
     );
     if (!root) return;
     root.querySelector('#f').onsubmit = function (ev) {

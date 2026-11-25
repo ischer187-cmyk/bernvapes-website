@@ -185,7 +185,7 @@
   function button(id,name){
     var b=document.createElement('button');
     b.type='button'; b.className='tocart'; b.dataset.cart=id; b.dataset.name=name;
-    b.textContent='I Warechorb';
+    b.textContent='In den Warenkorb';
     b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); add(id, name); });
     return b;
   }
@@ -193,18 +193,30 @@
     var n=host.querySelector('.flavor, .lbl, figcaption, .who');
     return n?(n.textContent||'').replace(/\s+/g,' ').trim():'';
   }
+  var KNOWN={'lemon-pie':1,'mango-lassi':1,'mandarine-nuss':1,'apple-pie':1,'monbijou-marder':1,'breitsch-hirsch':1,'matte-eule':1,'laenggass-dachs':1,'langgass-dachs':1,'wyler-falke':1,'schanzen-kater':1,'bollwerk-koeter':1,'bollwerk-koter':1,'matte-eule-uf-ys':1,'laenggass-dachs-uf-ys':1,'langgass-dachs-uf-ys':1,'wyler-falke-uf-ys':1,'gipfel-adler':1,'gipfel_adler_100ml':1,'gipfel-adler-uf-ys':1,'gipfel_adler_otr_100ml':1,'nebel-wolf':1,'nebel_wolf_100ml':1,'nebel-wolf-uf-ys':1,'nebel_wolf_otr_100ml':1,'steinschlag-bock':1,'steinschlag_bock_100ml':1,'steinschlag-bock-uf-ys':1,'steinschlag_bock_otr_100ml':1,'waldwiesen-biene':1,'waldwiesen_biene_100ml':1,'wildwasser-biber':1,'wildwasser_bieber_100ml':1,'absturz-milan':1,'absturz_milan_100ml':1,'waldbrand-salamander':1,'waldbrand_salamander_100ml':1,'erdbeben-elch':1,'erdbeben_elch_100ml':1};
+  var BY_ART={lemur:'lemon-pie',elefant:'mango-lassi',chipmunk:'mandarine-nuss',panda:'apple-pie'};
+  function skuOf(fig){
+    var key=fig.dataset.key;
+    if(key&&KNOWN[key]) return key;
+    var still=fig.querySelector('img.still');
+    var m=still&&(still.getAttribute('src')||'').match(/loops\/(\w+?)_still/);
+    if(m&&BY_ART[m[1]]) return BY_ART[m[1]];
+    var id=slug(nameOf(fig));
+    if(KNOWN[id]) return id;
+    return '';
+  }
   function place(host, id, name){
-    if(!host||host.querySelector(':scope > .tocart, .plaque > .tocart')) return;
+    if(!host||!id||!KNOWN[id]||host.querySelector('.tocart')) return;
     var b=button(id,name);
-    host.appendChild(b);
+    var plaque=host.querySelector('.plaque');
+    if(plaque) plaque.appendChild(b); else host.appendChild(b);
   }
 
   function scan(){
     /* Nur #flaschen .preorder ist eine Vorbestellung. Alle anderen Knöpfe bestellen direkt. */
     document.querySelectorAll('#hero .beast, #quartiere .beast, #bergtiere .beast, .werkstatt .beast, .studies figure').forEach(function(fig){
       var name=nameOf(fig);
-      var id=fig.dataset.key||slug(name);
-      place(fig, id, name);
+      place(fig, skuOf(fig), name);
     });
     ['#lb .tocart','#tiermodal .tocart'].forEach(function(sel){
       var b=document.querySelector(sel); if(!b||b._cart) return; b._cart=1;
