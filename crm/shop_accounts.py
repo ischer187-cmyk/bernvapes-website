@@ -60,6 +60,8 @@ def handle(handler, method, path):
             body = _row_public(row)
             body['csrf_token'] = session['csrf_token']
             return handler.json(200, body)
+        if method == 'GET' and rel == '/guest/order':
+            return checkout.guest_order(handler, conn)
         row = _load(conn, session)
         if method == 'GET' and rel == '/order':
             if not row:
@@ -76,6 +78,8 @@ def handle(handler, method, path):
             return _forgot(handler, conn, ip, data)
         if rel == '/reset':
             return _reset(handler, conn, ip, data)
+        if rel == '/guest/checkout':
+            return _guest_checkout(handler, conn, data)
         if rel == '/checkout':
             if not row:
                 return handler.json(401, {'ok': False, 'error': 'login_required'})
@@ -91,6 +95,27 @@ def handle(handler, method, path):
         return handler.json(404, {'ok': False, 'error': 'not_found'})
     finally:
         conn.close()
+
+def _guest_checkout(handler, conn, data):
+    """Kauf ohne Konto. Kein Session-Cookie, darum nur JSON (Browser schickt das cross-origin
+    nicht ohne CORS-Freigabe) und ein Limit pro E-Mail plus ein globales Limit."""
+    if not getattr(handler, '_json', False):
+        return handler.json(415, {'ok': False, 'error': 'json_required'})
+    if str(data.get('website') or '').strip():
+        # Honeypot-Feld: Menschen sehen es nicht.
+        return handler.json(422, {'ok': False, 'error': 'guest_invalid'})
+    if not data.get('preview'):
+        guest = data.get('guest') if isinstance(data.get('guest'), dict) else {}
+        email = str(guest.get('email') or '').strip().lower()[:254]
+        per_mail = int(os.environ.get('CRM_GUEST_LIMIT_PER_EMAIL', '5'))
+        overall = int(os.environ.get('CRM_GUEST_LIMIT_GLOBAL', '200'))
+        if not rate_ok(conn, 'guest-checkout:all', overall, 3600) or (
+                email and not rate_ok(conn, f'guest-checkout:{email}', per_mail, 3600)):
+            conn.commit()
+            return handler.json(429, {'ok': False, 'error': 'rate_limited',
+                                      'message': checkout.GUEST_MESSAGES['rate_limited']})
+        conn.commit()
+    return checkout.guest_checkout(handler, conn, data)
 
 def _login(handler, conn, ip, data):
     limit, window = login_limit()

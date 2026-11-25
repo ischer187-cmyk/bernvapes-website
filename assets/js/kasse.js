@@ -34,7 +34,10 @@
       age_confirm_required: 'Bitte bestätige, dass du 18 Jahre oder älter bist.',
       terms_required: 'Bitte akzeptiere die AGB und die Datenschutzerklärung.',
       csrf: 'Seite neu laden und noch einmal versuchen.',
-      crm_unreachable: 'CRM nicht erreichbar.'
+      crm_unreachable: 'CRM nicht erreichbar.',
+      guest_invalid: 'Bitte Name, E-Mail und Lieferadresse vollständig angeben.',
+      dealer_email: 'Diese E-Mail gehört zu einem Händlerkonto. Bitte im Händlerportal bestellen.',
+      rate_limited: 'Zu viele Versuche. Bitte kurz warten.'
     };
     return t(map[code] || 'Das hat nicht geklappt.');
   }
@@ -122,18 +125,73 @@
       + holdHtml();
   }
 
+  /* Gast: kein Konto, kein Cookie. Gleiche Kasse, eigener Endpunkt /guest/checkout. */
+  var GUEST_KEY = 'bv-guest';
+  var GUEST_FIELDS = [
+    ['g-name', 'name', 'Vor- und Nachname', 'text', 'name'],
+    ['g-email', 'email', 'E-Mail', 'email', 'email'],
+    ['g-address', 'address', 'Strasse und Nr.', 'text', 'street-address'],
+    ['g-zip', 'zip', 'PLZ', 'text', 'postal-code'],
+    ['g-city', 'city', 'Ort', 'text', 'address-level2'],
+    ['g-phone', 'phone', 'Telefon (optional, für die Alterskontrolle)', 'tel', 'tel']
+  ];
+  function guestFieldsHtml() {
+    var rows = GUEST_FIELDS.map(function (f) {
+      var extra = f[1] === 'zip' ? ' inputmode="numeric" maxlength="4" pattern="[0-9]{4}"' : '';
+      if (f[1] !== 'phone') extra += ' required';
+      return '<div class="fld"><label for="' + f[0] + '">' + esc(t(f[2])) + '</label>'
+        + '<input id="' + f[0] + '" name="' + f[1] + '" type="' + f[3] + '" autocomplete="' + f[4] + '"' + extra + '></div>';
+    }).join('');
+    return '<h2 class="guesthead">' + esc(t('Lieferadresse')) + '</h2>'
+      + '<p class="muted">' + esc(t('Du bestellst als Gast, ohne Kundenkonto. Die Bestellbestätigung kommt an diese E-Mail. Lieferung nur in die Schweiz.')) + '</p>'
+      + '<div class="row2 guestform">' + rows + '</div>'
+      + '<div class="hp" aria-hidden="true"><label for="g-website">Website</label><input id="g-website" name="website" tabindex="-1" autocomplete="off"></div>';
+  }
+  function guestValues(root) {
+    var out = {};
+    GUEST_FIELDS.forEach(function (f) {
+      var el = root.querySelector('#' + f[0]);
+      out[f[1]] = el ? (el.value || '').trim() : '';
+    });
+    return out;
+  }
+  function guestProblem(g) {
+    if (g.name.split(/\s+/).filter(Boolean).length < 2) return 'Bitte Vor- und Nachname angeben.';
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(g.email)) return 'Bitte eine gültige E-Mail angeben.';
+    if (g.address.length < 3) return 'Bitte Strasse und Hausnummer angeben.';
+    if (!/^\d{4}$/.test(g.zip)) return 'Bitte eine Schweizer PLZ (4 Ziffern) angeben.';
+    if (g.city.length < 2) return 'Bitte den Ort angeben.';
+    return '';
+  }
+  function choiceHtml() {
+    return '<p>' + esc(t('Wie möchtest du bestellen?')) + '</p>'
+      + '<div class="kasse-choice">'
+      + '<div><h2>' + esc(t('Mit Konto')) + '</h2><p class="muted">' + esc(t('Adresse gespeichert, Bestellungen im Konto.')) + '</p>'
+      + '<p><a class="btn" href="konto.html?next=kasse.html">' + esc(t('Anmelden')) + '</a></p>'
+      + '<p><a href="konto.html?neu=1&amp;next=kasse.html">' + esc(t('Neues Konto anlegen')) + '</a></p></div>'
+      + '<div><h2>' + esc(t('Als Gast')) + '</h2><p class="muted">' + esc(t('Ohne Konto bestellen. Du kannst später eines anlegen.')) + '</p>'
+      + '<p><button class="btn" type="button" id="as-guest">' + esc(t('Als Gast kaufen')) + '</button></p></div>'
+      + '</div>';
+  }
+
   function renderKasse(root, me, keep) {
     var items = itemsPayload();
-    if (!me) {
-      root.innerHTML = '<p>' + esc(t('Bitte zuerst anmelden.')) + '</p><p><a class="btn" href="konto.html?next=kasse.html">' + esc(t('Anmelden')) + '</a></p>';
-      return;
-    }
+    var guest = !me && !!(keep && keep.guestMode);
     if (!items.length) {
       root.innerHTML = '<p>' + esc(t('Der Warenkorb ist leer.')) + '</p><p><a href="index.html">' + esc(t('Zurück zum Shop')) + '</a></p>';
       return;
     }
+    if (!me && !guest) {
+      root.innerHTML = choiceHtml();
+      root.querySelector('#as-guest').onclick = function () {
+        renderKasse(root, null, { guestMode: true });
+      };
+      return;
+    }
+    var path = guest ? '/guest/checkout' : '/checkout';
+    var csrf = guest ? null : me.csrf_token;
     root.innerHTML = '<p class="muted">…</p>';
-    api('/checkout', { method: 'POST', csrf: me.csrf_token, body: { items: items, preview: true } }).then(function (r) {
+    api(path, { method: 'POST', csrf: csrf, body: { items: items, preview: true } }).then(function (r) {
       if (r.status === 401) return renderKasse(root, null);
       if (r.status !== 200 || !r.data.ok) {
         root.innerHTML = '<p class="err">' + esc(errText(r.data && r.data.error)) + '</p>';
@@ -142,8 +200,10 @@
       if (r.data.payment_ready === false) {
         root.insertAdjacentHTML('beforeend', '<p class="err">Die PostFinance-Testzahlung ist auf dem Server noch nicht eingerichtet. Die Bestellung kann noch nicht bezahlt werden.</p>');
       }
-      root.innerHTML = linesHtml(r.data.items)
+      root.innerHTML = (guest ? '<p class="muted guestnote">' + esc(t('Gastbestellung')) + ' · <a href="konto.html?next=kasse.html">' + esc(t('Doch anmelden')) + '</a></p>' : '')
+        + linesHtml(r.data.items)
         + summaryHtml(r.data)
+        + (guest ? guestFieldsHtml() : '')
         + ageFields()
         + '<p class="tabwarn">' + esc('Dieses Produkt kann Ihre Gesundheit schädigen.') + '</p>'
         + '<p class="muted">' + esc(t('Testzahlung über PostFinance.')) + '</p>'
@@ -156,6 +216,12 @@
         if (birthEl) birthEl.value = keep.birth || '';
         if (ageEl) ageEl.checked = !!keep.age;
         if (termsEl) termsEl.checked = !!keep.terms;
+        if (guest && keep.guest) {
+          GUEST_FIELDS.forEach(function (f) {
+            var el = root.querySelector('#' + f[0]);
+            if (el && keep.guest[f[1]]) el.value = keep.guest[f[1]];
+          });
+        }
       }
       root.querySelectorAll('[data-qty]').forEach(function (btn) {
         btn.onclick = function () {
@@ -170,7 +236,9 @@
           renderKasse(root, me, {
             birth: birth ? birth.value : '',
             age: !!(age && age.checked),
-            terms: !!(terms && terms.checked)
+            terms: !!(terms && terms.checked),
+            guestMode: guest,
+            guest: guest ? guestValues(root) : null
           });
         };
       });
@@ -181,6 +249,13 @@
         var confirmed = !!root.querySelector('#age18').checked;
         var terms = !!root.querySelector('#terms').checked;
         box.hidden = true;
+        var g = guest ? guestValues(root) : null;
+        var gp = guest ? guestProblem(g) : '';
+        if (gp) {
+          box.hidden = false;
+          box.textContent = t(gp);
+          return;
+        }
         if (!/^\d{2}\.\d{2}\.\d{4}$/.test(birth)) {
           box.hidden = false;
           box.textContent = t('Bitte Geburtsdatum als TT.MM.JJJJ angeben.');
@@ -197,11 +272,25 @@
           return;
         }
         btn.disabled = true;
-        api('/checkout', { method: 'POST', csrf: me.csrf_token, body: {
+        var body = {
           items: itemsPayload(), preview: false, birthdate: birth, age_confirmed: true, terms_accepted: true
-        } }).then(function (pay) {
+        };
+        if (guest) {
+          body.guest = g;
+          var hp = root.querySelector('#g-website');
+          body.website = hp ? hp.value : '';
+        }
+        api(path, { method: 'POST', csrf: csrf, body: body }).then(function (pay) {
           btn.disabled = false;
           if (pay.status === 200 && pay.data.integrationMode === 'PaymentPage' && pay.data.paymentUrl) {
+            if (guest) {
+              /* Nur für «Konto später anlegen» vorausfüllen. Kein Passwort, nur in diesem Tab. */
+              try {
+                sessionStorage.setItem(GUEST_KEY, JSON.stringify({
+                  name: g.name, email: g.email, address: g.address, zip: g.zip, city: g.city
+                }));
+              } catch (e) { /* privat-Modus */ }
+            }
             location.href = pay.data.paymentUrl;
             return;
           }
@@ -232,7 +321,28 @@
         + '<p class="muted">' + esc(ref) + (data && data.total_chf != null ? ' · ' + esc(money(data.total_chf)) : '') + shipBit + '</p>'
         + '<p><a href="konto.html">' + esc(t('Mein Konto')) + '</a> · <a href="kasse.html">' + esc(t('Zur Kasse')) + '</a> · <a href="index.html">' + esc(t('Zurück zum Shop')) + '</a></p>';
     }
+    var gtoken = new URLSearchParams(location.search).get('g') || '';
+    function pollWith(path, isGuest) {
+      var n = 0;
+      function poll() {
+        api(path).then(function (r) {
+          paint(r.status === 200 ? r.data : null);
+          if (isGuest) {
+            root.insertAdjacentHTML('beforeend', '<p class="muted">' + esc(t('Du hast als Gast bestellt.')) + ' <a href="konto.html?neu=1">' + esc(t('Jetzt ein Konto anlegen')) + '</a></p>');
+          }
+          n += 1;
+          if (ok && r.status === 200 && r.data.payment_status !== 'bezahlt' && r.data.payment_status !== 'paid' && n < 15) {
+            setTimeout(poll, 2000);
+          }
+        });
+      }
+      poll();
+    }
     api('/me').then(function (me) {
+      if (me.status !== 200 && /^[0-9a-f]{32}$/.test(gtoken)) {
+        pollWith('/guest/order?ref=' + encodeURIComponent(ref) + '&g=' + encodeURIComponent(gtoken), true);
+        return;
+      }
       if (me.status !== 200) {
         root.innerHTML = '<p>' + esc(t(ok ? 'Zahlung wird bestätigt' : 'Die Zahlung ist nicht durchgegangen.')) + '</p><p><a class="btn" href="konto.html?next=' + (ok ? 'kasse-ok.html' : 'kasse-fail.html') + '">' + esc(t('Anmelden')) + '</a></p>';
         return;

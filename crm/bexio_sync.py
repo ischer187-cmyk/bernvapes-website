@@ -304,6 +304,15 @@ def _split_name(name):
     return parts[0], ' '.join(parts[1:])
 
 
+def _extra_zip(cust):
+    """Gastbestellungen haben kein customer_accounts-Konto; die PLZ liegt dann in customers.extra."""
+    try:
+        extra = json.loads((cust['extra'] if cust else None) or '{}')
+    except (TypeError, ValueError, IndexError, KeyError):
+        return ''
+    return str(extra.get('zip') or '') if isinstance(extra, dict) else ''
+
+
 def _create_contact(token, cust, acc, user_id, owner_id, country_id):
     given, family = _split_name(cust['name'] if cust else '')
     line = (cust['address'] if cust and cust['address'] else None) or (acc['address'] if acc else '') or ''
@@ -314,7 +323,7 @@ def _create_contact(token, cust, acc, user_id, owner_id, country_id):
         'name_2': given,
         'street_name': street,
         'house_number': house,
-        'postcode': (acc['zip'] if acc and acc['zip'] else '') or '',
+        'postcode': (acc['zip'] if acc and acc['zip'] else '') or _extra_zip(cust),
         'city': (cust['city'] if cust and cust['city'] else None) or (acc['city'] if acc else '') or '',
         'country_id': country_id,
         'mail': cust['email'] if cust else '',

@@ -40,3 +40,9 @@ body.b2b{min-height:100vh;background:
 .b2b .nav.show{opacity:1;transform:none;pointer-events:auto;position:sticky}
 .b2b footer{opacity:.7;font-size:.78rem;margin-top:28px}
 .b2b .age{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--bv-cream);border-radius:50%;margin-right:8px;font-size:.68rem}
+.b2b .kasse-choice{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;margin-top:12px}
+.b2b .kasse-choice > div{padding:14px 16px;border:1px solid rgba(198,161,58,.4)}
+@media(max-width:700px){.b2b .kasse-choice{grid-template-columns:1fr}}
+.b2b .guesthead{margin-top:22px}
+.b2b .guestform .fld{margin-top:8px}
+.b2b .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
