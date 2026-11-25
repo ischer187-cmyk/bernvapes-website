@@ -883,3 +883,20 @@ a.cartgo[hidden]{display:none}
 #quartiere .beast .plaque .who{font-size:.76rem;line-height:1.25;margin-top:2px}
 #quartiere .plaque .tocart{margin-top:5px}
 @media (min-width:901px){#quartiere .beasts{bottom:calc(9% + 14px)}}
+
+/* Runde 8 (25.11.): Schalter «Original» vs. «On the rocks», je mit Untertitel; Bärgtier-Schalter weiter links/unten (nicht mehr unter der Nav) */
+.toggle .tg-opt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
+.toggle b.tg-opt{align-items:flex-start}
+.toggle .tg-opt small{display:block;margin-top:3px;font-family:var(--font-body);font-weight:500;font-size:.72rem;letter-spacing:0;text-transform:none;line-height:1.25;opacity:.9;white-space:normal}
+#quartiere .toggle,#bergtiere .toggle,.scene .toggle{flex-wrap:nowrap;align-items:center;max-width:min(380px,92vw)}
+#quartiere .toggle .tg-opt,#bergtiere .toggle .tg-opt{flex:1 1 0;min-width:0}
+#quartiere .toggle i,#bergtiere .toggle i{flex:0 0 auto}
+.toggle .tg-opt{text-align:left;white-space:nowrap}
+.toggle b.tg-opt{align-items:flex-end;text-align:right}
+#quartiere .toggle,#bergtiere .toggle,.scene .toggle{max-width:min(420px,94vw)}
+@media (min-width:901px){#bergtiere .toggle{top:clamp(112px,15vh,150px);right:clamp(36px,3.4vw,70px)}}
+@media (min-width:901px){#bergtiere .toggle{max-width:290px;padding:8px 12px;gap:8px;letter-spacing:.12em}#bergtiere .toggle .tg-opt small{font-size:.68rem}}
+/* Runde 8: weisser Fuchs Bärgtier blendet weich aus (1.5 s), Sichtbarkeit erst nach dem Fade weg */
+.wfox-pfote{transition:opacity .6s ease,visibility 0s linear .6s}
+.wfox-pfote.on{transition:opacity .6s ease,visibility 0s}
+.wfox-pfote.fade{transition:opacity 1.5s cubic-bezier(.4,0,.2,1),visibility 0s linear 1.5s}

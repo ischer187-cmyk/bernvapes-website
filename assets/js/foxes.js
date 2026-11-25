@@ -49,7 +49,8 @@
   function hide(s){
     if(s.peek){ try{s.peek.cancel();}catch(e){} s.peek=null; }
     if(s.hold){ clearTimeout(s.hold); s.hold=0; }
-    if(s.el) s.el.classList.remove('on');
+    if(s.fadeT){ clearTimeout(s.fadeT); s.fadeT=0; } s.fading=false;
+    if(s.el) s.el.classList.remove('on','fade');
     var img=s.el&&s.el.querySelector('img');
     if(img&&s.id==='blick') img.style.transform='translateY(70%)';
     if(s.video){ s.video.pause(); try{s.video.currentTime=0;}catch(e){} }
@@ -75,6 +76,11 @@
       }, 1300);
     };
   }
+  var FADE=1500;
+  function startFade(s){
+    s.fading=true; s.el.classList.add('fade'); s.el.classList.remove('on');
+    s.fadeT=setTimeout(function(){ s.fadeT=0; if(playing===s) finish(s); }, FADE+120);
+  }
   function finish(s){ hide(s); if(playing===s){ playing=null; cancelAnimationFrame(raf); } pauseUntil=performance.now()+GAP; played[s.id]=1; }
 
   function draw(){
@@ -97,7 +103,9 @@
       }
       ctx.putImageData(img,0,0);
     }
-    if(v.ended){ finish(s); return; }
+    /* Runde 8: weich ausblenden – Fade startet FADE ms vor Clipende, letzter Frame bleibt stehen (kein Reset/Abschneiden) */
+    if(!s.fading && v.duration && v.currentTime>=v.duration-FADE/1000) startFade(s);
+    if(v.ended){ if(!s.fading) startFade(s); return; }
     raf=requestAnimationFrame(draw);
   }
 
