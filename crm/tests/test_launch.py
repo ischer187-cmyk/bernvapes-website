@@ -258,7 +258,7 @@ class PageTests(unittest.TestCase):
         hold = mailer.SHIP_NOTICE
         kasse = (ROOT / 'assets/js/kasse.js').read_text(encoding='utf-8')
         self.assertIn(hold, kasse)
-        self.assertIn('Zahlungspflichtig bstelle', kasse)
+        self.assertIn('Zahlungspflichtig bestelle', kasse)
         self.assertIn('terms_accepted', kasse)
         self.assertIn('data-qty', kasse)
         ok = (ROOT / 'kasse-ok.html').read_text(encoding='utf-8')

@@ -61,10 +61,10 @@
   }
   var NOTICE_ALL = 'Vor dem Versand wird die Altersverifikation durchgeführt.';
   var NOTICE_NEW = 'Nach der Bestellung prüfen wir dein Alter anhand eines amtlichen Ausweises, zum Beispiel in einem kurzen Videoanruf. Ein Bild des Ausweises speichern wir nicht.';
-  var NOTICE_HOLD = 'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.';
+  var NOTICE_HOLD = 'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. Nach deiner Bestellung melden wir uns innert 2 Werktagen per E-Mail oder Telefon bei dir und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung und du bekommst dein Geld vollständig zurück.';
   var CHECK_AGE = 'Ich bin mindestens 18 Jahre alt und bestelle für mich selbst. Mir ist klar, dass Bernvapes mich vor dem Versand kontaktiert und mein Alter mit einem amtlichen Ausweis prüft.';
   var CHECK_TERMS = 'Ich habe die {agb} und die {privacy} gelesen und akzeptiere die AGB.';
-  var PAY_LABEL = 'Zahlungspflichtig bstelle';
+  var PAY_LABEL = 'Zahlungspflichtig bestelle';
   var CORRECT = 'Prüfe Produkte, Mengen und Angaben. Du kannst sie vor dem Absenden noch ändern.';
   function linesHtml(items) {
     return '<ul class="kasse-lines">' + items.map(function (it) {

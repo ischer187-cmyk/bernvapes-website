@@ -15,7 +15,7 @@ log = logging.getLogger('bernvapes.mail')
 
 SHIP_NOTICE = (
     'Versand erst nach Alterskontrolle. Wir verkaufen nur an Personen ab 18 Jahren. '
-    'Nach deiner Bestellung melden wir uns innert [2] Werktagen per E-Mail oder Telefon bei dir '
+    'Nach deiner Bestellung melden wir uns innert 2 Werktagen per E-Mail oder Telefon bei dir '
     'und prüfen dein Alter anhand eines amtlichen Ausweises. Erst danach geht dein Paket raus. '
     'Erreichen wir dich nicht oder klappt die Prüfung nicht, stornieren wir die Bestellung '
     'und du bekommst dein Geld vollständig zurück.'
