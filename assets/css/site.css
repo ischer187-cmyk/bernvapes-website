@@ -907,33 +907,11 @@ a.cartgo[hidden]{display:none}
    unter 761 px. Desktop bleibt unverändert.
    ===================================================================== */
 .mprice,.bottles .taste,.cartbar{display:none}
-@media (max-width:760px){
+@media (max-width:900px){
+  /* Szenen als Karten-Liste ab 900 px abwärts (gleiche Grenze wie mobile() in site.js).
+     Vorher lagen hier die Flaschen im 2er-Raster mit width:100 % → 600 px hoch, unscharf,
+     und ragten aus #quartiere/#bergtiere über Wärkstatt, Über üs und Footer. */
   :root{--mbar:56px}
-  /* Kopfleiste */
-  .nav,.nav.show,.nav.solid{opacity:1;transform:none;pointer-events:auto;height:var(--mbar);padding:0 16px;background:rgba(23,19,15,.94);border-bottom:1px solid rgba(198,161,58,.45);backdrop-filter:none;-webkit-backdrop-filter:none}
-  html,body{overflow-x:clip}
-  .nav .wordmark{font-size:1.1rem;letter-spacing:.12em;text-shadow:none}
-  .shopbar{top:8px;right:62px;gap:0}
-  .shopbar .navlogin,.shopbar .langsw{display:none}
-  .shopbar .navcart,.navcart{width:40px;height:40px;margin:0;border-radius:50%;background:rgba(23,19,15,.6)}
-  .navcart-n{top:-3px;right:-3px;background:var(--bv-crimson);color:var(--bv-cream)}
-  .navmenubtn{top:8px;left:auto;right:12px;width:40px;height:40px;padding:0;border-radius:50%;font-size:0;color:transparent;justify-content:center;
-    background:rgba(23,19,15,.6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='%23D8BE73' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M5 7h14M5 12h14M5 17h14'/%3E%3C/svg%3E") center/20px no-repeat}
-  .navmenubtn[aria-expanded="true"]{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='%23D8BE73' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E")}
-  /* Menü: Vollbild unter der Leiste */
-  .nav.menu-open{background:rgba(17,13,10,.98)}
-  .nav.menu-open ul{position:fixed;top:var(--mbar);left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:0;margin:0;padding:12px 22px 140px;background:rgba(17,13,10,.98);overflow-y:auto}
-  .nav.menu-open li{border-bottom:1px solid rgba(198,161,58,.25)}
-  .nav.menu-open li a{display:flex;justify-content:space-between;align-items:center;height:54px;font-size:1.15rem;font-weight:700;letter-spacing:.06em;opacity:1;text-shadow:none}
-  .nav.menu-open li a::after{content:"›";position:static;height:auto;background:none;color:var(--bv-gold);font-size:1.5rem;font-weight:300}
-  .nav.menu-open .menu-login{display:block;border:0;margin-top:22px}
-  .nav.menu-open .menu-login a{justify-content:center;height:48px;border-radius:999px;background:var(--bv-gold);color:#1b140c;font-size:.8rem;letter-spacing:.14em}
-  .nav.menu-open .menu-login a::after{content:none}
-  html.bv-menu-open,html.bv-menu-open body{overflow:hidden}
-  html.bv-menu-open .shopbar .langsw,.nav.menu-open ~ .shopbar .langsw{display:inline-flex;position:fixed;left:22px;bottom:calc(40px + env(safe-area-inset-bottom,0px));z-index:81;gap:8px;padding:0;border:0;background:none;backdrop-filter:none}
-  html.bv-menu-open .shopbar .langsw button,.nav.menu-open ~ .shopbar .langsw button{width:52px;height:38px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(214,178,94,.6);border-radius:999px;font-size:.78rem}
-  html.bv-menu-open .cartbar,.nav.menu-open ~ .cartbar{display:none!important}
-
   /* Szenen als Scroll-Liste */
   #quartiere,#bergtiere{height:auto!important}
   #quartiere .pin,#bergtiere .pin{position:relative;height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column;padding:0 0 28px}
@@ -967,6 +945,38 @@ a.cartgo[hidden]{display:none}
   .bottles .taste{display:block;grid-column:2/4;align-self:start;font-size:.8rem;color:var(--bv-sand);margin-top:2px}
   .bottles .pcol .mprice{grid-column:2;grid-row:3}
   .bottles .pcol .preorder{grid-column:3;grid-row:3;justify-self:end;margin:0;opacity:1;transform:none;font-size:.6rem;padding:.8em 1em}
+
+}
+@media (min-width:761px) and (max-width:900px){
+  #quartiere .beasts,#bergtiere .beasts,.bottles .row{width:100%;max-width:620px;margin-left:auto;margin-right:auto;box-sizing:border-box}
+  #quartiere .title.side,#bergtiere .title.side,#quartiere .toggle,#bergtiere .toggle{margin-left:max(14px,calc(50% - 310px))}
+}
+@media (max-width:760px){
+  :root{--mbar:56px}
+  /* Kopfleiste */
+  .nav,.nav.show,.nav.solid{opacity:1;transform:none;pointer-events:auto;height:var(--mbar);padding:0 16px;background:rgba(23,19,15,.94);border-bottom:1px solid rgba(198,161,58,.45);backdrop-filter:none;-webkit-backdrop-filter:none}
+  html,body{overflow-x:clip}
+  .nav .wordmark{font-size:1.1rem;letter-spacing:.12em;text-shadow:none}
+  .shopbar{top:8px;right:62px;gap:0}
+  .shopbar .navlogin,.shopbar .langsw{display:none}
+  .shopbar .navcart,.navcart{width:40px;height:40px;margin:0;border-radius:50%;background:rgba(23,19,15,.6)}
+  .navcart-n{top:-3px;right:-3px;background:var(--bv-crimson);color:var(--bv-cream)}
+  .navmenubtn{top:8px;left:auto;right:12px;width:40px;height:40px;padding:0;border-radius:50%;font-size:0;color:transparent;justify-content:center;
+    background:rgba(23,19,15,.6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='%23D8BE73' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M5 7h14M5 12h14M5 17h14'/%3E%3C/svg%3E") center/20px no-repeat}
+  .navmenubtn[aria-expanded="true"]{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='%23D8BE73' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E")}
+  /* Menü: Vollbild unter der Leiste */
+  .nav.menu-open{background:rgba(17,13,10,.98)}
+  .nav.menu-open ul{position:fixed;top:var(--mbar);left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:0;margin:0;padding:12px 22px 140px;background:rgba(17,13,10,.98);overflow-y:auto}
+  .nav.menu-open li{border-bottom:1px solid rgba(198,161,58,.25)}
+  .nav.menu-open li a{display:flex;justify-content:space-between;align-items:center;height:54px;font-size:1.15rem;font-weight:700;letter-spacing:.06em;opacity:1;text-shadow:none}
+  .nav.menu-open li a::after{content:"›";position:static;height:auto;background:none;color:var(--bv-gold);font-size:1.5rem;font-weight:300}
+  .nav.menu-open .menu-login{display:block;border:0;margin-top:22px}
+  .nav.menu-open .menu-login a{justify-content:center;height:48px;border-radius:999px;background:var(--bv-gold);color:#1b140c;font-size:.8rem;letter-spacing:.14em}
+  .nav.menu-open .menu-login a::after{content:none}
+  html.bv-menu-open,html.bv-menu-open body{overflow:hidden}
+  html.bv-menu-open .shopbar .langsw,.nav.menu-open ~ .shopbar .langsw{display:inline-flex;position:fixed;left:22px;bottom:calc(40px + env(safe-area-inset-bottom,0px));z-index:81;gap:8px;padding:0;border:0;background:none;backdrop-filter:none}
+  html.bv-menu-open .shopbar .langsw button,.nav.menu-open ~ .shopbar .langsw button{width:52px;height:38px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(214,178,94,.6);border-radius:999px;font-size:.78rem}
+  html.bv-menu-open .cartbar,.nav.menu-open ~ .cartbar{display:none!important}
 
   /* Fixe Kassen-Leiste */
   .cartbar:not([hidden]){display:flex;position:fixed;left:0;right:0;bottom:0;z-index:65;gap:10px;padding:18px 16px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(rgba(23,19,15,0),rgba(23,19,15,.97) 30%)}
