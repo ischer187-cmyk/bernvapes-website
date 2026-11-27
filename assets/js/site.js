@@ -670,3 +670,16 @@
       if(vis&&!t)t=setTimeout(tick,R(7000,16000));if(!vis&&t){clearTimeout(t);t=0;}});},{threshold:0}).observe(sec);
   });
 })();
+
+/* Mobile-Menü (Variante B, ≤760 px): Der Knopf #navmenu kommt aus account.js.
+   Hier: Scroll sperren, solange das Menü offen ist, Escape schliesst, Sprachwahl im Menü zeigen. */
+(function(){
+  const nav=document.getElementById('nav')||document.querySelector('.nav'); if(!nav) return;
+  const root=document.documentElement, mq=matchMedia('(max-width:760px)');
+  const sync=()=>{ const open=mq.matches&&nav.classList.contains('menu-open'); root.classList.toggle('bv-menu-open',open);
+    const b=document.getElementById('navmenu'); if(b) b.setAttribute('aria-expanded',open?'true':'false'); };
+  new MutationObserver(sync).observe(nav,{attributes:true,attributeFilter:['class']});
+  addEventListener('keydown',e=>{ if(e.key==='Escape'&&nav.classList.contains('menu-open')){ nav.classList.remove('menu-open'); const b=document.getElementById('navmenu'); if(b) b.focus(); } });
+  (mq.addEventListener?mq.addEventListener('change',sync):mq.addListener(sync));
+  sync();
+})();

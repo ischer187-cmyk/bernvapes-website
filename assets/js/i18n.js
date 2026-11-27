@@ -5,7 +5,7 @@
 var D={
 'Nöii Linie':['Neue Linie','New Line'],'Quartier':['Quartiere','Quarters'],'Bärgtier':['Bergtiere','Mountain Beasts'],'Wärkstatt':['Werkstatt','Workshop'],'Über üs':['Über uns','About'],'Händler':['Händler','Dealers'],
 'Neue Dampf us dr Houptstadt.':['Neuer Dampf aus der Hauptstadt.','Fresh vapour from the capital.'],
-'Lemon Pie · Lemur':['Lemon Pie · Lemur','Lemon Pie · Lemur'],'Mango Lassi · Elefant':['Mango Lassi · Elefant','Mango Lassi · Elephant'],
+'Lemon Pie · Lemur':['Lemon Pie · Lemur','Lemon Pie · Lemur'],'Zitrone · Chueche · fruchtig, früsch us em Ofe':['Zitrone · Kuchen · fruchtig, frisch aus dem Ofen','Lemon · Cake · fruity, fresh from the oven'],'Mango Lassi · Elefant':['Mango Lassi · Elefant','Mango Lassi · Elephant'],
 'Mandarine Nuss · Chipmunk':['Mandarine Nuss · Chipmunk','Mandarine Nuss · Chipmunk'],'Öpfuchueche · Roter Panda':['Apfelkuchen · Roter Panda','Apple Pie · Red Panda'],
 'Scrolle':['Scrollen','Scroll'],
 '60 ml · Schwarzi Chubby-Gorilla-Fläsche':['60 ml · Schwarze Chubby-Gorilla-Flasche','60 ml · Black chubby gorilla bottle'],
@@ -176,7 +176,7 @@ var D={
 var FR={
 'Nöii Linie':'Nouvelle ligne','Quartier':'Quartiers','Bärgtier':'Bêtes de montagne','Wärkstatt':'Atelier','Über üs':'À propos',
 'Neue Dampf us dr Houptstadt.':'De la vapeur fraîche, depuis la capitale.',
-'Lemon Pie · Lemur':'Lemon Pie · Lémur','Mango Lassi · Elefant':'Mango Lassi · Éléphant',
+'Lemon Pie · Lemur':'Lemon Pie · Lémur','Zitrone · Chueche · fruchtig, früsch us em Ofe':'Citron · Gâteau · fruité, tout juste sorti du four','Mango Lassi · Elefant':'Mango Lassi · Éléphant',
 'Mandarine Nuss · Chipmunk':'Mandarine Nuss · Chipmunk','Öpfuchueche · Roter Panda':'Tarte aux pommes · Panda roux',
 'Scrolle':'Défiler',
 '60 ml · Schwarzi Chubby-Gorilla-Fläsche':'60 ml · Flacon noir Chubby Gorilla',

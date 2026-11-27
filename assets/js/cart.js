@@ -49,6 +49,7 @@
           if(data.vat_rate!=null) BV_SHIPPING.VAT_RATE=Number(data.vat_rate);
         }
         catalogReady=true;
+        paintPrices();
         render();
       }).catch(function(){});
   }
@@ -83,6 +84,7 @@
   function render(){
     var items=load(), n=count(items);
     if(badge){ badge.textContent=String(n); badge.hidden=n<1; }
+    paintBar(items, n);
     if(!listEl) return;
     listEl.innerHTML='';
     items.forEach(function(it){
@@ -143,6 +145,37 @@
     var thr=Number(BV_SHIPPING.FREE_SHIPPING_THRESHOLD_CHF)||1;
     if(bar) bar.style.width=Math.max(0, Math.min(100, fee.subtotal/thr*100)).toFixed(1)+'%';
   }
+  /* Mobile (Variante B): fixe Kassen-Leiste unten. Auf Desktop per CSS unsichtbar. */
+  var bar, barN, barGo;
+  function paintBar(items, n){
+    if(!bar) return;
+    var off=/kasse/.test(location.pathname)||n<1;
+    bar.hidden=off;
+    document.body.classList.toggle('has-cartbar', !off);
+    if(off) return;
+    barN.textContent=n+' '+t(n===1?'Artikel':'Artikel');
+    var goods=goodsTotal(items), fee=(goods!=null&&window.BV_SHIPPING)?BV_SHIPPING.feeFor(goods):null;
+    barGo.textContent=t('Zur Kasse')+(fee?' · '+money(fee.total):'');
+  }
+  function ensureBar(){
+    bar=document.createElement('div'); bar.className='cartbar'; bar.hidden=true;
+    bar.innerHTML='<button type="button" class="cb-n"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 6 5 3H2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="20" r="1.3" fill="currentColor"/><circle cx="18" cy="20" r="1.3" fill="currentColor"/></svg><b></b></button><a class="cb-go" href="kasse.html"></a>';
+    barN=bar.querySelector('.cb-n b'); barGo=bar.querySelector('.cb-go');
+    bar.querySelector('.cb-n').addEventListener('click',function(e){ e.stopPropagation(); openPanel(panel.hidden); });
+    document.body.appendChild(bar);
+  }
+  /* Preis auf den Karten (nur mobil sichtbar, .mprice). */
+  function paintPrices(){
+    document.querySelectorAll('#quartiere .beast, #bergtiere .beast, #flaschen .pcol').forEach(function(host){
+      if(host.querySelector('.mprice')) return;
+      var name=nameOf(host), id=host.classList.contains('pcol')?slug(name):skuOf(host);
+      var u=unitOf({id:id,name:name}); if(u==null) return;
+      var el=document.createElement('span'); el.className='mprice'; el.textContent=money(u);
+      var where=host.querySelector('.plaque')||host;
+      var btnEl=where.querySelector('.tocart, .preorder');
+      if(btnEl) where.insertBefore(el, btnEl); else where.appendChild(el);
+    });
+  }
   function openPanel(on){
     if(!panel) return;
     panel.hidden=!on;
@@ -170,6 +203,7 @@
     listEl=panel.querySelector('ul'); emptyEl=panel.querySelector('.cartempty');
     toastEl=document.createElement('div'); toastEl.className='carttoast'; toastEl.setAttribute('role','status'); toastEl.setAttribute('aria-live','polite'); toastEl.hidden=true;
     document.body.appendChild(toastEl);
+    ensureBar();
     btn.addEventListener('click',function(){ openPanel(panel.hidden); });
     panel.querySelector('.cartx').addEventListener('click',function(){ openPanel(false); btn.focus(); });
     panel.querySelector('.cartclear').addEventListener('click',function(){ save([]); });
