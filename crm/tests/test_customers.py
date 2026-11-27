@@ -57,6 +57,32 @@ class CustomerAccountTests(unittest.TestCase):
         self.assertEqual(st, 200)
         self.assertTrue(data['last_login_at'])
 
+    def test_register_keeps_existing_manual_age_verification(self):
+        db = connect()
+        db.execute(
+            """insert into customers(name,email,customer_type,city,age_verified,age_verified_at,age_verify_method)
+               values('Geprüft','geprueft@example.com','Endkunde','Bern',1,'2026-11-20 10:00:00','manuell')""")
+        db.commit()
+        db.close()
+        c = harness.Client(self.port)
+        body = {'name': 'Geprüft Kunde', 'email': 'geprueft@example.com', 'password': 'kunden-passwort-1',
+                'address': 'Hauptgasse 2', 'zip': '3011', 'city': 'Bern', 'age_18': True}
+        st, data, _ = c.request('POST', '/api/b2b/customer/register', json_body=body)
+        self.assertEqual(st, 201, data)
+        db = connect()
+        cust = db.execute("select age_verified, age_verify_method, age_verified_at from customers where email='geprueft@example.com'").fetchone()
+        db.close()
+        self.assertEqual(cust['age_verified'], 1)
+        self.assertEqual(cust['age_verify_method'], 'manuell')
+        self.assertEqual(cust['age_verified_at'], '2026-11-20 10:00:00')
+        # Zweites Absenden: 409 email_taken, Altersprüfung bleibt unverändert.
+        st, data, _ = harness.Client(self.port).request('POST', '/api/b2b/customer/register', json_body=body)
+        self.assertEqual(st, 409)
+        self.assertEqual(data['error'], 'email_taken')
+        db = connect()
+        self.assertEqual(db.execute("select age_verified from customers where email='geprueft@example.com'").fetchone()[0], 1)
+        db.close()
+
     def test_existing_endkunde_can_register_and_forgot_password_is_only_logged(self):
         db = connect()
         db.execute(

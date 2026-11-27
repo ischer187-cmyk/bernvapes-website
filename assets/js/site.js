@@ -15,7 +15,10 @@
 
   /* ---------- globale Maus (geglättet) ---------- */
   const mouse={x:0,y:0,tx:0,ty:0,active:false};
-  addEventListener('pointermove',e=>{ mouse.tx=(e.clientX/innerWidth)*2-1; mouse.ty=(e.clientY/innerHeight)*2-1; mouse.active=true; },{passive:true});
+  /* Über einer Flasche / einem Warenkorb-Knopf steht die Parallaxe still. Sonst wandert der Knopf
+     unter dem Mauszeiger weg und der Klick landet daneben (Warenkorb-Knopf «reagiert nicht»). */
+  const overProduct=e=>{ const t=e.target; return !!(t&&t.closest&&t.closest('.beast, .tocart, .plaque')); };
+  addEventListener('pointermove',e=>{ if(overProduct(e)){ mouse.tx=mouse.x; mouse.ty=mouse.y; mouse.active=true; return; } mouse.tx=(e.clientX/innerWidth)*2-1; mouse.ty=(e.clientY/innerHeight)*2-1; mouse.active=true; },{passive:true});
   addEventListener('pointerleave',()=>{mouse.active=false});
 
   /* ---------- World (WebGL) ---------- */

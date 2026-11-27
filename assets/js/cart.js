@@ -235,6 +235,44 @@
     });
   }
 
+  /* Warenkorb-Knöpfe sitzen auf animierten, sich überlappenden Flaschen. Zwei Absicherungen:
+     1. Pointer-Capture: Bewegt sich der Knopf zwischen Drücken und Loslassen, zählt der Klick trotzdem.
+     2. Trifft ein Klick eine durchsichtige Fläche einer Nachbarflasche, unter der ein sichtbarer
+        Knopf liegt, geht der Klick an diesen Knopf statt an die Flasche (Lightbox/Abspielen). */
+  function shown(b){
+    if(!b||b.hidden||b.disabled) return false;
+    for(var el=b; el&&el!==document.body; el=el.parentElement){
+      var cs=getComputedStyle(el);
+      if(cs.display==='none'||cs.visibility==='hidden'||parseFloat(cs.opacity)<0.35) return false;
+    }
+    return true;
+  }
+  function cartButtonAt(x,y){
+    if(!document.elementsFromPoint) return null;
+    var list=document.elementsFromPoint(x,y);
+    for(var i=0;i<list.length;i++){
+      var el=list[i];
+      if(el.classList&&el.classList.contains('cartpanel')) return null;
+      var b=el.closest&&el.closest('.tocart');
+      if(b&&shown(b)) return b;
+    }
+    return null;
+  }
+  document.addEventListener('pointerdown',function(e){
+    var b=e.target&&e.target.closest&&e.target.closest('.tocart');
+    if(!b||e.pointerType==='touch') return;
+    try{ b.setPointerCapture(e.pointerId); }catch(err){}
+  },true);
+  document.addEventListener('click',function(e){
+    if(!e.isTrusted) return;
+    var t=e.target;
+    if(t&&t.closest&&(t.closest('.tocart')||t.closest('.cartpanel')||t.closest('.navcart'))) return;
+    var b=cartButtonAt(e.clientX,e.clientY);
+    if(!b) return;
+    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    b.click();
+  },true);
+
   window.bvCart={add:add, setQty:setQty, slug:slug, setDetail:function(sel,id,name){
     var b=document.querySelector(sel); if(!b) return; b.dataset.cart=id; b.dataset.name=name;
   }};

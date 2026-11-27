@@ -26,7 +26,10 @@
       'Letschti Aamäldig': 'Letzte Anmeldung',
       'Link isch im Mail-Log. Es wird nüt verschickt.': 'Der Link steht im Mail-Log. Es wird nichts verschickt.',
       'Wen es für die E-Mail es Konto git, chunnt e Link zum Zruggsetze.': 'Wenn es für diese E-Mail ein Konto gibt, kommt ein Link zum Zurücksetzen.',
-      'Passwort (mind. 10 Zeiche)': 'Passwort (mind. 10 Zeichen)'
+      'Passwort (mind. 10 Zeiche)': 'Passwort (mind. 10 Zeichen)',
+      'Konto aagleit. Willkomme bi Bernvapes!': 'Konto erstellt. Willkommen bei Bernvapes!',
+      'Die E-Mail isch scho registriert. Bitte aamälde.': 'Diese E-Mail ist bereits registriert. Bitte melde dich an.',
+      'Bitte warte …': 'Bitte warten …'
     };
     var german = de[s] || s;
     var lang = (window.bvI18n && window.bvI18n.lang) || 'de';
@@ -62,7 +65,7 @@
   }
   function errText(code) {
     if (code === 'login_failed') return L('Die Aamäldig het nid klappet.');
-    if (code === 'email_taken') return L('Die E-Mail git’s scho.');
+    if (code === 'email_taken') return L('Die E-Mail isch scho registriert. Bitte aamälde.');
     if (code === 'dealer_email') return window.BV_B2B_ENABLED ? L('Für Lädeli geit’s ins Händler-Portal.') : L('Die E-Mail git’s scho.');
     if (code === 'age_required') return L('Bitte 18+ bestätige.');
     if (code === 'rate_limited') return L('Z vil Versüech. Churz warte.');
@@ -189,9 +192,26 @@
     if (q.get('vergessen') || q.get('vergässe')) return 'forgot';
     return 'login';
   }
-  function renderAccount() {
+  /* Sperrt das Formular, bis die Antwort da ist. Gibt false zurück, wenn schon gesendet wird. */
+  function lock(form) {
+    if (!form || form.dataset.busy === '1') return false;
+    form.dataset.busy = '1';
+    var b = form.querySelector('button[type="submit"]');
+    if (b) { b.disabled = true; b.setAttribute('aria-busy', 'true'); b.dataset.label = b.textContent; b.textContent = L('Bitte warte …'); }
+    return true;
+  }
+  function scrollToMsg(root) {
+    var m = root && root.querySelector('.ok, .err');
+    if (!m) return;
+    try {
+      var r = m.getBoundingClientRect();
+      if (r.top < 70 || r.bottom > innerHeight) scrollTo({ top: scrollY + r.top - 90, behavior: 'smooth' });
+    } catch (e) {}
+  }
+  function renderAccount(notice) {
     var root = shell(
-      '<h2>' + esc(L('Mis Konto')) + '</h2>'
+      (notice ? '<div class="ok" role="status">' + esc(notice) + '</div>' : '')
+      + '<h2>' + esc(L('Mis Konto')) + '</h2>'
       + '<p>' + esc(me.name) + '<br>' + esc(me.email) + '</p>'
       + '<p class="muted">' + esc(me.address || '') + (me.zip || me.city ? '<br>' + esc((me.zip || '') + ' ' + (me.city || '')) : '') + '</p>'
       + '<p class="muted">' + esc(L('Registriert')) + ': ' + esc((me.created_at || '').slice(0, 16))
@@ -219,9 +239,9 @@
       });
     };
   }
-  function renderLogin(error) {
+  function renderLogin(error, email) {
     var root = shell(
-      (error ? '<div class="err">' + esc(error) + '</div>' : '')
+      (error ? '<div class="err" role="alert">' + esc(error) + '</div>' : '')
       + '<h2>' + esc(L('Aamälde')) + '</h2><form id="f">'
       + field('email', 'E-Mail', 'email', 'required autocomplete="username"')
       + field('password', 'Passwort', 'password', 'required autocomplete="current-password"')
@@ -230,9 +250,17 @@
       + (window.BV_B2B_ENABLED ? '<p class="muted"><a href="haendler.html">' + esc(L('Händler-Portal')) + '</a></p>' : '')
     );
     if (!root) return;
+    if (email) {
+      var em = root.querySelector('#email');
+      if (em) em.value = email;
+      var pw = root.querySelector('#password');
+      if (pw) pw.focus();
+    }
+    if (error) scrollToMsg(root);
     root.querySelector('#f').onsubmit = function (ev) {
       ev.preventDefault();
       var fd = new FormData(ev.target);
+      if (!lock(ev.target)) return;
       api('/login', { method: 'POST', body: { email: fd.get('email'), password: fd.get('password') } }).then(function (r) {
         if (r.status === 200 && r.data.ok) {
           me = r.data; paintHeader();
@@ -241,13 +269,13 @@
           renderAccount();
           return;
         }
-        renderLogin(errText(r.data && r.data.error));
+        renderLogin(errText(r.data && r.data.error), fd.get('email'));
       });
     };
   }
-  function renderRegister(error) {
+  function renderRegister(error, values) {
     var root = shell(
-      (error ? '<div class="err">' + esc(error) + '</div>' : '')
+      (error ? '<div class="err" role="alert">' + esc(error) + '</div>' : '')
       + '<h2>' + esc(L('Registriere')) + '</h2><form id="f"><div class="row2">'
       + field('name', 'Name', 'text', 'required autocomplete="name"')
       + field('email', 'E-Mail', 'email', 'required autocomplete="username"')
@@ -261,9 +289,25 @@
       + '<p><a href="' + esc(keepNext('konto.html')) + '">' + esc(L('Zrügg zum Aamälde')) + '</a></p>'
     );
     if (!root) return;
+    if (values) {
+      ['name', 'email', 'address', 'zip', 'city'].forEach(function (k) {
+        var el = root.querySelector('#' + k);
+        if (el && values[k] != null) el.value = values[k];
+      });
+      var ab = root.querySelector('#age_18');
+      if (ab) ab.checked = !!values.age_18;
+    }
+    if (error) scrollToMsg(root);
     root.querySelector('#f').onsubmit = function (ev) {
       ev.preventDefault();
       var fd = new FormData(ev.target);
+      /* Nur ein Request pro Absenden. Ein Doppelklick schickte sonst ein zweites /register,
+         das mit 409 zurückkam und das frisch angelegte Konto wieder mit einer Fehlermeldung überdeckte. */
+      if (!lock(ev.target)) return;
+      var values = {
+        name: fd.get('name'), email: fd.get('email'), address: fd.get('address'),
+        zip: fd.get('zip'), city: fd.get('city'), age_18: fd.get('age_18') === 'on'
+      };
       api('/register', { method: 'POST', body: {
         name: fd.get('name'), email: fd.get('email'), address: fd.get('address'),
         zip: fd.get('zip'), city: fd.get('city'), password: fd.get('password'),
@@ -271,12 +315,24 @@
       }}).then(function (r) {
         if ((r.status === 201 || r.status === 200) && r.data.ok) {
           me = r.data; paintHeader();
+          var okMsg = L('Konto aagleit. Willkomme bi Bernvapes!');
           var n = nextPage();
-          if (n) { location.href = n; return; }
-          renderAccount();
+          if (n) {
+            try { sessionStorage.setItem('bv-konto-neu', '1'); } catch (e) {}
+            location.href = n; return;
+          }
+          renderAccount(okMsg);
+          scrollToMsg(document.getElementById('konto'));
           return;
         }
-        renderRegister(errText(r.data && r.data.error));
+        var code = r.data && r.data.error;
+        if (code === 'email_taken') {
+          /* Bestehende E-Mail: direkt zum Anmelden, E-Mail schon eingetragen. */
+          if (history.replaceState) history.replaceState(null, '', keepNext('konto.html'));
+          renderLogin(errText(code), values.email);
+          return;
+        }
+        renderRegister(errText(code), values);
       });
     };
   }
@@ -325,7 +381,22 @@
     if (m === 'reset') return renderReset();
     return renderLogin();
   }
+  /* Wer sich auf dem Weg zur Kasse registriert, landet direkt dort. Die Erfolgsmeldung
+     kommt dann als kurze Einblendung auf der Zielseite. */
+  function welcomeAfterRedirect() {
+    var flag = null;
+    try { flag = sessionStorage.getItem('bv-konto-neu'); sessionStorage.removeItem('bv-konto-neu'); } catch (e) {}
+    if (!flag) return;
+    var t = document.createElement('div');
+    t.className = 'carttoast';
+    t.setAttribute('role', 'status');
+    t.setAttribute('aria-live', 'polite');
+    t.textContent = L('Konto aagleit. Willkomme bi Bernvapes!');
+    document.body.appendChild(t);
+    setTimeout(function () { t.hidden = true; }, 5000);
+  }
   function boot() {
+    welcomeAfterRedirect();
     mountHeader();
     setTimeout(mountHeader, 0);
     api('/me').then(function (r) {
