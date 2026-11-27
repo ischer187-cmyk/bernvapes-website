@@ -977,6 +977,10 @@ a.cartgo[hidden]{display:none}
   body.has-cartbar .cartpanel{bottom:88px}
   body.has-cartbar .carttoast{bottom:92px}
 
+  /* Hero-Titel: war mobil um die halbe Breite nach links verschoben (left:0 + translate -50%) */
+  #hero .title{left:50%!important;right:auto!important;top:calc(var(--mbar) + 16px);width:max-content;max-width:92vw}
+  #hero .title h2{font-size:1.45rem;letter-spacing:.08em;line-height:1.2;white-space:normal}
+
   /* Kasse und Konto */
   .b2b main{width:auto;margin:0;padding:calc(var(--mbar) + 22px) 16px 96px}
   .b2b h1{font-size:1.7rem;letter-spacing:.08em}
