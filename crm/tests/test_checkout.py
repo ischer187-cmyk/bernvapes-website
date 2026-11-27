@@ -223,7 +223,7 @@ class OrderFlowTests(unittest.TestCase):
         for sku in ('lemon-pie', 'mango-lassi', 'mandarine-nuss', 'apple-pie'):
             self.assertTrue(by_sku[sku]['preorder'], sku)
         self.assertFalse(by_sku['gipfel-adler']['preorder'])
-        self.assertAlmostEqual(by_sku['lemon-pie']['unit_chf'], 12.90, places=2)
+        self.assertAlmostEqual(by_sku['lemon-pie']['unit_chf'], 25.00, places=2)
         self.assertNotEqual(by_sku['lemon-pie']['unit_chf'], 0.01)
 
         gate = Gateway()
@@ -266,7 +266,7 @@ class OrderFlowTests(unittest.TestCase):
         lemon = next(i for i in body['lineItems'] if i['sku'] == 'lemon-pie')
         self.assertIn('Vorbestellung', lemon['name'])
         self.assertEqual(lemon['type'], 'PRODUCT')
-        self.assertAlmostEqual(lemon['amountIncludingTax'], 25.80, places=2)
+        self.assertAlmostEqual(lemon['amountIncludingTax'], 50.00, places=2)
         adler = next(i for i in body['lineItems'] if i['sku'] == 'gipfel-adler')
         self.assertNotIn('Vorbestellung', adler['name'])
         self.assertEqual(body['metaData']['integrationMode'], 'PaymentPage')
@@ -439,11 +439,11 @@ class OrderFlowTests(unittest.TestCase):
             return placed
 
         low = place([{'sku': 'lemon-pie', 'qty': 1, 'shipping_chf': 0, 'total_chf': 1}])
-        self.assertAlmostEqual(low['subtotal_chf'], 12.90, places=2)
+        self.assertAlmostEqual(low['subtotal_chf'], 25.00, places=2)
         self.assertAlmostEqual(low['shipping_chf'], 9, places=2)
-        self.assertAlmostEqual(low['total_chf'], 21.90, places=2)
+        self.assertAlmostEqual(low['total_chf'], 34.00, places=2)
         self.assertFalse(low['free_shipping'])
-        self.assertAlmostEqual(low['remaining_to_free_chf'], 37.10, places=2)
+        self.assertAlmostEqual(low['remaining_to_free_chf'], 25.00, places=2)
         versand = next(i for i in gate.body['lineItems'] if i['name'] == 'Versand')
         self.assertEqual(versand['type'], 'SHIPPING')
         self.assertEqual(versand['sku'], 'versand')
@@ -485,7 +485,7 @@ class OrderFlowTests(unittest.TestCase):
         self.assertAlmostEqual(billed, low['total_chf'], places=2)
 
         db = connect()
-        db.execute('update products set price_einstieg=? where sku=?', (50, 'lemon-pie'))
+        db.execute('update products set price_retail=? where sku=?', (50, 'lemon-pie'))
         db.commit()
         db.close()
         exact = place([{'sku': 'lemon-pie', 'qty': 1, 'shipping_chf': 99}])

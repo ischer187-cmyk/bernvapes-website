@@ -9,7 +9,7 @@ from auth import (
 from crmlib import enroll_prospects
 from mailer import deliver, invite_mail
 from orders import process_order
-from pricing import TIER_LABEL, normalize_tier, normalize_uid, unit_price
+from pricing import TIER_LABEL, is_orderable, normalize_tier, normalize_uid, unit_price
 from db import IntegrityError
 
 DEALER_COOKIE = 'bv_dealer'
@@ -111,7 +111,8 @@ def handle(handler, method, path):
             rows = conn.execute('select * from products where coalesce(active,1)=1 order by bottle_ml, name').fetchall()
             products = []
             for p in rows:
-                item = {'sku': p['sku'], 'name': p['name'], 'bottle_ml': p['bottle_ml'], 'sample_price': bool(p['sample_price'])}
+                item = {'sku': p['sku'], 'name': p['name'], 'bottle_ml': p['bottle_ml'], 'sample_price': bool(p['sample_price']),
+                        'orderable': is_orderable(p)}
                 if visible:
                     unit, over = unit_price(conn, dealer['id'], p)
                     item['unit_chf'] = unit

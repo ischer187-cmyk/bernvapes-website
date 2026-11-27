@@ -2,13 +2,15 @@
 
 Pre-order bottles (Lemon Pie, Mango Lassi, Mandarine Nuss, Apple Pie) use the
 same payment. The line is stored with preorder=1. Prices come from the product
-table (price_einstieg), never from the browser.
+table (price_retail, else the sample price_einstieg), never from the browser.
+Articles with orderable=0 (sold out) are listed but cannot be bought.
 """
 import datetime, logging, os, re
 from bexio_sync import sync_paid_order
 from db import IntegrityError
 from mailer import SHIP_NOTICE, deliver, order_mail
 import postfinance
+from pricing import is_orderable
 from shipping import FREE_SHIPPING_THRESHOLD_CHF, SHIPPING_FEE_CHF, VAT_RATE, shipping_for
 
 PREORDER_SKUS = ('lemon-pie', 'mango-lassi', 'mandarine-nuss', 'apple-pie')
@@ -148,10 +150,21 @@ def public_catalog(conn):
     products = []
     for r in rows:
         unit, is_retail = consumer_unit(r)
-        products.append({
+        item = {
             'sku': r['sku'], 'name': r['name'], 'price_chf': unit,
             'retail': is_retail, 'sample_price': not is_retail,
-        })
+            'orderable': is_orderable(r),
+        }
+        keys = r.keys()
+        for col, key in (('product_line', 'line'), ('size_label', 'size'), ('description', 'description'),
+                         ('image', 'image')):
+            if col in keys and r[col]:
+                item[key] = r[col]
+        if 'image_placeholder' in keys and r['image_placeholder']:
+            item['image_placeholder'] = True
+        if not item['orderable']:
+            item['sold_out'] = True
+        products.append(item)
     return {
         'ok': True,
         'currency': 'CHF',
@@ -196,6 +209,8 @@ def price_items(conn, items):
         prod = _resolve(by, item)
         if not prod:
             raise CheckoutError(422, 'unknown_item')
+        if not is_orderable(prod):
+            raise CheckoutError(409, 'sold_out')
         try:
             qty = int(item.get('qty') or 1)
         except (TypeError, ValueError):

@@ -1,7 +1,7 @@
 """Order intake shared by POST /webhook/order and the B2B portal."""
 from crmlib import convert, set_member_status
 from bexio_billing import BexioBilling
-from pricing import unit_price
+from pricing import is_orderable, unit_price
 
 def _num(v, default=0.0):
     if v is None or v == '':
@@ -48,6 +48,8 @@ def process_order(c, d, customer_id=None, dealer_id=None):
             prod = c.execute('select * from products where sku=? and coalesce(active,1)=1', (sku,)).fetchone()
             if not prod:
                 raise ValueError('unknown sku')
+            if not is_orderable(prod):
+                raise ValueError('sold out')
             qty = int(i.get('qty', 1))
             if qty < 1 or qty > 999:
                 raise ValueError('invalid qty')
