@@ -6,6 +6,10 @@ import re
 from pathlib import Path
 
 CONFIG = Path(__file__).resolve().parents[1] / 'assets' / 'js' / 'shipping-config.js'
+# Im Docker-Image liegt nur crm/. Ohne Mount von ../assets nimmt das CRM die mitgebaute Kopie.
+# Ein Test stellt sicher, dass beide Dateien identisch sind.
+if not CONFIG.is_file():
+    CONFIG = Path(__file__).resolve().parent / 'shipping-config.js'
 
 
 def _load():
