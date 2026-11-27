@@ -900,3 +900,104 @@ a.cartgo[hidden]{display:none}
 .wfox-pfote{transition:opacity .6s ease,visibility 0s linear .6s}
 .wfox-pfote.on{transition:opacity .6s ease,visibility 0s}
 .wfox-pfote.fade{transition:opacity 1.5s cubic-bezier(.4,0,.2,1),visibility 0s linear 1.5s}
+
+/* =====================================================================
+   Mobile-Konzept Variante B (≤760 px): schlanke Kopfleiste, Menü,
+   Scroll-Liste mit Karten, fixe Kassen-Leiste. Alles hier wirkt nur
+   unter 761 px. Desktop bleibt unverändert.
+   ===================================================================== */
+.mprice,.bottles .taste,.cartbar{display:none}
+@media (max-width:900px){
+  /* Szenen als Karten-Liste ab 900 px abwärts (gleiche Grenze wie mobile() in site.js).
+     Vorher lagen hier die Flaschen im 2er-Raster mit width:100 % → 600 px hoch, unscharf,
+     und ragten aus #quartiere/#bergtiere über Wärkstatt, Über üs und Footer. */
+  :root{--mbar:56px}
+  /* Szenen als Scroll-Liste */
+  #quartiere,#bergtiere{height:auto!important}
+  #quartiere .pin,#bergtiere .pin{position:relative;height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column;padding:0 0 28px}
+  #quartiere .pin>canvas.world,#bergtiere .pin>canvas.world,#quartiere .pin>canvas.snow,#bergtiere .pin>canvas.snow{position:sticky;top:0;left:0;display:block;width:100%!important;height:100vh!important;height:100svh!important;margin-bottom:-100vh;margin-bottom:-100svh;flex:none}
+  #quartiere .pin>canvas.world.winter,#bergtiere .pin>canvas.world.winter{display:none}
+  #quartiere .qclouds,#quartiere .flash,#quartiere canvas.grass,#quartiere .fx.vignette,#bergtiere .fx.vignette,#bergtiere .lifts,#bergtiere .mist{display:none}
+  #quartiere .title.side,#bergtiere .title.side{position:relative;order:1;top:auto;left:auto;right:auto;margin:calc(var(--mbar) + 18px) 14px 0;z-index:4}
+  #quartiere .title.side h2{white-space:normal}
+  #quartiere .toggle,#bergtiere .toggle{position:relative;order:2;top:auto!important;right:auto!important;bottom:auto;left:auto;align-self:flex-start;margin:12px 14px 4px;z-index:4}
+  #quartiere .beasts,#bergtiere .beasts{position:relative;order:3;inset:auto;display:flex;flex-direction:column;gap:10px;padding:10px 14px 0;z-index:4}
+  #quartiere .beast,#bergtiere .beast{position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;width:auto!important;
+    display:grid!important;grid-template-columns:96px minmax(0,1fr);min-height:128px;max-width:none;align-self:stretch;margin:0!important;opacity:1!important;transform:none!important;animation:none!important;transition:none!important;
+    background:rgba(23,19,15,.82);border:1px solid rgba(198,161,58,.42);border-radius:18px;overflow:hidden;text-align:left;filter:none!important}
+  #quartiere:not(.cool) .beast[data-season="w"],#quartiere.cool .beast[data-season="s"],#bergtiere:not(.cool) .beast[data-season="w"],#bergtiere.cool .beast[data-season="s"]{display:none!important}
+  #quartiere .beast .duo,#bergtiere .beast .duo{grid-column:1;display:flex;justify-content:center;align-items:flex-start;background:rgba(231,217,182,.12);overflow:hidden;transform:none!important}
+  #quartiere .beast .bottle3,#bergtiere .beast .bottle3{width:42px!important;flex:none;margin:8px 0 -24px;animation:none!important;transform:none!important}
+  #quartiere .beast .plaque,#bergtiere .beast .plaque{grid-column:2;position:static!important;opacity:1!important;transform:none!important;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-auto-rows:auto;align-content:start;align-items:center;min-width:0;width:auto!important;margin:0;padding:12px 14px;white-space:normal;max-width:none;background:none;border:0;outline:0;color:var(--bv-cream);text-align:left}
+  #quartiere .beast .plaque .flavor,#bergtiere .beast .plaque .flavor,#quartiere .beast .plaque .who,#bergtiere .beast .plaque .who{grid-column:1/3;white-space:normal;min-width:0}
+  #quartiere .beast .plaque .flavor,#bergtiere .beast .plaque .flavor{font-family:var(--font-head);font-weight:700;font-size:1.02rem;letter-spacing:.04em;color:var(--bv-cream)}
+  #quartiere .beast .plaque .who,#bergtiere .beast .plaque .who{font-family:var(--font-body);font-size:.8rem;letter-spacing:.01em;text-transform:none;opacity:.85;color:var(--bv-sand);margin-top:3px}
+  .scene .beast.dim{opacity:1!important}
+  .mprice{display:block;padding-top:10px;font-family:var(--font-head);font-weight:700;font-size:1.02rem;color:var(--bv-gold-soft)}
+  #quartiere .plaque .tocart,#bergtiere .plaque .tocart{grid-column:2;justify-self:end;margin:10px 0 0;font-size:.6rem;padding:.8em 1em}
+  #bergtiere .beast .plaque{bottom:auto!important}
+
+  /* Nöii Linie: gleiche Karten */
+  .bottles .row{display:flex;flex-direction:column;gap:10px;align-items:stretch;margin:0 14px}
+  .bottles .pcol{display:grid;grid-template-columns:96px minmax(0,1fr) auto;grid-template-rows:auto auto 1fr;align-items:end;column-gap:14px;text-align:left;background:rgba(23,19,15,.82);border:1px solid rgba(198,161,58,.42);border-radius:18px;overflow:hidden;padding:0 14px 12px 0;min-height:140px}
+  .bottles .pcol .bottle3{grid-row:1/4;align-self:start;width:44px!important;justify-self:center;margin-top:8px;transform:none}
+  .bottles .pcol .lbl{grid-column:2/4;align-self:start;padding-top:12px;font-family:var(--font-head);font-weight:700;font-size:1.02rem;letter-spacing:.04em;text-align:left}
+  .bottles .taste{display:block;grid-column:2/4;align-self:start;font-size:.8rem;color:var(--bv-sand);margin-top:2px}
+  .bottles .pcol .mprice{grid-column:2;grid-row:3}
+  .bottles .pcol .preorder{grid-column:3;grid-row:3;justify-self:end;margin:0;opacity:1;transform:none;font-size:.6rem;padding:.8em 1em}
+
+}
+@media (min-width:761px) and (max-width:900px){
+  #quartiere .beasts,#bergtiere .beasts,.bottles .row{width:100%;max-width:620px;margin-left:auto;margin-right:auto;box-sizing:border-box}
+  #quartiere .title.side,#bergtiere .title.side,#quartiere .toggle,#bergtiere .toggle{margin-left:max(14px,calc(50% - 310px))}
+}
+@media (max-width:760px){
+  :root{--mbar:56px}
+  /* Kopfleiste */
+  .nav,.nav.show,.nav.solid{opacity:1;transform:none;pointer-events:auto;height:var(--mbar);padding:0 16px;background:rgba(23,19,15,.94);border-bottom:1px solid rgba(198,161,58,.45);backdrop-filter:none;-webkit-backdrop-filter:none}
+  html,body{overflow-x:clip}
+  .nav .wordmark{font-size:1.1rem;letter-spacing:.12em;text-shadow:none}
+  .shopbar{top:8px;right:62px;gap:0}
+  .shopbar .navlogin,.shopbar .langsw{display:none}
+  .shopbar .navcart,.navcart{width:40px;height:40px;margin:0;border-radius:50%;background:rgba(23,19,15,.6)}
+  .navcart-n{top:-3px;right:-3px;background:var(--bv-crimson);color:var(--bv-cream)}
+  .navmenubtn{top:8px;left:auto;right:12px;width:40px;height:40px;padding:0;border-radius:50%;font-size:0;color:transparent;justify-content:center;
+    background:rgba(23,19,15,.6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='%23D8BE73' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M5 7h14M5 12h14M5 17h14'/%3E%3C/svg%3E") center/20px no-repeat}
+  .navmenubtn[aria-expanded="true"]{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='%23D8BE73' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E")}
+  /* Menü: Vollbild unter der Leiste */
+  .nav.menu-open{background:rgba(17,13,10,.98)}
+  .nav.menu-open ul{position:fixed;top:var(--mbar);left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:0;margin:0;padding:12px 22px 140px;background:rgba(17,13,10,.98);overflow-y:auto}
+  .nav.menu-open li{border-bottom:1px solid rgba(198,161,58,.25)}
+  .nav.menu-open li a{display:flex;justify-content:space-between;align-items:center;height:54px;font-size:1.15rem;font-weight:700;letter-spacing:.06em;opacity:1;text-shadow:none}
+  .nav.menu-open li a::after{content:"›";position:static;height:auto;background:none;color:var(--bv-gold);font-size:1.5rem;font-weight:300}
+  .nav.menu-open .menu-login{display:block;border:0;margin-top:22px}
+  .nav.menu-open .menu-login a{justify-content:center;height:48px;border-radius:999px;background:var(--bv-gold);color:#1b140c;font-size:.8rem;letter-spacing:.14em}
+  .nav.menu-open .menu-login a::after{content:none}
+  html.bv-menu-open,html.bv-menu-open body{overflow:hidden}
+  html.bv-menu-open .shopbar .langsw,.nav.menu-open ~ .shopbar .langsw{display:inline-flex;position:fixed;left:22px;bottom:calc(40px + env(safe-area-inset-bottom,0px));z-index:81;gap:8px;padding:0;border:0;background:none;backdrop-filter:none}
+  html.bv-menu-open .shopbar .langsw button,.nav.menu-open ~ .shopbar .langsw button{width:52px;height:38px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(214,178,94,.6);border-radius:999px;font-size:.78rem}
+  html.bv-menu-open .cartbar,.nav.menu-open ~ .cartbar{display:none!important}
+
+  /* Fixe Kassen-Leiste */
+  .cartbar:not([hidden]){display:flex;position:fixed;left:0;right:0;bottom:0;z-index:65;gap:10px;padding:18px 16px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(rgba(23,19,15,0),rgba(23,19,15,.97) 30%)}
+  .cartbar .cb-n{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 16px;border:1px solid var(--bv-gold);border-radius:999px;background:var(--bv-ink);color:var(--bv-gold-soft);font-size:.82rem;font-weight:500;cursor:pointer}
+  .cartbar .cb-n svg{width:18px;height:18px}
+  .cartbar .cb-go{flex:1;display:inline-flex;align-items:center;justify-content:center;height:48px;border-radius:999px;background:var(--bv-gold);color:#1b140c;font-family:var(--font-head);font-weight:700;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+  body.has-cartbar{padding-bottom:84px}
+  body.has-cartbar .cartpanel{bottom:88px}
+  body.has-cartbar .carttoast{bottom:92px}
+
+  /* Hero-Titel: war mobil um die halbe Breite nach links verschoben (left:0 + translate -50%) */
+  #hero .title{left:50%!important;right:auto!important;top:calc(var(--mbar) + 16px);width:max-content;max-width:92vw}
+  #hero .title h2{font-size:1.45rem;letter-spacing:.08em;line-height:1.2;white-space:normal}
+
+  /* Kasse und Konto */
+  .b2b main{width:auto;margin:0;padding:calc(var(--mbar) + 22px) 16px 96px}
+  .b2b h1{font-size:1.7rem;letter-spacing:.08em}
+  .b2b .panel{margin-top:18px;padding:16px;border-radius:16px;outline:0}
+  .b2b input,.b2b select{min-height:46px;border-radius:12px;font-size:16px}
+  .b2b .panel .btn,.b2b main .btn{display:flex;width:100%;justify-content:center;align-items:center;min-height:50px;border-radius:999px;background:var(--bv-gold);color:#1b140c;outline:0;font-weight:700}
+  .b2b .panel .btn.ghost{background:transparent;color:var(--bv-gold-soft);border:1px solid var(--bv-gold)}
+  .b2b .kasse-lines li{align-items:center}
+  .b2b .kasse-total{font-size:1.1rem}
+}

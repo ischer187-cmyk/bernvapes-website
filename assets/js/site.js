@@ -128,7 +128,8 @@
 
   /* ---------- Fox-Scrub (Bildsequenz mit Alpha) ---------- */
   class FoxScrub{
-    constructor(canvas,base,count){
+    constructor(canvas,base,count,opts){
+      this.m=!!(opts&&opts.mobile);   /* Handy-Satz (fox_mobile, 960×540): kleiner Canvas-Puffer, nächstes geladenes Bild statt Frame 0, Adressleiste ignorieren */
       this.c=canvas; this.ctx=canvas.getContext('2d'); this.frames=[]; this.count=count; this.loaded=0; this.idx=-1; this.target=0; this.cur=0; this.ready=false;
       this.c.style.opacity='0'; this.c.style.transform='scale(.96)'; this.c.style.transformOrigin='50% 42%';
       this.c.style.transition='opacity .7s ease, transform .8s cubic-bezier(.16,.84,.28,1)';
@@ -137,6 +138,7 @@
          verdrängen die Produktbilder (Apple Pie, Mango Lassi, Quartier, Berg). */
       this._load=(i)=>{
         if(i<0||i>=count) return null;
+        if(this.m&&i>0&&i<28) return null;   /* Frames 1–27 = gleicher Kopf wie Frame 0, werden nie gezeichnet (siehe tick) */
         let im=this.frames[i];
         if(im&&im.getAttribute('data-on')==='1') return im;
         if(!im){ im=new Image(); this.frames[i]=im; }
@@ -151,10 +153,11 @@
         return im;
       };
       this._window=(i)=>{
-        for(let k=i-2;k<=i+5;k++) this._load(k);
+        const c=(this.m&&i<28)?28:i;   /* Handy: im Stand schon die ersten Bruch-Frames (ab 28) vorladen, damit der erste Wisch nicht wartet */
+        for(let k=c-2;k<=c+(this.m?10:5);k++) this._load(k);
         this._load(0);
         for(let k=1;k<count;k++){
-          if(Math.abs(k-i)>12 && this.frames[k]){
+          if(Math.abs(k-c)>12 && this.frames[k]){
             const old=this.frames[k]; old.onload=old.onerror=null; old.src=''; this.frames[k]=null;
           }
         }
@@ -164,9 +167,18 @@
       this.win=new Image(); this.win.onload=()=>this.draw(this.idx,true); this.win.src=bv(base+'window.webp');   /* Fenster in Fuchs-Silhouette (hart, für den Stand) */
       this.winSoft=new Image(); this.winSoft.src=bv(base+'window_soft.webp');                                     /* weiche Variante, blendet mit der Bewegung ein */
       this.black=1;
-      this.resize(); addEventListener('resize',()=>{this.resize(); this.draw(this.idx,true);});
+      this.resize(); addEventListener('resize',()=>{ if(this.resize()!==false) this.draw(this.idx,true); });
     }
-    resize(){ const dpr=Math.min(devicePixelRatio||1,1.5); this.c.width=Math.round(innerWidth*dpr); this.c.height=Math.round(innerHeight*dpr); }
+    resize(){
+      if(this.m){
+        /* Handy: Grösse vom Canvas selbst (Pin = 100svh), nicht von innerHeight. Ein- und Ausblenden der
+           iOS-Adressleiste ändert so nichts, der Puffer wird nicht neu angelegt (kein Ruckeln, kein Leerbild). */
+        const dpr=Math.min(devicePixelRatio||1,2), cw=this.c.clientWidth||innerWidth, ch=this.c.clientHeight||innerHeight;
+        const W=Math.round(cw*dpr), H=Math.round(ch*dpr);
+        if(W===this.c.width&&Math.abs(H-this.c.height)<2) return false;
+        this.c.width=W; this.c.height=H; return;
+      }
+      const dpr=Math.min(devicePixelRatio||1,1.5); this.c.width=Math.round(innerWidth*dpr); this.c.height=Math.round(innerHeight*dpr); }
     draw(pos,force){
       if(!this.ready&&!force) return;
       const max=this.count-1;
@@ -179,7 +191,11 @@
       this.lastVg=this.vignette; this.lastGlow=this.glow; this.lastFire=this.fire; this.lastSoft=this.soft; this.lastFA=this.frameAlpha;
       if(this._window) this._window(i);
       let im=this.frames[i];
-      if(!im||!im.complete||!im.naturalWidth){ const z=this.frames[0]; if(z&&z.naturalWidth) im=z; else return; }
+      if(!im||!im.complete||!im.naturalWidth){
+        let z=null;
+        if(this.m){ for(let d=1;d<this.count&&!z;d++){ const a=this.frames[i-d], b=this.frames[i+d]; if(a&&a.naturalWidth&&a.getAttribute('data-on')==='1') z=a; else if(b&&b.naturalWidth&&b.getAttribute('data-on')==='1') z=b; } }   /* Handy: nächstes geladenes Bild, kein Sprung zurück zum ganzen Kopf */
+        if(!z) z=this.frames[0];
+        if(z&&z.naturalWidth) im=z; else return; }
       this.idx=i; this.lastScale=this.scale; this.lastBlack=this.black; const W=this.c.width,H=this.c.height; const ctx=this.ctx;
       const s=Math.min(W/im.naturalWidth,H/im.naturalHeight)*(this.scale||1); const w=im.naturalWidth*s,h=im.naturalHeight*s, x=(W-w)/2, y=(H-h)/2-H*0.15*Math.max(0,Math.min(1,this.black==null?1:this.black));   /* Intro: Kopf ~15 % höher (Platz für Wortmarke darunter), gleitet beim Aufbrechen zurück in die Mitte; contain: ganzer Kopf immer sichtbar */
       ctx.clearRect(0,0,W,H);
@@ -412,13 +428,18 @@
   const hero=document.getElementById('hero');
   let fox=null, heroWorld=null;
   if(hero){
-    const fc=hero.querySelector('canvas.fox'); fox=new FoxScrub(fc,fc.dataset.base,parseInt(fc.dataset.count,10));
+    const fc=hero.querySelector('canvas.fox');
+    const foxM=!!fc.dataset.baseMobile&&matchMedia('(max-width:760px)').matches;   /* Handy: leichter Bildsatz, Desktop bleibt bei fox_hd */
+    fox=new FoxScrub(fc,foxM?fc.dataset.baseMobile:fc.dataset.base,parseInt(fc.dataset.count,10),{mobile:foxM});
     heroWorld=worlds['hero']; const brand=hero.querySelector('.brand'), black=hero.querySelector('.black'), beasts=hero.querySelector('.beasts'), hint=hero.querySelector('.hint');
     const nav=document.getElementById('nav');
     let autoP=0, autoStart=null;
     function updateHero(now){
       let p;
-      if(mobile()){ p=hero._touchP||0; }   // Mobile: der Hero ist nicht lang. Ziehen scrubbt den Kopf.
+      if(mobile()){
+        if(hero._auto&&!hero._drag){ const ad=Math.min(0.05,(now-(hero._autoT||now))/1000); hero._touchP=Math.min(1,(hero._touchP||0)+ad/1.5); if(hero._touchP>=1) hero._auto=0; }
+        hero._autoT=now;
+        p=hero._touchP||0; }   // Mobile: der Hero ist nicht lang. Ziehen scrubbt den Kopf.
       else p=sceneProgress(hero);
       if(window.BV_FORCE_P!=null) p=window.BV_FORCE_P;          /* Debug/Test */
       /* Scroll→Scrub mit Ease-out-Quart + Tempo-Deckel:
@@ -475,7 +496,7 @@
     const pin=hero.querySelector('.pin');
     if(pin){
       pin.addEventListener('pointerdown',e=>{
-        if(!mobile()||e.button>0||e.target.closest('a,button,.beast,.toggle')) return;
+        if(!mobile()||e.button>0||e.pointerType==='touch'||e.target.closest('a,button,.beast,.toggle')) return;
         hero._drag={y:e.clientY,p:hero._touchP||0,id:e.pointerId};
         try{ pin.setPointerCapture(e.pointerId); }catch(err){}
       });
@@ -486,6 +507,29 @@
       const end=e=>{ if(hero._drag&&(!e||hero._drag.id===e.pointerId)) hero._drag=null; };
       pin.addEventListener('pointerup',end);
       pin.addEventListener('pointercancel',end);
+      /* Intro-Bremse fürs Handy: Solange die Seite ganz oben steht, scrubbt ein Wisch den Kopf statt zu scrollen.
+         Wer nach oben wischt und loslässt, startet die Explosion, sie läuft von selbst fertig (ca. 1.5 s).
+         Ist der Kopf weg, scrollt der nächste Wisch normal. Zurückwischen ganz oben holt den Kopf zurück. */
+      let tt=null;
+      pin.addEventListener('touchstart',e=>{
+        if(!mobile()||e.touches.length!==1||e.target.closest('a,button,.toggle')||(e.target.closest('.beast')&&hero.classList.contains('phase-b'))){ tt=null; return; }   /* unsichtbare Tiere (vor Phase B) blockieren den Wisch nicht */
+        tt={y:e.touches[0].clientY,p:hero._touchP||0,last:e.touches[0].clientY,dir:0,on:scrollY<=4};
+        hero._auto=0;
+      },{passive:true});
+      pin.addEventListener('touchmove',e=>{
+        if(!tt||!tt.on) return;
+        const y=e.touches[0].clientY, dy=tt.y-y, cur=hero._touchP||0;
+        tt.dir=Math.sign(tt.last-y)||tt.dir; tt.last=y;
+        if((dy>0&&(cur<1||tt.p<1))||(dy<0&&tt.p>0)){
+          if(e.cancelable) e.preventDefault();
+          hero._drag={touch:1}; hero._touchP=clamp(tt.p+dy/(innerHeight*1.15),0,1);
+        }
+      },{passive:false});
+      const tend=()=>{ if(!tt) return; if(hero._drag&&hero._drag.touch) hero._drag=null;
+        if(tt.on&&tt.dir>0&&(hero._touchP||0)>0.04&&(hero._touchP||0)<1){ hero._auto=1; hero._autoT=performance.now(); }
+        tt=null; };
+      pin.addEventListener('touchend',tend,{passive:true});
+      pin.addEventListener('touchcancel',tend,{passive:true});
     }
   }
 
@@ -672,4 +716,17 @@
     new IntersectionObserver(es=>{es.forEach(en=>{vis=en.isIntersecting;
       if(vis&&!t)t=setTimeout(tick,R(7000,16000));if(!vis&&t){clearTimeout(t);t=0;}});},{threshold:0}).observe(sec);
   });
+})();
+
+/* Mobile-Menü (Variante B, ≤760 px): Der Knopf #navmenu kommt aus account.js.
+   Hier: Scroll sperren, solange das Menü offen ist, Escape schliesst, Sprachwahl im Menü zeigen. */
+(function(){
+  const nav=document.getElementById('nav')||document.querySelector('.nav'); if(!nav) return;
+  const root=document.documentElement, mq=matchMedia('(max-width:760px)');
+  const sync=()=>{ const open=mq.matches&&nav.classList.contains('menu-open'); root.classList.toggle('bv-menu-open',open);
+    const b=document.getElementById('navmenu'); if(b) b.setAttribute('aria-expanded',open?'true':'false'); };
+  new MutationObserver(sync).observe(nav,{attributes:true,attributeFilter:['class']});
+  addEventListener('keydown',e=>{ if(e.key==='Escape'&&nav.classList.contains('menu-open')){ nav.classList.remove('menu-open'); const b=document.getElementById('navmenu'); if(b) b.focus(); } });
+  (mq.addEventListener?mq.addEventListener('change',sync):mq.addListener(sync));
+  sync();
 })();

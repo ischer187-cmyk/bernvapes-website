@@ -45,7 +45,7 @@ def sources():
 
 def dynamic_files():
     files = []
-    for folder in (ROOT / 'assets/web/fox_hd', ROOT / 'assets/web/fox3'):
+    for folder in (ROOT / 'assets/web/fox_hd', ROOT / 'assets/web/fox_mobile', ROOT / 'assets/web/fox3'):
         if folder.is_dir():
             files.extend(p for p in folder.iterdir() if p.is_file())
     return files
@@ -88,7 +88,7 @@ def main():
     # Its own hash is stamped onto the script tag above, so it is not in the map.
     lines = ['window.BV_HASH={']
     for rel in sorted(hashes):
-        if not (rel.startswith('assets/web/fox_hd/') or rel.startswith('assets/web/fox3/')):
+        if not (rel.startswith('assets/web/fox_hd/') or rel.startswith('assets/web/fox_mobile/') or rel.startswith('assets/web/fox3/')):
             continue
         lines.append(f'{rel!r}:{hashes[rel]!r},')
     lines.append('};')
