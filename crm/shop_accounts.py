@@ -146,8 +146,12 @@ def _register(handler, conn, ip, data):
     if existing:
         cid = existing['id']
         conn.execute(
+            # Eine bereits erfolgte Altersprüfung (z. B. manuell im CRM) bleibt bestehen.
+            # Die Registrierung setzt sie nie auf «nicht geprüft» zurück.
             """update customers set name=?, address=?, city=?, customer_type='Endkunde',
-               age_verified_at=?, age_verify_method='checkbox', age_verified=0, updated_at=datetime('now')
+               age_verified_at=case when coalesce(age_verified,0)=1 then age_verified_at else ? end,
+               age_verify_method=case when coalesce(age_verified,0)=1 then age_verify_method else 'checkbox' end,
+               updated_at=datetime('now')
                where id=?""",
             (name, address, city, now, cid))
     else:
